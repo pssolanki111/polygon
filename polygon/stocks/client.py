@@ -371,7 +371,7 @@ class PolygonClient:
 
 if __name__ == '__main__':  # Tests
     from pprint import pprint
-    import cred
+    from polygon import cred
 
     print('Don\'t You Dare Running Lib Files Directly :/')
     client = PolygonClient(cred.KEY)

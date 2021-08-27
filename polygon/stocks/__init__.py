@@ -1,1 +1,1 @@
-from client import PolygonClient
+from .client import PolygonClient

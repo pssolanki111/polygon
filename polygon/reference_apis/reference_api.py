@@ -120,6 +120,29 @@ class ReferenceClient:
 
         return _res.json()
 
+    def get_next_page_tickers(self, old_response: Union[Response, dict],
+                              raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the next page using the most recent yet old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages).
+        :param old_response:
+        :param raw_response:
+        :return:
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+
 # ========================================================= #
 
 
@@ -129,6 +152,8 @@ if __name__ == '__main__':
 
     print('Don\'t You Dare Running Lib Files Directly :/')
     client = ReferenceClient(cred.KEY)
+
+    pprint(client.get_tickers(limit=500))
 
 
 # ========================================================= #

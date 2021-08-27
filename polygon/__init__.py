@@ -1,1 +1,1 @@
-from stocks import PolygonClient
+from .stocks import PolygonClient

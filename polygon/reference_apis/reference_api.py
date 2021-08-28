@@ -126,9 +126,10 @@ class ReferenceClient:
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages).
-        :param old_response:
-        :param raw_response:
-        :return:
+        :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
         """
 
         try:
@@ -142,6 +143,295 @@ class ReferenceClient:
         except KeyError:
             return False
 
+    def get_ticker_types(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a mapping of ticker types to their descriptive names.
+        Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = '/v2/reference/types'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
+        information such as name, sector, exchange, logo and similar companies.
+        Official Docs: https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor
+        :param symbol: The ticker symbol of the stock/equity.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = f'/v1/meta/symbols/{symbol.upper()}/company'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_ticker_details_vx(self, symbol: str, date: Union[str, datetime.date, datetime.datetime],
+                              raw_response: bool = False) -> Union[Response, dict]:
+        """
+        This API is Experimental and will replace Ticker Details in future. It is recommended NOT to use this just
+        yet as the endpoint name is likely to change and you might end up with a codebase that you'll dread to maintain.
+        Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
+         the company behind it.
+         Official Docs: https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor
+        :param symbol: The ticker symbol of the asset.
+        :param date:Specify a point in time to get information about the ticker available on that date. When retrieving
+         information from SEC filings, we compare this date with the period of report date on the SEC filing.
+         Defaults to the most recent available date.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+            date = date.strftime('%Y-%m-%d')
+
+        _path = f'/vX/reference/tickers/{symbol.upper()}'
+
+        _data = {'date': date}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_ticker_news(self, symbol: str = None, limit: int = 100, order: str = 'desc', sort: str = 'published_utc',
+                        ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
+                        published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
+                        raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
+        link to the original source.
+        Official Docs: https://polygon.io/docs/get_v2_reference_news_anchor
+        :param symbol: To get news mentioning the name given. Defaults to empty which doesn't filter tickers
+        :param limit: Limit the size of the response, default is 100 and max is 1000. Use pagination helper function
+        for larger responses.
+        :param order: Order the results in asc or desc order. Defaults to desc.
+        :param sort: The field key to sort the results on. Defaults to published_utc DateTime.
+        :param ticker_lt: Return results where this field is less than the value.
+        :param ticker_lte: Return results where this field is less than or equal to the value.
+        :param ticker_gt: Return results where this field is greater than the value
+        :param ticker_gte: Return results where this field is greater than or equal to the value.
+        :param published_utc: A date string 'YYYY-MM-DD' or datetime for published date time filters.
+        :param published_utc_lt: Less than A date string 'YYYY-MM-DD' or datetime for published date time filters.
+        :param published_utc_lte: less than or equal to A date string 'YYYY-MM-DD' or datetime for published date time
+        filters.
+        :param published_utc_gt: greater than A date string 'YYYY-MM-DD' or datetime for published date time filters.
+        :param published_utc_gte: Greater than or equal to A date string 'YYYY-MM-DD' or datetime for published date
+        time filters.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        if isinstance(published_utc, datetime.date) or isinstance(published_utc, datetime.datetime):
+            published_utc = published_utc.strftime('%Y-%m-%d')
+
+        if isinstance(published_utc_lt, datetime.date) or isinstance(published_utc_lt, datetime.datetime):
+            published_utc_lt = published_utc_lt.strftime('%Y-%m-%d')
+
+        if isinstance(published_utc_lte, datetime.date) or isinstance(published_utc_lte, datetime.datetime):
+            published_utc_lte = published_utc_lte.strftime('%Y-%m-%d')
+
+        if isinstance(published_utc_gt, datetime.date) or isinstance(published_utc_gt, datetime.datetime):
+            published_utc_gt = published_utc_gt.strftime('%Y-%m-%d')
+
+        if isinstance(published_utc_gte, datetime.date) or isinstance(published_utc_gte, datetime.datetime):
+            published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
+
+        _path = '/v2/reference/news'
+
+        _data = {'limit': limit,
+                 'order': order,
+                 'sort': sort,
+                 'ticker': symbol,
+                 'ticker.lt': ticker_lt,
+                 'ticker.lte': ticker_lte,
+                 'ticker.gt': ticker_gt,
+                 'ticker.gte': ticker_gte,
+                 'published_utc': published_utc,
+                 'published_utc.lt': published_utc_lt,
+                 'published_utc.lte': published_utc_lte,
+                 'published_utc.gt': published_utc_gt,
+                 'published_utc.gte': published_utc_gte}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_next_page_news(self, old_response: Union[Response, dict],
+                           raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the next page using the most recent yet old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages).
+        :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    def get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend.
+        Official Docs: https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor
+        :param symbol: The ticker symbol of the stock/equity.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = f'/v2/reference/dividends/{symbol.upper()}'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_stock_financials(self, symbol: str, limit: int = 100, report_type: str = None, sort: str = None,
+                             raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get historical financial data for a stock ticker.
+        Official Docs: https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor
+        :param symbol: The ticker symbol of the stock/equity.
+        :param limit: Limit the number of results. Defaults to 100
+        :param report_type: Specify a type of report to return. Defaults to empty returning all types. Options are
+        Y = Year YA = Year annualized || Q = Quarter QA = Quarter Annualized || T = Trailing twelve months ||
+        TA = trailing twelve months annualized
+        :param sort: The attribute to sort the returned results. Defaults to empty with no specific sort. Options are
+        'reportPeriod', '-reportPeriod', 'calendarDate', '-calendarDate'
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = f'/v2/reference/financials/{symbol.upper()}'
+
+        _data = {'limit': limit,
+                 'type': report_type,
+                 'sort': sort}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_stock_financials_vx(self):  # TODO: Finish this when this API is no longer experimental
+        pass
+
+    def get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
+        stock split, and the split ratio.
+        Official Docs: https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor
+        :param symbol: The ticker symbol of the stock/equity.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = f'/v2/reference/splits/{symbol.upper()}'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_market_holidays(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get upcoming market holidays and their open/close times.
+        Official Docs: https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = '/v1/marketstatus/upcoming'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_market_status(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the current trading status of the exchanges and overall financial markets.
+        Official Docs: https://polygon.io/docs/get_v1_marketstatus_now_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = '/v1/marketstatus/now'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_condition_mappings(self, tick_type: str = 'trades', raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
+        codes to identify conditions, so the same condition may have a different code depending on the originator of
+         the data. Polygon.io defines its own mapping to allow for uniformly identifying a condition across
+         feeds/exchanges.
+        Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+        :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to True which returns the Response object.
+        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        """
+
+        _path = f'/v1/meta/conditions/{tick_type.lower()}'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
 
 # ========================================================= #
 
@@ -153,7 +443,12 @@ if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly :/')
     client = ReferenceClient(cred.KEY)
 
-    pprint(client.get_tickers(limit=500))
+    res = client.get_condition_mappings(raw_response=False, tick_type='trades')
+
+    # res2 = client.get_next_page_news(res, raw_response=False)
+
+    pprint(res)
+    # pprint(res2)
 
 
 # ========================================================= #

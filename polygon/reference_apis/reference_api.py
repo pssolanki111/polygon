@@ -477,6 +477,33 @@ class ReferenceClient:
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
+        _path = '/v2/reference/locales'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_markets(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of markets that are currently supported by Polygon.io.
+        Official Docs: https://polygon.io/docs/get_v2_reference_markets_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = '/v2/reference/markets'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
 
 # ========================================================= #
 
@@ -488,7 +515,7 @@ if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly :/')
     client = ReferenceClient(cred.KEY)
 
-    res = client.get_crypto_exchanges(raw_response=False)
+    res = client.get_markets(raw_response=False)
 
     # res2 = client.get_next_page_news(res, raw_response=False)
 

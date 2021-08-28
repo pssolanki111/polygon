@@ -128,8 +128,8 @@ class ReferenceClient:
         remaining (which implies that you have reached the end of all pages).
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         try:
@@ -148,8 +148,8 @@ class ReferenceClient:
         Get a mapping of ticker types to their descriptive names.
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = '/v2/reference/types'
@@ -168,8 +168,8 @@ class ReferenceClient:
         Official Docs: https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = f'/v1/meta/symbols/{symbol.upper()}/company'
@@ -194,8 +194,8 @@ class ReferenceClient:
          information from SEC filings, we compare this date with the period of report date on the SEC filing.
          Defaults to the most recent available date.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
@@ -237,8 +237,8 @@ class ReferenceClient:
         :param published_utc_gte: Greater than or equal to A date string 'YYYY-MM-DD' or datetime for published date
         time filters.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         if isinstance(published_utc, datetime.date) or isinstance(published_utc, datetime.datetime):
@@ -287,8 +287,8 @@ class ReferenceClient:
         remaining (which implies that you have reached the end of all pages).
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         try:
@@ -308,8 +308,8 @@ class ReferenceClient:
         Official Docs: https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = f'/v2/reference/dividends/{symbol.upper()}'
@@ -334,8 +334,8 @@ class ReferenceClient:
         :param sort: The attribute to sort the returned results. Defaults to empty with no specific sort. Options are
         'reportPeriod', '-reportPeriod', 'calendarDate', '-calendarDate'
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = f'/v2/reference/financials/{symbol.upper()}'
@@ -361,8 +361,8 @@ class ReferenceClient:
         Official Docs: https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = f'/v2/reference/splits/{symbol.upper()}'
@@ -379,8 +379,8 @@ class ReferenceClient:
         Get upcoming market holidays and their open/close times.
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = '/v1/marketstatus/upcoming'
@@ -397,8 +397,8 @@ class ReferenceClient:
         Get the current trading status of the exchanges and overall financial markets.
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_now_anchor
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = '/v1/marketstatus/now'
@@ -419,8 +419,8 @@ class ReferenceClient:
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
         :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to True which returns the Response object.
-        :return: A Response object by default. Make `raw_response=False` to get JSON decoded Dictionary
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
         _path = f'/v1/meta/conditions/{tick_type.lower()}'
@@ -431,6 +431,51 @@ class ReferenceClient:
             return _res
 
         return _res.json()
+
+    def get_stock_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of stock exchanges which are supported by Polygon.io.
+        Official Docs: https://polygon.io/docs/get_v1_meta_exchanges_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = '/v1/meta/exchanges'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_crypto_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of cryptocurrency exchanges which are supported by Polygon.io.
+        Official Docs: https://polygon.io/docs/get_v1_meta_crypto-exchanges_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = '/v1/meta/crypto-exchanges'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_locales(self, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a list of locales currently supported by Polygon.io.
+        Official Docs: https://polygon.io/docs/get_v2_reference_locales_anchor
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
 
 
 # ========================================================= #
@@ -443,7 +488,7 @@ if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly :/')
     client = ReferenceClient(cred.KEY)
 
-    res = client.get_condition_mappings(raw_response=False, tick_type='trades')
+    res = client.get_crypto_exchanges(raw_response=False)
 
     # res2 = client.get_next_page_news(res, raw_response=False)
 

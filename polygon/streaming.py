@@ -18,8 +18,7 @@ DELAYED_HOST = 'delayed.polygon.io'
 
 class StreamClient:
     def __init__(self, api_key: str, market: str = STOCKS, host: str = HOST, on_message=None, on_close=None,
-                 on_error=None, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
-                 skip_utf8_validation: bool = True, enable_connection_logs: bool = False):
+                 on_error=None, enable_connection_logs: bool = False):
         """
         Initializes the stream connection.
         Official Docs: https://polygon.io/docs/websockets/getting-started
@@ -33,13 +32,6 @@ class StreamClient:
           close_status_code, close_message)
         :param on_error: Function to be called when an error is encountered. Function should accept one arg (
          exception object)
-        :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
-        alive. Set to 0 to disable pinging. Defaults to 21 seconds
-        :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
-        is terminated as it is considered to be dead if no pong is received within the specified timeout. default: 20
-        :param ping_payload: The option message to be sent with the ping. Better to leave it empty string.
-        :param skip_utf8_validation: Whether to skip utf validation of messages. Defaults to False. Setting it to
-        True may result in some performance downgrade.
         :param enable_connection_logs: Whether or not to print useful debug info related to the stream connection.
         Helpful for trying to debug something. Defaults to False.
         """
@@ -49,9 +41,9 @@ class StreamClient:
 
         self._host, self._url, self.KEY = host, f'wss://{host}/{market}', api_key
 
-        self._ping_interval, self._ping_timeout, self._ping_payload = ping_interval, ping_timeout, ping_payload
+        self._ping_interval, self._ping_timeout, self._ping_payload = None, None, None
 
-        self._skip_utf8_validation, self._enable_connection_logs = skip_utf8_validation, enable_connection_logs
+        self._skip_utf8_validation, self._enable_connection_logs = None, enable_connection_logs
 
         self.WS = ws_client.WebSocketApp(self._url, on_message=self._default_on_msg, on_close=self._default_on_close,
                                          on_error=self._default_on_error, on_open=self._default_on_open)
@@ -68,22 +60,45 @@ class StreamClient:
         signal.signal(signal.SIGINT, self.close_stream)
         signal.signal(signal.SIGTERM, self.close_stream)
 
-    def start_stream(self):
+    def start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
+                     skip_utf8_validation: bool = True):
         """
         Starts the Stream Event Loop. The loop is infinite and will continue to run until the stream is
         terminated, either manually or due to an exception
+        :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
+        alive. Set to 0 to disable pinging. Defaults to 21 seconds
+        :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
+        is terminated as it is considered to be dead if no pong is received within the specified timeout. default: 20
+        :param ping_payload: The option message to be sent with the ping. Better to leave it empty string.
+        :param skip_utf8_validation: Whether to skip utf validation of messages. Defaults to True. Setting it to
+        False may result in performance downgrade.
+        :return: None
         """
+
+        self._ping_interval, self._ping_timeout, self._ping_payload = ping_interval, ping_timeout, ping_payload
+
+        self._skip_utf8_validation = skip_utf8_validation
 
         self.WS.run_forever(ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
                             ping_payload=self._ping_payload, skip_utf8_validation=self._skip_utf8_validation)
 
-    def start_stream_parallel(self):
+    def start_stream_parallel(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
+                              skip_utf8_validation: bool = True):
         """
         Starts the Stream event loop in a thread. This will not block the main thread. Useful for GUI applications
         and use cases where you have more than one event loop in general
+        :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
+        alive. Set to 0 to disable pinging. Defaults to 21 seconds
+        :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
+        is terminated as it is considered to be dead if no pong is received within the specified timeout. default: 20
+        :param ping_payload: The option message to be sent with the ping. Better to leave it empty string.
+        :param skip_utf8_validation: Whether to skip utf validation of messages. Defaults to True. Setting it to
+        False may result in performance downgrade.
+        :return: None
         """
 
-        self._run_in_thread = threading.Thread(target=self.start_stream)
+        self._run_in_thread = threading.Thread(target=self.start_stream,
+                                               args=(ping_interval, ping_timeout, ping_payload, skip_utf8_validation))
         self._run_in_thread.start()
 
     def close_stream(self, *args, **kwargs):
@@ -113,7 +128,7 @@ class StreamClient:
 
         _payload = '{"action":"auth","params":"%s"}' % self.KEY  # f-strings were trippin' here.
 
-        self.WS.send(str(_payload))
+        self.WS.send(_payload)
 
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
@@ -178,8 +193,8 @@ if __name__ == '__main__':
     from polygon import cred
     from pprint import pprint
 
-    client = StreamClient(cred.KEY, skip_utf8_validation=True)
+    client = StreamClient(cred.KEY)
     client.start_stream()
-
+    # client.start_stream_parallel()
 
 # ========================================================= #

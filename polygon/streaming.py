@@ -82,8 +82,8 @@ class StreamClient:
         self.WS.run_forever(ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
                             ping_payload=self._ping_payload, skip_utf8_validation=self._skip_utf8_validation)
 
-    def start_stream_parallel(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
-                              skip_utf8_validation: bool = True):
+    def start_stream_thread(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
+                            skip_utf8_validation: bool = True):
         """
         Starts the Stream event loop in a thread. This will not block the main thread. Useful for GUI applications
         and use cases where you have more than one event loop in general
@@ -130,6 +130,375 @@ class StreamClient:
 
         self.WS.send(_payload)
 
+    # STOCKS Streams
+    def subscribe_stock_trades(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time trades for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || Trades')
+
+        _prefix = 'T.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks trades' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_trades(self, symbols: list = None):
+        self.subscribe_stock_trades(symbols, action='unsubscribe')
+
+    def subscribe_stock_quotes(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Quotes for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || Quotes')
+
+        _prefix = 'Q.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks quotes' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_quotes(self, symbols: list = None):
+        self.subscribe_stock_quotes(symbols, action='unsubscribe')
+
+    def subscribe_stock_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time minute aggregates for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || Aggregates - Minute')
+
+        _prefix = 'AM.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks min agg' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
+        self.subscribe_stock_minute_aggregates(symbols, action='unsubscribe')
+
+    def subscribe_stock_seconds_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time second aggregates for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || Aggregates - Second')
+
+        _prefix = 'A.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks sec agg' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
+        self.subscribe_stock_seconds_aggregates(symbols, action='unsubscribe')
+
+    def subscribe_stock_limit_up_limit_down(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time LULD events for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || LULD')
+
+        _prefix = 'LULD.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks LULD' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
+        self.subscribe_stock_limit_up_limit_down(symbols, action='unsubscribe')
+
+    def subscribe_stock_imbalances(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Imbalance Events for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - stock || Imbalances')
+
+        _prefix = 'NOI.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"subscribe", "params":"%s"}' % symbols
+
+        try:
+            self.WS.send(_payload)
+            print('%s stocks Imbalances' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_stock_imbalances(self, symbols: list = None):
+        self.subscribe_stock_imbalances(symbols, action='unsubscribe')
+
+    # FOREX Streams
+    def subscribe_forex_quotes(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time forex quotes for given forex pair(s).
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from/to. For example: USD/CNH
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Forex || Quotes')
+
+        _prefix = 'C.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s forex quotes' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_forex_quotes(self, symbols: list = None):
+        self.subscribe_forex_quotes(symbols, action='unsubscribe')
+
+    def subscribe_forex_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time forex Minute Aggregates for given forex pair(s).
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from/to. For example: USD/CNH
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Forex || Aggregates - Minutes')
+
+        _prefix = 'CA.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s forex min agg' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
+        self.subscribe_forex_minute_aggregates(symbols, action='unsubscribe')
+
+    # CRYPTO Streams
+    def subscribe_crypto_trades(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Trades for given cryptocurrency pair(s).
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from-to. For example: BTC-USD
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Crypto || Trades')
+
+        _prefix = 'XT.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s crypto trades' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_crypto_trades(self, symbols: list = None):
+        self.subscribe_crypto_trades(symbols, action='unsubscribe')
+
+    def subscribe_crypto_quotes(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Quotes for given cryptocurrency pair(s).
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from-to. For example: BTC-USD
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Crypto || Quotes')
+
+        _prefix = 'XQ.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s crypto quotes' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_crypto_quotes(self, symbols: list = None):
+        self.subscribe_crypto_quotes(symbols, action='unsubscribe')
+
+    def subscribe_crypto_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Minute Aggregates for given cryptocurrency pair(s).
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from-to. For example: BTC-USD
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Crypto || Aggregates - Minute')
+
+        _prefix = 'XA.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s crypto min agg' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
+        self.subscribe_crypto_minute_aggregates(symbols, action='unsubscribe')
+
+    def subscribe_crypto_level2_book(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time level 2 book data for given cryptocurrency pair(s).
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+        each Ticker must be in format: from-to. For example: BTC-USD
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        print('subscription - Crypto || Level2')
+
+        _prefix = 'XL2.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            self.WS.send(_payload)
+            print('%s crypto l2' % action)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            pass
+
+    def unsubscribe_crypto_level2_book(self, symbols: list = None):
+        self.subscribe_crypto_level2_book(symbols, action='unsubscribe')
+
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
         """
@@ -138,7 +507,6 @@ class StreamClient:
         :param args: Other args supplied by the handler
         :return: None
         """
-        print('Msg Args: ', _ws)
 
         print('message received:\n', str(msg))
 
@@ -151,9 +519,8 @@ class StreamClient:
         :param args: None
         :return:
         """
-        print('Close Args: ', _ws, args)
 
-        print(f'Close code: {close_code}\nClose message:\n', str(close_msg))
+        print('Closed...')
 
     @staticmethod
     def _default_on_error(_ws: ws_client.WebSocketApp, error, *args):
@@ -162,7 +529,6 @@ class StreamClient:
         :param error: The exception object as supplied by the handler
         :return: None
         """
-        print('Error Args: ', _ws,  *args)
 
         print('Error Encountered:\n', str(error))
 
@@ -172,7 +538,6 @@ class StreamClient:
         :param args: Any args supplied by the handler
         :return: None
         """
-        print('Open Args: ', _ws, args)
 
         self._authenticate()
 
@@ -193,8 +558,12 @@ if __name__ == '__main__':
     from polygon import cred
     from pprint import pprint
 
-    client = StreamClient(cred.KEY)
-    client.start_stream()
-    # client.start_stream_parallel()
+    client = StreamClient(cred.KEY, enable_connection_logs=False)
+
+    # client.start_stream()
+    # client.subscribe_stock_trades(['AM', 'AMD', 'NVDA'])
+    client.start_stream_thread(skip_utf8_validation=True)
+    client.subscribe_stock_trades(['AMD', 'NVDA'])
+    client.subscribe_stock_quotes(['NVDA', 'DDD'])
 
 # ========================================================= #

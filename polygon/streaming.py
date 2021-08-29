@@ -64,7 +64,7 @@ class StreamClient:
 
         self._run_in_thread: Union[threading.Thread, None] = None
 
-        # signal Handlers
+        # signal Handlers. Can be overridden by user.
         signal.signal(signal.SIGINT, self.close_stream)
         signal.signal(signal.SIGTERM, self.close_stream)
 
@@ -95,52 +95,58 @@ class StreamClient:
         """
 
         print('Terminating Stream...')
+
         self.WS.close()
+
         if self._run_in_thread:
             self._run_in_thread.join()
 
-    def _default_on_msg(self, msg, *args):
-        """
+        print('Terminated')
 
-        :param msg:
-        :param args:
+    @staticmethod
+    def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
+        """
+        Default handler for message processing
+        :param msg: The message as received from the server
+        :param args: Other args supplied by the handler
         :return: None
         """
-        print('Args: ', args)
+        print('Msg Args: ', _ws)
 
         print('message received:\n', str(msg))
 
-    def _default_on_close(self, close_code, close_msg, *args):
+    @staticmethod
+    def _default_on_close(_ws: ws_client.WebSocketApp, close_code, close_msg, *args):
         """
-
-        :param close_code:
-        :param close_msg:
-        :param args:
+        THe default function to be called when stream is closed.
+        :param close_code: The close code as received from server
+        :param close_msg: The close message as received from server
+        :param args: None
         :return:
         """
-        print('Args: ', args)
+        print('Close Args: ', _ws, args)
 
         print(f'Close code: {close_code}\nClose message:\n', str(close_msg))
 
-    def _default_on_error(self, error, *args):
+    @staticmethod
+    def _default_on_error(_ws: ws_client.WebSocketApp, error, *args):
         """
-
-        :param error:
-        :return:
+        Default function to be called when an error is encountered.
+        :param error: The exception object as supplied by the handler
+        :return: None
         """
-        print('Args: ', *args)
+        print('Error Args: ', _ws,  *args)
 
         print('Error Encountered:\n', str(error))
 
-    def _default_on_open(self, *args):
+    @staticmethod
+    def _default_on_open(_ws: ws_client.WebSocketApp, *args):
         """
-
-        :param args:
-        :return:
+        Default function to be called when stream client is initialized. Takes care of the authentication.
+        :param args: Any args supplied by the handler
+        :return: None
         """
-        print('Args: ', args)
-
-        print('Open called...')
+        print('Open Args: ', _ws, args)
 
 
 # ========================================================= #

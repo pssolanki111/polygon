@@ -103,6 +103,18 @@ class StreamClient:
 
         print('Terminated')
 
+    def _authenticate(self):
+        """
+        Authenticates the client with the server using API key.
+        :return: None
+        """
+
+        print('Auth started')
+
+        _payload = '{"action":"auth","params":"%s"}' % self.KEY  # f-strings were trippin' here.
+
+        self.WS.send(str(_payload))
+
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
         """
@@ -139,14 +151,15 @@ class StreamClient:
 
         print('Error Encountered:\n', str(error))
 
-    @staticmethod
-    def _default_on_open(_ws: ws_client.WebSocketApp, *args):
+    def _default_on_open(self, _ws: ws_client.WebSocketApp, *args):
         """
         Default function to be called when stream client is initialized. Takes care of the authentication.
         :param args: Any args supplied by the handler
         :return: None
         """
         print('Open Args: ', _ws, args)
+
+        self._authenticate()
 
 
 # ========================================================= #
@@ -165,7 +178,7 @@ if __name__ == '__main__':
     from polygon import cred
     from pprint import pprint
 
-    client = StreamClient(cred.KEY)
+    client = StreamClient(cred.KEY, skip_utf8_validation=True)
     client.start_stream()
 
 

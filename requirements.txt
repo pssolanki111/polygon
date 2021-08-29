@@ -1,1 +1,3 @@
 requests
+websocket-client
+websockets

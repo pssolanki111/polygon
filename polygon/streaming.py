@@ -1,9 +1,12 @@
 # ========================================================= #
+import time
+import logging
 import websockets as wss
 import websocket as ws_client
 import threading
 import signal
 from typing import Union
+from enum import Enum
 # ========================================================= #
 
 STOCKS = 'stocks'
@@ -11,6 +14,13 @@ CRYPTO = 'crypto'
 FOREX = 'forex'
 HOST = 'socket.polygon.io'
 DELAYED_HOST = 'delayed.polygon.io'
+
+
+# ========================================================= #
+
+
+def get_logger():
+    return logging.getLogger(__name__)
 
 
 # ========================================================= #
@@ -60,11 +70,12 @@ class StreamClient:
         signal.signal(signal.SIGINT, self.close_stream)
         signal.signal(signal.SIGTERM, self.close_stream)
 
-    def start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
-                     skip_utf8_validation: bool = True):
+    def _start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
+                      skip_utf8_validation: bool = True):
         """
         Starts the Stream Event Loop. The loop is infinite and will continue to run until the stream is
-        terminated, either manually or due to an exception
+        terminated, either manually or due to an exception.This method is for internal use only.
+        ALWAYS start your streams using client.start_stream_thread.
         :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
         alive. Set to 0 to disable pinging. Defaults to 21 seconds
         :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
@@ -97,7 +108,7 @@ class StreamClient:
         :return: None
         """
 
-        self._run_in_thread = threading.Thread(target=self.start_stream,
+        self._run_in_thread = threading.Thread(target=self._start_stream,
                                                args=(ping_interval, ping_timeout, ping_payload, skip_utf8_validation))
         self._run_in_thread.start()
 
@@ -109,14 +120,14 @@ class StreamClient:
         :return: None
         """
 
-        print('Terminating Stream...')
+        get_logger().info('Terminating Stream...')
 
         self.WS.close()
 
         if self._run_in_thread:
             self._run_in_thread.join()
 
-        print('Terminated')
+        get_logger().info('Terminated')
 
     def _authenticate(self):
         """
@@ -124,11 +135,13 @@ class StreamClient:
         :return: None
         """
 
-        print('Auth started')
-
         _payload = '{"action":"auth","params":"%s"}' % self.KEY  # f-strings were trippin' here.
 
         self.WS.send(_payload)
+
+        time.sleep(1)
+
+        self._auth.set()
 
     # STOCKS Streams
     def subscribe_stock_trades(self, symbols: list = None, action: str = 'subscribe'):
@@ -138,8 +151,6 @@ class StreamClient:
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
-
-        print('subscription - stock || Trades')
 
         _prefix = 'T.'
 
@@ -152,11 +163,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
-            self.WS.send(_payload)
-            print('%s stocks trades' % action)
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            self.WS.send(_payload)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_trades(self, symbols: list = None):
         self.subscribe_stock_trades(symbols, action='unsubscribe')
@@ -169,8 +186,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - stock || Quotes')
-
         _prefix = 'Q.'
 
         if symbols is None:
@@ -182,11 +197,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s stocks quotes' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_quotes(self, symbols: list = None):
         self.subscribe_stock_quotes(symbols, action='unsubscribe')
@@ -199,8 +220,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - stock || Aggregates - Minute')
-
         _prefix = 'AM.'
 
         if symbols is None:
@@ -212,11 +231,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s stocks min agg' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         self.subscribe_stock_minute_aggregates(symbols, action='unsubscribe')
@@ -229,8 +254,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - stock || Aggregates - Second')
-
         _prefix = 'A.'
 
         if symbols is None:
@@ -242,11 +265,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s stocks sec agg' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
         self.subscribe_stock_seconds_aggregates(symbols, action='unsubscribe')
@@ -259,8 +288,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - stock || LULD')
-
         _prefix = 'LULD.'
 
         if symbols is None:
@@ -272,11 +299,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s stocks LULD' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         self.subscribe_stock_limit_up_limit_down(symbols, action='unsubscribe')
@@ -289,8 +322,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - stock || Imbalances')
-
         _prefix = 'NOI.'
 
         if symbols is None:
@@ -302,11 +333,17 @@ class StreamClient:
         _payload = '{"action":"subscribe", "params":"%s"}' % symbols
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s stocks Imbalances' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
         self.subscribe_stock_imbalances(symbols, action='unsubscribe')
@@ -321,8 +358,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Forex || Quotes')
-
         _prefix = 'C.'
 
         if symbols is None:
@@ -334,11 +369,16 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
-            self.WS.send(_payload)
-            print('%s forex quotes' % action)
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
 
+            self.WS.send(_payload)
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
         self.subscribe_forex_quotes(symbols, action='unsubscribe')
@@ -352,8 +392,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Forex || Aggregates - Minutes')
-
         _prefix = 'CA.'
 
         if symbols is None:
@@ -365,11 +403,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s forex min agg' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         self.subscribe_forex_minute_aggregates(symbols, action='unsubscribe')
@@ -384,8 +428,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Crypto || Trades')
-
         _prefix = 'XT.'
 
         if symbols is None:
@@ -397,11 +439,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s crypto trades' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
         self.subscribe_crypto_trades(symbols, action='unsubscribe')
@@ -415,8 +463,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Crypto || Quotes')
-
         _prefix = 'XQ.'
 
         if symbols is None:
@@ -428,11 +474,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s crypto quotes' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
         self.subscribe_crypto_quotes(symbols, action='unsubscribe')
@@ -446,8 +498,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Crypto || Aggregates - Minute')
-
         _prefix = 'XA.'
 
         if symbols is None:
@@ -459,11 +509,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s crypto min agg' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         self.subscribe_crypto_minute_aggregates(symbols, action='unsubscribe')
@@ -477,8 +533,6 @@ class StreamClient:
         :return: None
         """
 
-        print('subscription - Crypto || Level2')
-
         _prefix = 'XL2.'
 
         if symbols is None:
@@ -490,11 +544,17 @@ class StreamClient:
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
             self.WS.send(_payload)
-            print('%s crypto l2' % action)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
-            pass
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
         self.subscribe_crypto_level2_book(symbols, action='unsubscribe')
@@ -511,16 +571,19 @@ class StreamClient:
         print('message received:\n', str(msg))
 
     @staticmethod
-    def _default_on_close(_ws: ws_client.WebSocketApp, close_code, close_msg, *args):
+    def _default_on_close(_ws: ws_client.WebSocketApp, close_code, msg):
         """
         THe default function to be called when stream is closed.
         :param close_code: The close code as received from server
-        :param close_msg: The close message as received from server
-        :param args: None
+        :param msg: The close message as received from server
         :return:
         """
 
-        print('Closed...')
+        if close_code is None:
+            return
+
+        print(f'Closed. Close Code: {close_code} || Args: {None if msg == "" else msg}\nMost common reason for '
+              f'stream to be closed is incorrect API key OR internet issues')
 
     @staticmethod
     def _default_on_error(_ws: ws_client.WebSocketApp, error, *args):
@@ -555,15 +618,23 @@ class AsyncStreamClient:
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
+    import antigravity  # Fly Me to The Moon
     from polygon import cred
     from pprint import pprint
 
+    logging.getLogger(__name__).setLevel(level=logging.DEBUG)
+
     client = StreamClient(cred.KEY, enable_connection_logs=False)
 
-    # client.start_stream()
-    # client.subscribe_stock_trades(['AM', 'AMD', 'NVDA'])
+    # client._start_stream()
+    # print('subbing')
+    # client.subscribe_stock_trades(['AMD', 'NVDA'])
+    # print('subbed')
     client.start_stream_thread(skip_utf8_validation=True)
-    client.subscribe_stock_trades(['AMD', 'NVDA'])
-    client.subscribe_stock_quotes(['NVDA', 'DDD'])
+    client.subscribe_stock_trades(['AMD', 'MSFT'])
+    # client.subscribe_stock_quotes(['NVDA', 'DDD'])
+    # time.sleep(10)
+    # client.unsubscribe_stock_trades(['AMD'])
+    # client.close_stream()
 
 # ========================================================= #

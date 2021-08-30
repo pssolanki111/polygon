@@ -315,10 +315,12 @@ class CryptoClient:
 
 
 if __name__ == '__main__':
+    print('Don\'t You Dare Running Lib Files Directly')
+    import antigravity  # Fly Me to The Moon
+
     from pprint import pprint
     from polygon import cred
 
-    print('Don\'t You Dare Running Lib Files Directly :/')
     client = CryptoClient(cred.KEY)
 
     res = client.get_snapshot_all(raw_response=False, symbols=['X:BTCUSD', 'BTC'])

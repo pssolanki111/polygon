@@ -1,13 +1,17 @@
 # ========================================================= #
-import time
-import logging
 import websockets as wss
 import websocket as ws_client
 import threading
 import signal
+import asyncio
+import inspect
+import json
 from typing import Union
 from enum import Enum
-# ========================================================= #
+import time
+import logging
+# ========================================================= # TODO: Write Enums for all endpoints
+
 
 STOCKS = 'stocks'
 CRYPTO = 'crypto'
@@ -609,8 +613,102 @@ class StreamClient:
 
 
 class AsyncStreamClient:
-    def __init__(self, api_key: str):
-        pass
+    def __init__(self, api_key: str, host: str = HOST, market: str = STOCKS, ping_interval: int = 20,
+                 ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
+                 read_limit: int = 65536, write_limit: int = 65536):
+        """
+        Initializes the stream client for async streaming.
+        Official Docs: https://polygon.io/docs/websockets/getting-started
+        :param api_key: Your API Key. Visit your dashboard to get the API key.
+        :param market: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
+        :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
+        on stocks websockets stream only.
+        :param ping_interval: Send a ping to server every specified number of seconds to keep the connection alive.
+        Defaults to 20 seconds. Setting to 0 disables pinging.
+        :param ping_timeout: The number of seconds to wait after sending a ping for the response (pong). If no
+        response is received from the server in those many seconds, stream is considered dead and exits with code
+        1011. Defaults to 19 seconds.
+        :param max_message_size: The max_size parameter enforces the maximum size for incoming messages in bytes. The
+        default value is 1 MiB. None disables the limit. If a message larger than the maximum size is received,
+         recv() will raise ConnectionClosedError and the connection will be closed with code 1009
+        :param max_memory_queue: sets the maximum length of the queue that holds incoming messages. The default value
+        is 32. None disables the limit. Messages are added to an in-memory queue when they’re received; then recv()
+        pops from that queue
+        :param read_limit: sets the high-water limit of the buffer for incoming bytes. The low-water limit is half the
+        high-water limit. The default value is 64 KiB, half of asyncio’s default
+        :param write_limit: The write_limit argument sets the high-water limit of the buffer for outgoing bytes. The
+         low-water limit is a quarter of the high-water limit. The default value is 64 KiB, equal to asyncio’s default
+        """
+        self.KEY, self._market, self.WS = api_key, market, None
+
+        self._url, self.handlers = f'wss://{host}/{self._market}', {}
+
+        self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
+
+        self._max_message_size, self._max_memory_queue = max_message_size, max_memory_queue
+
+        self._read_limit, self._write_limit = read_limit, write_limit
+
+    async def login(self) -> wss.WebSocketClientProtocol:
+        """
+        Creates Websocket Socket client using the configuration and Logs to the stream with credentials.
+        :return: None
+        """
+
+        self.WS = await wss.connect(self._url, ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
+                                    max_size=self._max_message_size, max_queue=self._max_memory_queue,
+                                    read_limit=self._read_limit, write_limit=self._write_limit)
+
+        _payload = '{"action":"auth","params":"%s"}' % self.KEY  # f-strings were trippin' here.
+
+        await self.WS.send(_payload)
+
+    async def _send(self, data: str):
+        """
+        Internal function to send data to websocket endpoints
+        :param data: The formatted string to be sent.
+        :return: None
+        """
+
+        if self.WS is None:
+            raise ValueError('Looks like the socket is not open. Make sure you call "await clint.login()" before '
+                             'attempting to subscribe to streams.')
+
+        get_logger().debug(f'Sending Data: {str(data)}')
+
+        await self.WS.send(str(data))
+
+    async def _recv(self, raw_response: bool = True) -> str:
+        """
+        Internal function to receive messages from websocket endpoints.
+        :return: The JSON decoded message data. Set raw_response=True to get underlying strings
+        """
+
+        if self.WS is None:
+            raise ValueError('Looks like the socket is not open. Make sure you call "await clint.login()" before '
+                             'attempting to receive data from streams.')
+
+        _raw = await self.WS.recv()
+
+        if raw_response:
+            return _raw
+
+        try:
+            _data = json.loads(_raw)
+
+        except json.decoder.JSONDecodeError as exc:
+            msg = f'Unable to decode message string: {_raw}.\nUsually happens with invalid symbols.\nException ' \
+                  f'Message: {str(exc)}'
+            raise ValueError(msg)
+
+        return _data
+
+    async def handle_messages(self, raw_response: bool = False):
+        _msg = await self._recv(raw_response=raw_response)
+
+        # TODO: Inspect the message for update types and assign correct handler
+
+
 
 
 # ========================================================= #
@@ -618,23 +716,15 @@ class AsyncStreamClient:
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-    import antigravity  # Fly Me to The Moon
+    # import antigravity  # Fly Me to The Moon
     from polygon import cred
     from pprint import pprint
 
-    logging.getLogger(__name__).setLevel(level=logging.DEBUG)
+    async def test():
+        client = AsyncStreamClient(cred.KEY)
+        await client.login()
 
-    client = StreamClient(cred.KEY, enable_connection_logs=False)
+    asyncio.run(test())
 
-    # client._start_stream()
-    # print('subbing')
-    # client.subscribe_stock_trades(['AMD', 'NVDA'])
-    # print('subbed')
-    client.start_stream_thread(skip_utf8_validation=True)
-    client.subscribe_stock_trades(['AMD', 'MSFT'])
-    # client.subscribe_stock_quotes(['NVDA', 'DDD'])
-    # time.sleep(10)
-    # client.unsubscribe_stock_trades(['AMD'])
-    # client.close_stream()
 
 # ========================================================= #

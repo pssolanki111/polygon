@@ -641,13 +641,15 @@ class AsyncStreamClient:
         """
         self.KEY, self._market, self.WS = api_key, market, None
 
-        self._url, self.handlers = f'wss://{host}/{self._market}', {}
+        self._apis, self._handlers = self._default_handlers_and_apis()
+
+        self._url = f'wss://{host}/{self._market}'
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
         self._max_message_size, self._max_memory_queue = max_message_size, max_memory_queue
 
-        self._read_limit, self._write_limit = read_limit, write_limit
+        self._read_limit, self._write_limit, self._auth = read_limit, write_limit, False
 
     async def login(self) -> wss.WebSocketClientProtocol:
         """
@@ -663,6 +665,8 @@ class AsyncStreamClient:
 
         await self.WS.send(_payload)
 
+        self._auth = True
+
     async def _send(self, data: str):
         """
         Internal function to send data to websocket endpoints
@@ -671,27 +675,22 @@ class AsyncStreamClient:
         """
 
         if self.WS is None:
-            raise ValueError('Looks like the socket is not open. Make sure you call "await clint.login()" before '
-                             'attempting to subscribe to streams.')
+            raise ValueError('Looks like the socket is not open. Login Failed')
 
         get_logger().debug(f'Sending Data: {str(data)}')
 
         await self.WS.send(str(data))
 
-    async def _recv(self, raw_response: bool = True) -> str:
+    async def _recv(self):
         """
         Internal function to receive messages from websocket endpoints.
-        :return: The JSON decoded message data. Set raw_response=True to get underlying strings
+        :return: The JSON decoded message data.
         """
 
         if self.WS is None:
-            raise ValueError('Looks like the socket is not open. Make sure you call "await clint.login()" before '
-                             'attempting to receive data from streams.')
+            raise ValueError('Looks like the socket is not open. Login Failed')
 
         _raw = await self.WS.recv()
-
-        if raw_response:
-            return _raw
 
         try:
             _data = json.loads(_raw)
@@ -703,12 +702,61 @@ class AsyncStreamClient:
 
         return _data
 
-    async def handle_messages(self, raw_response: bool = False):
-        _msg = await self._recv(raw_response=raw_response)
+    async def start_stream(self, looped: bool = False, reconnect: bool = False,
+                           limit_reconnection_attempts: Union[int, bool] = 5):
+        if not self._auth:
+            await self.login()
 
-        # TODO: Inspect the message for update types and assign correct handler
+        _msg = await self._recv()
+
+        for msg in _msg:
+            asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+
+    async def _default_process_message(self, update):
+        """
+        The default Handler for Message Streams which were NOT initialized with a handler function
+        :param update: The update message as received after decoding the message.
+        :return: None
+        """
+
+        if update['ev'] == 'status':
+            if update['status'] in ['auth_success', 'connected']:
+                get_logger().info(update['message'])
+
+            else:
+                get_logger().error(update['message'])
+                exit(21)
+
+        print(update)
+
+    def _default_handlers_and_apis(self):
+        """Assign default handler value to all stream setups"""
+        _handlers = {}
+
+        _apis = {'T': 'stock_trades', 'Q': 'stock_quotes', 'AM': 'stock_agg_min', 'A': 'stock_agg_sec',
+                 'LULD': 'stock_luld', 'NOI': 'stock_imbalances', 'C': 'forex_quotes', 'CA': 'forex_agg_min',
+                 'XT': 'crypto_trades', 'XQ': 'crypto_quotes', 'XL2': 'crypto_l2', 'XA': 'crypto_agg_min',
+                 'status': 'status'}
+
+        for name in _apis.values():
+            _handlers[name] = self._default_process_message
+
+        return _apis, _handlers
 
 
+# ========================================================= #
+
+
+class SerialKiller:
+    def __init__(self):
+        self.kill_me = False
+        signal.signal(signal.SIGINT, self.kill_me_slowly)
+        signal.signal(signal.SIGTERM, self.kill_me_slowly)
+        signal.signal(signal.SIGHUP, self.kill_me_slowly)
+
+    def kill_me_slowly(self, signum, frame) -> None:
+        self.kill_me = True
+        get_logger().warning('Signal Received: ' + str(signum) + ' at frame: ' + str(frame))
 
 
 # ========================================================= #
@@ -720,11 +768,20 @@ if __name__ == '__main__':
     from polygon import cred
     from pprint import pprint
 
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
+
     async def test():
-        client = AsyncStreamClient(cred.KEY)
-        await client.login()
+        client = AsyncStreamClient(cred.KEY+'l')
+
+        while 1:
+            await client.start_stream()
 
     asyncio.run(test())
+
+    # client = StreamClient(cred.KEY)
+    # client.start_stream_thread()
+    # # client.unsubscribe_stock_limit_up_limit_down(['AMD', 'PYPL'])
+    # client.subscribe_stock_trades(['AMD', 'NVDA'])
 
 
 # ========================================================= #

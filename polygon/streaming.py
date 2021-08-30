@@ -702,17 +702,44 @@ class AsyncStreamClient:
 
         return _data
 
-    async def start_stream(self, looped: bool = False, reconnect: bool = False,
-                           limit_reconnection_attempts: Union[int, bool] = 5):
+    async def start_stream(self, reconnect: bool = False, max_reconnection_attempts: Union[int, bool] = 5):
+        """
+        The Main method to start the stream. Allows Reconnecting by simply specifying a parameter.
+        :param reconnect: Defaults to False. Setting True creates an inner loop which traps disconnection errors
+        except Login failed and other unknown errors, and reconnects to the stream with the same subscription it had
+        earlier before getting disconnected.
+        :param max_reconnection_attempts: Determines max how many times should the program attempt to reconnect in
+        case of failed attempts. The Counter is reset as soon as a successful connection is re-established. Setting
+        to False disables the limit which is NOT recommended unless you know you got a situation.
+        :return: None
+        """
         if not self._auth:
             await self.login()
 
-        _msg = await self._recv()
+        if not reconnect:
+            _msg = await self._recv()
 
-        for msg in _msg:
-            asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+            for msg in _msg:
+                asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
 
-    async def _default_process_message(self, update):
+            return
+
+        if not (isinstance(max_reconnection_attempts, int) or max_reconnection_attempts is False):
+            raise ValueError('max_reconnection_attempts must be a positive whole number or False (False NOT '
+                             'recommended as it disables the limit)')
+
+        if not max_reconnection_attempts:
+            print('It is never recommended to allow Infinite reconnection attempts as this does not account for when '
+                  'Server has an outage or client does not have access to internet. It is suggested to Re-start stream '
+                  'with a finite limit for attempts')
+
+        elif max_reconnection_attempts < 1:
+            raise ValueError('max_reconnection_attempts must be a positive whole number')
+
+        #
+
+    @staticmethod
+    async def _default_process_message(update):
         """
         The default Handler for Message Streams which were NOT initialized with a handler function
         :param update: The update message as received after decoding the message.
@@ -771,7 +798,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
     async def test():
-        client = AsyncStreamClient(cred.KEY+'l')
+        client = AsyncStreamClient(cred.KEY)
 
         while 1:
             await client.start_stream()

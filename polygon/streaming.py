@@ -736,7 +736,10 @@ class AsyncStreamClient:
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
 
-        #
+        killer = SerialKiller()
+
+        while not killer.kill_me:
+            pass
 
     @staticmethod
     async def _default_process_message(update):

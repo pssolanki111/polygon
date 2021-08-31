@@ -651,17 +651,20 @@ class AsyncStreamClient:
 
         self._read_limit, self._write_limit, self._auth = read_limit, write_limit, False
 
-    async def login(self) -> wss.WebSocketClientProtocol:
+    async def login(self, key: str = None):
         """
         Creates Websocket Socket client using the configuration and Logs to the stream with credentials.
         :return: None
         """
 
+        if key is None:
+            key = self.KEY
+
         self.WS = await wss.connect(self._url, ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
                                     max_size=self._max_message_size, max_queue=self._max_memory_queue,
                                     read_limit=self._read_limit, write_limit=self._write_limit)
 
-        _payload = '{"action":"auth","params":"%s"}' % self.KEY  # f-strings were trippin' here.
+        _payload = '{"action":"auth","params":"%s"}' % key  # f-strings were trippin' here.
 
         await self.WS.send(_payload)
 
@@ -789,9 +792,10 @@ class AsyncStreamClient:
         implementations with the community if you find success :)
         :return: (True, message) if reconnection succeeds else (False, message)
         """
+        print('reconnect called')
 
         try:
-            await self.login()
+            await self.login(cred.KEY)
 
             for sub in self._subs:
                 await self._modify_sub(sub[0], sub[1])
@@ -800,7 +804,6 @@ class AsyncStreamClient:
 
         except Exception as exc:
             return False, f'Reconnect Failed. Exception: {str(exc)}'
-
 
     @staticmethod
     async def _default_process_message(update):
@@ -843,6 +846,7 @@ class AsyncStreamClient:
         existing subscription.
         :return: None
         """
+
         print('modify sub')
 
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)

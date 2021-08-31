@@ -839,7 +839,7 @@ class AsyncStreamClient:
         """
         Internal Function to send subscribe or unsubscribe requests to websocket.
         :param symbols: The list of symbols to apply the actions to.
-        :param action: Defaults to subscribe which subsribes to the stream. Change to unsubscribe to remove an
+        :param action: Defaults to subscribe which subscribes to requested stream. Change to unsubscribe to remove an
         existing subscription.
         :return: None
         """

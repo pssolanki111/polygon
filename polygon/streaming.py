@@ -639,11 +639,11 @@ class AsyncStreamClient:
         :param write_limit: The write_limit argument sets the high-water limit of the buffer for outgoing bytes. The
          low-water limit is a quarter of the high-water limit. The default value is 64 KiB, equal to asyncio’s default
         """
-        self.KEY, self._market, self.WS = api_key, market, None
+        self.KEY, self._market, self.WS, self._subs, self._re = api_key, market, None, [], 0
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url = f'wss://{host}/{self._market}'
+        self._url, self._attempts = f'wss://{host}/{self._market}', 0
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -702,15 +702,18 @@ class AsyncStreamClient:
 
         return _data
 
-    async def start_stream(self, reconnect: bool = False, max_reconnection_attempts: Union[int, bool] = 5):
+    async def start_stream(self, reconnect: bool = False, max_reconnection_attempts: Union[int, bool] = 5,
+                           reconnection_delay: Union[int, float] = 5):
         """
-        The Main method to start the stream. Allows Reconnecting by simply specifying a parameter.
+        The Main method to start the stream. Connects & Logs in.Allows Reconnecting by simply specifying a parameter.
         :param reconnect: Defaults to False. Setting True creates an inner loop which traps disconnection errors
-        except Login failed and other unknown errors, and reconnects to the stream with the same subscription it had
+        except login failed due to invalid Key, and reconnects to the stream with the same subscriptions it had
         earlier before getting disconnected.
         :param max_reconnection_attempts: Determines max how many times should the program attempt to reconnect in
         case of failed attempts. The Counter is reset as soon as a successful connection is re-established. Setting
-        to False disables the limit which is NOT recommended unless you know you got a situation.
+        to False disables the limit which is NOT recommended unless you know you got a situation. This value is
+        ignored if reconnect is False (The default)
+        :param reconnection_delay: Number of seconds to sleep before attempting to reconnect after a disconnection.
         :return: None
         """
         if not self._auth:
@@ -730,8 +733,9 @@ class AsyncStreamClient:
 
         if not max_reconnection_attempts:
             print('It is never recommended to allow Infinite reconnection attempts as this does not account for when '
-                  'Server has an outage or client does not have access to internet. It is suggested to Re-start stream '
-                  'with a finite limit for attempts')
+                  'Server has an outage\nor when the client loses access to internet. It is suggested to Re-start '
+                  'stream with a finite limit for attempts')
+            max_reconnection_attempts = float('inf')
 
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
@@ -739,7 +743,64 @@ class AsyncStreamClient:
         killer = SerialKiller()
 
         while not killer.kill_me:
-            pass
+            try:
+                if self._re:
+                    _re = await self.reconnect()
+
+                    if _re[0]:  # reconnection was successful
+                        self._attempts = 0  # reset attempts counter
+                        self._re = False  # ensure we don't attempt reconnection again
+                        print(_re[1])
+                    else:
+                        raise RuntimeError(_re[1])
+
+                # Usual Flow of receiving message
+                _msg = await self._recv()
+
+                for msg in _msg:  # Processing messages. Using a dict to manage handlers to avoid using if-else :D
+                    asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+
+            # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
+            #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+            #     return
+
+            except Exception as exc:
+                # Verify there are more reconnection attempts remaining
+                if self._attempts < max_reconnection_attempts:
+                    print(f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and Attempting '
+                          f'Reconnection...')
+                    self._re = True
+                    self._attempts += 1
+                    self._auth = False
+                    await asyncio.sleep(reconnection_delay)
+                    continue
+
+                print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
+                return
+
+        get_logger().warning(f'Termination signal was encountered. Terminated the Stream. Exiting...')
+
+    async def reconnect(self) -> tuple:
+        """
+        Reconnects the stream. Existing subscriptions (ones before disconnections are persisted and automatically
+        subscribed when reconnection succeeds). All the handlers are also automatically restored. Returns a bool
+        based on success status. While this instance method is supposed to be used internally, it is possible to
+        utilize this function in your your custom attempts of reconnection implementation. Feel free to share your
+        implementations with the community if you find success :)
+        :return: (True, message) if reconnection succeeds else (False, message)
+        """
+
+        try:
+            await self.login()
+
+            for sub in self._subs:
+                await self._modify_sub(sub[0], sub[1])
+
+            return True, 'Reconnect Successful'
+
+        except Exception as exc:
+            return False, f'Reconnect Failed. Exception: {str(exc)}'
+
 
     @staticmethod
     async def _default_process_message(update):
@@ -752,10 +813,11 @@ class AsyncStreamClient:
         if update['ev'] == 'status':
             if update['status'] in ['auth_success', 'connected']:
                 get_logger().info(update['message'])
+                return
 
             else:
                 get_logger().error(update['message'])
-                exit(21)
+                return
 
         print(update)
 
@@ -772,6 +834,20 @@ class AsyncStreamClient:
             _handlers[name] = self._default_process_message
 
         return _apis, _handlers
+
+    async def _modify_sub(self, symbols: str, action: str = 'subscribe'):
+        """
+        Internal Function to send subscribe or unsubscribe requests to websocket.
+        :param symbols: The list of symbols to apply the actions to.
+        :param action: Defaults to subscribe which subsribes to the stream. Change to unsubscribe to remove an
+        existing subscription.
+        :return: None
+        """
+        print('modify sub')
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        await self.WS.send(str(_payload))
 
 
 # ========================================================= #
@@ -801,10 +877,10 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
     async def test():
-        client = AsyncStreamClient(cred.KEY)
+        # client = AsyncStreamClient(cred.KEY)
+        client = AsyncStreamClient(cred.KEY+'l')
 
-        while 1:
-            await client.start_stream()
+        await client.start_stream(reconnect=True)
 
     asyncio.run(test())
 

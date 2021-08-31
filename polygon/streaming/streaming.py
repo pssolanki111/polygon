@@ -643,7 +643,7 @@ class AsyncStreamClient:
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url, self._attempts = f'wss://{host}/{self._market}', 0
+        self._url, self._attempts, self._rec = f'wss://{host}/{self._market}', 0, False
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -750,12 +750,42 @@ class AsyncStreamClient:
                 if self._re:
                     _re = await self.reconnect()
 
-                    if _re[0]:  # reconnection was successful
-                        self._attempts = 0  # reset attempts counter
-                        self._re = False  # ensure we don't attempt reconnection again
+                    if _re[0]:
+                        await asyncio.sleep(2)
+
+                        try:
+                            # Re-Conn Flow of receiving message
+                            _msg = await self._recv()
+
+                            for msg in _msg:
+                                asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+
+                            self._attempts = 0
+                            self._re = False
+
+                        # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
+                        #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+                        #     return
+
+                        except (wss.ConnectionClosedError, Exception) as exc:
+                            # Verify there are more reconnection attempts remaining
+                            if self._attempts < max_reconnection_attempts:
+                                print(
+                                    f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds '
+                                    f'and Attempting '
+                                    f'Reconnection...')
+                                self._re = True
+                                self._attempts += 1
+                                self._auth = False
+                                await asyncio.sleep(reconnection_delay)
+                                continue
+
+                            print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
+                            return
+
                         print(_re[1])
                     else:
-                        raise RuntimeError(_re[1])
+                        raise RuntimeError(_re[1])  # TODO: fixing issue with attempts on unsuccessful reconnects
 
                 # Usual Flow of receiving message
                 _msg = await self._recv()
@@ -767,7 +797,7 @@ class AsyncStreamClient:
             #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
             #     return
 
-            except Exception as exc:
+            except (wss.ConnectionClosedError, Exception) as exc:
                 # Verify there are more reconnection attempts remaining
                 if self._attempts < max_reconnection_attempts:
                     print(f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and Attempting '
@@ -786,7 +816,7 @@ class AsyncStreamClient:
     async def reconnect(self) -> tuple:
         """
         Reconnects the stream. Existing subscriptions (ones before disconnections are persisted and automatically
-        subscribed when reconnection succeeds). All the handlers are also automatically restored. Returns a bool
+        subscribed when reconnection succeeds). All the handlers are also automatically restored. Returns a tuple
         based on success status. While this instance method is supposed to be used internally, it is possible to
         utilize this function in your your custom attempts of reconnection implementation. Feel free to share your
         implementations with the community if you find success :)
@@ -795,10 +825,12 @@ class AsyncStreamClient:
         print('reconnect called')
 
         try:
-            await self.login(cred.KEY)
+            await self.login()
 
             for sub in self._subs:
                 await self._modify_sub(sub[0], sub[1])
+
+            self._rec = True
 
             return True, 'Reconnect Successful'
 

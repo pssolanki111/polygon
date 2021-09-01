@@ -1,6 +1,7 @@
 # ========================================================= #
 import os
 import sys
+import types
 
 import websockets as wss
 import websocket as ws_client
@@ -816,8 +817,7 @@ class AsyncStreamClient:
                     continue
 
                 print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
-
-        get_logger().warning(f'Termination signal was encountered. Terminated the Stream. Exiting...')
+                sys.exit(0)
 
     async def reconnect(self) -> tuple:
         """
@@ -876,7 +876,7 @@ class AsyncStreamClient:
 
         return _apis, _handlers
 
-    async def _modify_sub(self, symbols: str, action: str = 'subscribe'):
+    async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.'):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket.
         :param symbols: The list of symbols to apply the actions to.
@@ -885,22 +885,244 @@ class AsyncStreamClient:
         :return: None
         """
 
-        print('modify sub')
+        if isinstance(symbols, str):
+            pass
+
+        elif symbols is None:
+            symbols = _prefix + '*'
+
+        elif isinstance(symbols, list):
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
 
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         await self.WS.send(str(_payload))
 
-    async def _terminate(self, *args):
-        """"""
-        print('Terminate called. args: ', args)
+    # STOCK Streams
+    async def subscribe_stock_trades(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time trades for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'T'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time quotes for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'Q'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Minute Aggregates for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'AM'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_stock_seconds_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Seconds Aggregates for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'A'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time LULD Events for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'LULD'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Imbalance Events for provided symbol(s)
+        :param symbols: The list of symbols to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'NOI'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    # FOREX Streams
+    async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Forex Quotes for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'C'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Forex Minute Aggregates for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'CA'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    # CRYPTO Streams
+    async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Crypto Trades for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'XT'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Crypto Quotes for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'XQ'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Crypto Minute Aggregates for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'XA'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time Crypto Level 2 Book Data for provided symbol(s)
+        :param symbols: The list of symbol pairs to subscribe to
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'XL2'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
 
 # ========================================================= #
 
 
 def _terminate(*args):
-    print('Stop Signal Received, Terminating & Exiting...')
+    get_logger().info('Stop Signal Received, Terminating & Exiting...')
     sys.exit(0)
 
 
@@ -917,9 +1139,9 @@ if __name__ == '__main__':
 
     async def test():
         # client = AsyncStreamClient(cred.KEY)
-        client = AsyncStreamClient(cred.KEY)
+        client = AsyncStreamClient(cred.KEY+'l')
 
-        await client.start_stream(reconnect=True)
+        await client.start_stream(reconnect=True, max_reconnection_attempts=2)
 
     asyncio.run(test())
 

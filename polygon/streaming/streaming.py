@@ -1,4 +1,7 @@
 # ========================================================= #
+import os
+import sys
+
 import websockets as wss
 import websocket as ws_client
 import threading
@@ -643,7 +646,7 @@ class AsyncStreamClient:
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url, self._attempts, self._rec = f'wss://{host}/{self._market}', 0, False
+        self._url, self._attempts = f'wss://{host}/{self._market}', 0
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -743,9 +746,13 @@ class AsyncStreamClient:
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
 
-        killer = SerialKiller()
+        loop = asyncio.get_running_loop()
 
-        while not killer.kill_me:
+        loop.add_signal_handler(signal.SIGINT, _terminate)
+        loop.add_signal_handler(signal.SIGTERM, _terminate)
+
+        # while not killer.kill_me:
+        while 1:
             try:
                 if self._re:
                     _re = await self.reconnect()
@@ -754,7 +761,7 @@ class AsyncStreamClient:
                         await asyncio.sleep(2)
 
                         try:
-                            # Re-Conn Flow of receiving message
+                            # Re-Connective Flow of receiving message
                             _msg = await self._recv()
 
                             for msg in _msg:
@@ -762,6 +769,7 @@ class AsyncStreamClient:
 
                             self._re = False
 
+                        # Right After reconnection to ensure we can actually communicate with the stream
                         # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
                         #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
                         #     return
@@ -808,7 +816,6 @@ class AsyncStreamClient:
                     continue
 
                 print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
-                return
 
         get_logger().warning(f'Termination signal was encountered. Terminated the Stream. Exiting...')
 
@@ -884,20 +891,17 @@ class AsyncStreamClient:
 
         await self.WS.send(str(_payload))
 
+    async def _terminate(self, *args):
+        """"""
+        print('Terminate called. args: ', args)
+
 
 # ========================================================= #
 
 
-class SerialKiller:
-    def __init__(self):
-        self.kill_me = False
-        signal.signal(signal.SIGINT, self.kill_me_slowly)
-        signal.signal(signal.SIGTERM, self.kill_me_slowly)
-        signal.signal(signal.SIGHUP, self.kill_me_slowly)
-
-    def kill_me_slowly(self, signum, frame) -> None:
-        self.kill_me = True
-        get_logger().warning('Signal Received: ' + str(signum) + ' at frame: ' + str(frame))
+def _terminate(*args):
+    print('Stop Signal Received, Terminating & Exiting...')
+    sys.exit(0)
 
 
 # ========================================================= #
@@ -913,7 +917,7 @@ if __name__ == '__main__':
 
     async def test():
         # client = AsyncStreamClient(cred.KEY)
-        client = AsyncStreamClient(cred.KEY+'l')
+        client = AsyncStreamClient(cred.KEY)
 
         await client.start_stream(reconnect=True)
 

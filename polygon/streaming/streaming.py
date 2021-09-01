@@ -760,7 +760,6 @@ class AsyncStreamClient:
                             for msg in _msg:
                                 asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
 
-                            self._attempts = 0
                             self._re = False
 
                         # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
@@ -772,7 +771,7 @@ class AsyncStreamClient:
                             if self._attempts < max_reconnection_attempts:
                                 print(
                                     f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds '
-                                    f'and Attempting '
+                                    f'and Attempting #{self._attempts + 1} '
                                     f'Reconnection...')
                                 self._re = True
                                 self._attempts += 1
@@ -783,9 +782,8 @@ class AsyncStreamClient:
                             print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
                             return
 
-                        print(_re[1])
                     else:
-                        raise RuntimeError(_re[1])  # TODO: fixing issue with attempts on unsuccessful reconnects
+                        raise RuntimeError(_re[1])
 
                 # Usual Flow of receiving message
                 _msg = await self._recv()
@@ -800,7 +798,8 @@ class AsyncStreamClient:
             except (wss.ConnectionClosedError, Exception) as exc:
                 # Verify there are more reconnection attempts remaining
                 if self._attempts < max_reconnection_attempts:
-                    print(f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and Attempting '
+                    print(f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and '
+                          f'Attempting #{self._attempts + 1} '
                           f'Reconnection...')
                     self._re = True
                     self._attempts += 1
@@ -830,15 +829,12 @@ class AsyncStreamClient:
             for sub in self._subs:
                 await self._modify_sub(sub[0], sub[1])
 
-            self._rec = True
-
             return True, 'Reconnect Successful'
 
         except Exception as exc:
             return False, f'Reconnect Failed. Exception: {str(exc)}'
 
-    @staticmethod
-    async def _default_process_message(update):
+    async def _default_process_message(self, update):
         """
         The default Handler for Message Streams which were NOT initialized with a handler function
         :param update: The update message as received after decoding the message.
@@ -847,6 +843,8 @@ class AsyncStreamClient:
 
         if update['ev'] == 'status':
             if update['status'] in ['auth_success', 'connected']:
+                if update['status'] == 'auth_success':
+                    self._attempts = 0
                 get_logger().info(update['message'])
                 return
 
@@ -855,6 +853,7 @@ class AsyncStreamClient:
                 return
 
         print(update)
+        self._attempts = 0
 
     def _default_handlers_and_apis(self):
         """Assign default handler value to all stream setups"""

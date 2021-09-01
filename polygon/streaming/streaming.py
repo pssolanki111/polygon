@@ -890,9 +890,11 @@ class AsyncStreamClient:
 
         elif symbols is None:
             symbols = _prefix + '*'
+            self._subs.append((symbols, action))
 
         elif isinstance(symbols, list):
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+            self._subs.append((symbols, action))
 
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
@@ -902,7 +904,7 @@ class AsyncStreamClient:
     async def subscribe_stock_trades(self, symbols: list = None, handler_function=None):
         """
         Get Real time trades for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -917,10 +919,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_trades(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'T'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time quotes for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -935,10 +948,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_quotes(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'Q'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Minute Aggregates for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -953,10 +977,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'AM'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_stock_seconds_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Seconds Aggregates for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -971,10 +1006,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'A'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None):
         """
         Get Real time LULD Events for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -989,10 +1035,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'LULD'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None):
         """
         Get Real time Imbalance Events for provided symbol(s)
-        :param symbols: The list of symbols to subscribe to
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1007,11 +1064,22 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_stock_imbalances(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'NOI'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     # FOREX Streams
     async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time Forex Quotes for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1026,10 +1094,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_forex_quotes(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'C'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Forex Minute Aggregates for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1044,11 +1123,22 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'CA'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     # CRYPTO Streams
     async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Trades for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1063,10 +1153,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_crypto_trades(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'XT'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Quotes for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1081,10 +1182,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_crypto_quotes(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'XQ'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Minute Aggregates for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1099,10 +1211,21 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
+    async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'XA'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Level 2 Book Data for provided symbol(s)
-        :param symbols: The list of symbol pairs to subscribe to
+        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -1116,6 +1239,17 @@ class AsyncStreamClient:
             self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def unsubscribe_crypto_level2_book(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'XL2'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
 
 # ========================================================= #

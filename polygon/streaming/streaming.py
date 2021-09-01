@@ -749,8 +749,8 @@ class AsyncStreamClient:
 
         loop = asyncio.get_running_loop()
 
-        loop.add_signal_handler(signal.SIGINT, _terminate)
-        loop.add_signal_handler(signal.SIGTERM, _terminate)
+        loop.add_signal_handler(signal.SIGINT, lambda *args: _terminate(self.WS))
+        loop.add_signal_handler(signal.SIGTERM, lambda *args: _terminate(self.WS))
 
         # while not killer.kill_me:
         while 1:
@@ -855,6 +855,12 @@ class AsyncStreamClient:
                 get_logger().info(update['message'])
                 return
 
+            elif update['status'] == 'error':
+                get_logger().error(f'Could Not subscribe to stream requested. Reason: {update["message"]}. This '
+                                   f'usually happens when you attempt to request streams which are not in your account '
+                                   f'subscriptions')
+                return
+
             else:
                 get_logger().error(update['message'])
                 return
@@ -884,6 +890,9 @@ class AsyncStreamClient:
         existing subscription.
         :return: None
         """
+
+        if not self._auth:
+            await self.login()
 
         if isinstance(symbols, str):
             pass
@@ -1255,10 +1264,20 @@ class AsyncStreamClient:
 # ========================================================= #
 
 
-def _terminate(*args):
-    get_logger().info('Stop Signal Received, Terminating & Exiting...')
+def _terminate(_ws):
+    get_logger().info('Stop Signal Received, Terminating & Exiting... This may take up to a few seconds to close all '
+                      'handlers and exit safely...')
     sys.exit(0)
 
+
+# ========================================================= #
+
+async def my_own_handler(msg):
+    print('My own trade handler: ', msg)
+
+
+async def my_own_handler_quote(msg):
+    print('My own quote handler: ', msg)
 
 # ========================================================= #
 
@@ -1272,10 +1291,18 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
     async def test():
-        # client = AsyncStreamClient(cred.KEY)
-        client = AsyncStreamClient(cred.KEY+'l')
+        client = AsyncStreamClient(cred.KEY)
+        # client = AsyncStreamClient(cred.KEY+'l')
+
+        await client.subscribe_stock_trades(['AMD'], handler_function=my_own_handler)
+        await client.subscribe_stock_quotes(['AMD'], handler_function=my_own_handler_quote)
+
+        # await client.unsubscribe_stock_trades(['MSFT'])
 
         await client.start_stream(reconnect=True, max_reconnection_attempts=2)
+
+        # while 1:
+        #     await client.start_stream()
 
     asyncio.run(test())
 

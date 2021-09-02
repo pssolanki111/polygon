@@ -1,0 +1,6 @@
+# `polygon`: A Polygon.io API Wrapper
+
+A Complete Python Wrapper for Polygon.io APIs. Including Stocks, Forex, Crypto, Streaming (async/callback), Reference APIs, 
+Market Info, Trades, OCHLV, Quotes, News, Holidays, Snapshot , Schedules and More...
+
+# Docs Coming Soon...

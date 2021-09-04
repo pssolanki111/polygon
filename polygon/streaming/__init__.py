@@ -1,1 +1,2 @@
-from .streaming import StreamClient, AsyncStreamClient
+from .streaming import StreamClient
+from .async_streaming import AsyncStreamClient

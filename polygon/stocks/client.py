@@ -371,7 +371,6 @@ class PolygonClient:
 
 if __name__ == '__main__':  # Tests
     print('Don\'t You Dare Running Lib Files Directly')
-    import antigravity  # Fly Me to The Moon
 
     from pprint import pprint
     from polygon import cred

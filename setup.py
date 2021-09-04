@@ -4,7 +4,7 @@ with open('README.md') as file:
     long_description = file.read()
 
 setup(
-    name='polygon-api-test-ps',
+    name='polygon',
     version='0.0.1',
     packages=['polygon', 'polygon.forex', 'polygon.crypto', 'polygon.stocks', 'polygon.streaming',
               'polygon.reference_apis'],
@@ -12,7 +12,7 @@ setup(
     license='MIT',
     author='P S Solanki',
     author_email='google_was_my_idea@gmail.com',
-    description='A Complete Python Wrapper for Polygon.io APIs',
+    description='A Complete Python Wrapper for Polygon.io APIs. TEST RELEASE',
     long_description=long_description,
     long_description_content_type="text/markdown",
     project_urls={

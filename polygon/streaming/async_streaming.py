@@ -7,6 +7,7 @@ import logging
 import json
 from typing import Union
 from enum import Enum
+import platform
 import sys
 import os
 # ========================================================= #
@@ -30,7 +31,7 @@ def get_logger():
 
 
 class AsyncStreamClient:
-    def __init__(self, api_key: str, host: str = HOST, market: str = STOCKS, ping_interval: int = 20,
+    def __init__(self, api_key: str, market: str, host: str = HOST, ping_interval: int = 20,
                  ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
                  read_limit: int = 65536, write_limit: int = 65536):
         """
@@ -160,10 +161,13 @@ class AsyncStreamClient:
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
 
-        loop = asyncio.get_running_loop()
+        if platform.system() in ['Linux', 'Darwin']:  # making signal handlers OS specific
+            loop = asyncio.get_running_loop()
 
-        loop.add_signal_handler(signal.SIGINT, lambda *args: _terminate(self.WS))
-        loop.add_signal_handler(signal.SIGTERM, lambda *args: _terminate(self.WS))
+            loop.add_signal_handler(signal.SIGINT, lambda *args: _terminate(self.WS))
+            loop.add_signal_handler(signal.SIGTERM, lambda *args: _terminate(self.WS))
+
+        # TODO: Check availability of handlers on OSX
 
         # while not killer.kill_me:
         while 1:
@@ -691,8 +695,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
     async def test():
-        # client = AsyncStreamClient(cred.KEY)
-        client = AsyncStreamClient(cred.KEY+'l')
+        client = AsyncStreamClient(cred.KEY, market=STOCKS)
+        # client = AsyncStreamClient(cred.KEY+'l')
 
         await client.subscribe_stock_trades(['AMD'])
         await client.subscribe_stock_quotes(['AMD'])

@@ -29,7 +29,7 @@ def get_logger():
 
 
 class StreamClient:
-    def __init__(self, api_key: str, market: str = STOCKS, host: str = HOST, on_message=None, on_close=None,
+    def __init__(self, api_key: str, market: str, host: str = HOST, on_message=None, on_close=None,
                  on_error=None, enable_connection_logs: bool = False):
         """
         Initializes the stream connection.
@@ -617,7 +617,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
-    client = StreamClient(cred.KEY)
+    client = StreamClient(cred.KEY, STOCKS)
     client.start_stream_thread()
     # client.unsubscribe_stock_limit_up_limit_down(['AMD', 'PYPL'])
     client.subscribe_stock_trades(['AMD', 'NVDA'])

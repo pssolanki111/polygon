@@ -14,6 +14,7 @@ import os
 
 
 STOCKS = 'stocks'
+OPTIONS = 'options'
 CRYPTO = 'crypto'
 FOREX = 'forex'
 HOST = 'socket.polygon.io'
@@ -348,7 +349,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -377,7 +378,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -406,7 +407,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -435,7 +436,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -464,7 +465,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -493,7 +494,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -501,11 +502,41 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
+    # OPTIONS Streams
+    async def subscribe_option_trades(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time options trades for provided ticker(s)
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
+        either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'T'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def unsubscribe_option_trades(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'T'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     # FOREX Streams
     async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time Forex Quotes for provided symbol(s)
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol  to unsubscribe from. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
         either one of a coroutine, a task, a future or an await-able.
@@ -523,7 +554,7 @@ class AsyncStreamClient:
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -552,7 +583,7 @@ class AsyncStreamClient:
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -582,7 +613,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -611,7 +642,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -640,7 +671,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -669,7 +700,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
-        :param symbols: A list of symbol pais to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
 
@@ -699,7 +730,9 @@ if __name__ == '__main__':
         # client = AsyncStreamClient(cred.KEY+'l')
 
         await client.subscribe_stock_trades(['AMD'])
-        await client.subscribe_stock_quotes(['AMD'])
+        # await client.subscribe_stock_quotes(['AMD'])
+
+        # await client.subscribe_option_trades(['AMD'])
 
         # await client.unsubscribe_stock_trades(['MSFT'])
 

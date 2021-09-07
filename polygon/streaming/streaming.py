@@ -653,7 +653,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
 
-    client = StreamClient(cred.KEY, STOCKS)
+    # client = StreamClient(cred.KEY, STOCKS)
+    client = StreamClient('l', STOCKS)
     client.start_stream_thread()
     # client.unsubscribe_stock_limit_up_limit_down(['AMD', 'PYPL'])
     client.subscribe_stock_trades(['AMD', 'NVDA'])

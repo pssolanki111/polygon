@@ -12,6 +12,7 @@ import logging
 
 
 STOCKS = 'stocks'
+OPTIONS = 'options'
 CRYPTO = 'crypto'
 FOREX = 'forex'
 HOST = 'socket.polygon.io'
@@ -332,7 +333,7 @@ class StreamClient:
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
 
-        _payload = '{"action":"subscribe", "params":"%s"}' % symbols
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         try:
             # Ensuring we are logged in and the socket is open to receive subscription messages
@@ -349,6 +350,41 @@ class StreamClient:
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
         self.subscribe_stock_imbalances(symbols, action='unsubscribe')
+
+    # OPTIONS Streams
+    def subscribe_option_trades(self, symbols: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Options Trades for given stock ticker symbol(s).
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        _prefix = 'T.'
+
+        if symbols is None:
+            symbols = _prefix + '*'
+
+        else:
+            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
+
+        try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
+            self.WS.send(_payload)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
+
+    def unsubscribe_option_trades(self, symbols: list = None):
+        self.subscribe_option_trades(symbols, action='unsubscribe')
 
     # FOREX Streams
     def subscribe_forex_quotes(self, symbols: list = None, action: str = 'subscribe'):

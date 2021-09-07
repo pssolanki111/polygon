@@ -161,6 +161,29 @@ class ReferenceClient:
 
         return _res.json()
 
+    def get_ticker_types_v3(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get a mapping of ticker types to their descriptive names.
+        Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+        :param asset_class: Filter by asset class.
+        :param locale: Filter by locale.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = '/v3/reference/tickers/types'
+
+        _data = {'asset_class': asset_class,
+                 'locale': locale}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     def get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with

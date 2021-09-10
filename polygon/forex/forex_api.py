@@ -112,6 +112,7 @@ class ForexClient:
 
         return _res.json()
 
+    # Endpoints
     def get_historic_forex_ticks(self, from_symbol: str, to_symbol: str,
                                  date: Union[datetime.date, datetime.datetime, str], offset: Union[str, int] = None,
                                  limit: int = 500, raw_response: bool = False) -> Union[Response, dict]:
@@ -344,6 +345,251 @@ class ForexClient:
                  'precision': precision}
 
         _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    # ASYNC Operations' Methods
+    async def async_get_historic_forex_ticks(self, from_symbol: str, to_symbol: str,
+                                             date: Union[datetime.date, datetime.datetime, str],
+                                             offset: Union[str, int] = None,
+                                             limit: int = 500, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get historic trade ticks for a forex currency pair - to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor
+        :param from_symbol: The "from" symbol of the forex currency pair.
+        :param to_symbol: The "to" symbol of the forex currency pair.
+        :param date: The date/day of the historic ticks to retrieve. Could be datetime, date or string 'YYYY-MM-DD'
+        :param offset: The timestamp offset, used for pagination. This is the offset at which to start the results.
+         Using the timestamp of the last result as the offset will give you the next page of results.
+        :param limit: Limit the size of the response, max 10000. Default 500
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+            date = date.strftime('%Y-%m-%d')
+
+        _path = f'/v1/historic/forex/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+
+        _data = {'offset': offset,
+                 'limit': limit}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_last_quote(self, from_symbol: str, to_symbol: str,
+                                   raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the last trade tick for a forex currency pair - to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor
+        :param from_symbol: The "from" symbol of the forex currency pair.
+        :param to_symbol: The "to" symbol of the forex currency pair.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/v1/last_quote/currencies/{from_symbol.upper()}/{to_symbol.upper()}'
+
+        _res = await self._get_async_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_aggregate_bars(self, symbol: str, from_date: Union[datetime.date, datetime.datetime, str],
+                                       to_date: Union[datetime.date, datetime.datetime, str], multiplier: int = 1,
+                                       timespan: str = 'day', adjusted: bool = True, sort: str = 'asc',
+                                       limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get aggregate bars for a forex pair over a given date range in custom time window sizes.
+        For example, if timespan = ‘minute’ and multiplier = ‘5’ then 5-minute bars will be returned.
+        to be used by async operations
+        Official Docs:
+         https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor
+        :param symbol: The ticker symbol of the forex pair. eg: C:EURUSD
+        :param from_date: The start of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
+        :param to_date: The end of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
+        :param multiplier: The size of the timespan multiplier
+        :param timespan: The size of the time window.
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        Set this to False to get results that are NOT adjusted for splits.
+        :param sort: Sort the results by timestamp. asc will return results in ascending order (oldest at the top),
+        desc will return results in descending order (newest at the top).
+        :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
+         Default 5000.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        if isinstance(from_date, datetime.datetime) or isinstance(from_date, datetime.date):
+            from_date = from_date.strftime('%Y-%m-%d')
+
+        if isinstance(to_date, datetime.datetime) or isinstance(to_date, datetime.date):
+            to_date = to_date.strftime('%Y-%m-%d')
+
+        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false',
+                 'sort': sort,
+                 'limit': limit}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_grouped_daily_bars(self, date: Union[datetime.date, datetime.datetime, str],
+                                           adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the daily open, high, low, and close (OHLC) for the entire forex markets - to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor
+        :param date: The date for the aggregate window. Could be datetime, date or string 'YYYY-MM-DD'
+        :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
+         this to False to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+            date = date.strftime('%Y-%m-%d')
+
+        _path = f'/v2/aggs/grouped/locale/global/market/fx/{date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_previous_close(self, symbol: str, adjusted: bool = True,
+                                       raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
+        to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor
+        :param symbol: The ticker symbol of the forex pair.
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        to False to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
+        forex symbols - to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers_anchor
+        :param symbols: A list of tickers to get snapshots for.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        if not isinstance(symbols, list):
+            raise ValueError('symbols must be supplied as a list of tickers')
+
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers'
+
+        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
+         traded forex symbol - to be used by async operations
+         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor
+        :param symbol: Symbol of the forex pair
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{symbol.upper()}'
+
+        _res = await self._get_async_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_gainers_and_losers(self, direction: str = 'gainers',
+                                           raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the current top 20 gainers or losers of the day in forex markets - to be used by async operations
+        Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor
+        :param direction: The direction of the snapshot results to return. Default: 'gainers'. Can be 'losers' too
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/v2/snapshot/locale/global/markets/forex/{direction}'
+
+        _res = await self._get_async_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_real_time_currency_conversion(self, from_symbol: str, to_symbol: str, amount: float,
+                                                  precision: int = 2,
+                                                  raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
+         For example USD to CAD or CAD to USD - to be used by async operations
+        Official Docs: https://polygon.io/docs/get_v1_conversion__from___to__anchor
+        :param from_symbol: The "from" symbol of the pair.
+        :param to_symbol: The "to" symbol of the pair.
+        :param amount: The amount to convert,
+        :param precision: The decimal precision of the conversion. Defaults to 2 which is 2 decimal places accuracy.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/v1/conversion/{from_symbol.upper()}/{to_symbol.upper()}'
+
+        _data = {'amount': amount,
+                 'precision': precision}
+
+        _res = await self._get_async_response(_path, params=_data)
 
         if raw_response:
             return _res

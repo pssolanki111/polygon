@@ -97,7 +97,7 @@ class TickerNewsSort(enum.Enum):
     PUBLISHED_UTC = 'published_utc'
     ALL = None
 
-# TODO: finish docstrings.
+# TODO: finish docstrings. Add enums.
 
 # Stock Report Type - Reference APIs
 class StockReportType(enum.Enum):

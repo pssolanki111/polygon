@@ -5,8 +5,6 @@ from typing import Union
 import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
-
-
 # ========================================================= #
 
 

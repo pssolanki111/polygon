@@ -70,6 +70,13 @@ class AsyncStreamClient:
 
         self._read_limit, self._write_limit, self._auth = read_limit, write_limit, False
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        print('exit handler of async context manager called')
+        return  # TODO: figure out what to do when exiting context manager
+
     async def login(self, key: str = None):
         """
         Creates Websocket Socket client using the configuration and Logs to the stream with credentials.

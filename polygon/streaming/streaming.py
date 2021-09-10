@@ -73,6 +73,13 @@ class StreamClient:
         signal.signal(signal.SIGINT, self.close_stream)
         signal.signal(signal.SIGTERM, self.close_stream)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('exit handler of context manager called')
+        return  # TODO: figure out what to do when exiting context manager
+
     def _start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
                       skip_utf8_validation: bool = True):
         """

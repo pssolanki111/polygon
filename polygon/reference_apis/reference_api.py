@@ -24,6 +24,26 @@ class ReferenceClient:
 
         self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
 
+    # Context Managers
+    def __enter__(self):
+        if not self._async:
+            return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self._async:
+            self.session.close()
+
+    # Context Managers - Asyncio
+    async def __aenter__(self):
+        if self._async:
+            return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self._async:
+            self.session: httpx.AsyncClient
+            await self.session.aclose()
+
+    # Internal Functions
     def _get_response(self, path: str, params: dict = None,
                       raw_response: bool = True) -> Union[Response, dict]:
         """

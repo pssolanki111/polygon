@@ -26,6 +26,26 @@ class PolygonClient:
 
         self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
 
+    # Context Managers
+    def __enter__(self):
+        if not self._async:
+            return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self._async:
+            self.session.close()
+
+    # Context Managers - Asyncio
+    async def __aenter__(self):
+        if self._async:
+            return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self._async:
+            self.session: httpx.AsyncClient
+            await self.session.aclose()
+
+    # Internal Functions
     def _get_response(self, path: str, params: dict = None,
                       raw_response: bool = True) -> Union[Response, dict]:
         """
@@ -94,6 +114,7 @@ class PolygonClient:
 
         return _res.json()
 
+    # Endpoints
     def get_trades(self, symbol: str, date: Union[str, datetime.datetime, datetime.date], timestamp: int = None,
                    timestamp_limit: int = None, reverse: bool = True, limit: int = 5000,
                    raw_response: bool = False) -> Union[Response, dict]:
@@ -410,7 +431,7 @@ class PolygonClient:
     # ASYNC Operations' Methods
     async def async_get_trades(self, symbol: str, date: Union[str, datetime.datetime, datetime.date],
                                timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                               limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+                               limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a `map`
         attribute which gives a mapping of attribute names to readable values - To be used by Async Operations
@@ -449,7 +470,7 @@ class PolygonClient:
 
     async def async_get_quotes(self, symbol: str, date: Union[str, datetime.datetime, datetime.date],
                                timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                               limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+                               limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a `map`
         attribute which gives a mapping of attribute names to readable values - to be used by async operations
@@ -485,7 +506,7 @@ class PolygonClient:
 
         return _res.json()
 
-    async def async_get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent trade for a given stock - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor
@@ -504,7 +525,7 @@ class PolygonClient:
 
         return _res.json()
 
-    async def async_get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent NBBO (Quote) tick for a given stock - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor
@@ -524,7 +545,8 @@ class PolygonClient:
         return _res.json()
 
     async def async_get_daily_open_close(self, symbol: str, date: Union[str, datetime.datetime, datetime.date],
-                                         adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+                                         adjusted: bool = True,
+                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor
@@ -554,7 +576,8 @@ class PolygonClient:
     async def async_get_aggregate_bars(self, symbol: str, from_date: Union[str, datetime.datetime, datetime.date],
                                        to_date: Union[str, datetime.datetime, datetime.date], adjusted: bool = True,
                                        sort: str = 'asc', limit: int = 5000, multiplier: int = 1,
-                                       timespan: str = 'day', raw_response: bool = False) -> Union[Response, dict]:
+                                       timespan: str = 'day',
+                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if timespan = ‘minute’ and multiplier = ‘5’ then 5-minute bars will be returned.
@@ -597,7 +620,8 @@ class PolygonClient:
         return _res.json()
 
     async def async_get_grouped_daily_bars(self, date: Union[str, datetime.datetime, datetime.date],
-                                           adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+                                           adjusted: bool = True,
+                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the daily OCHLV for the entire stocks/equities markets - to be used by async operations
         Official docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor
@@ -623,7 +647,7 @@ class PolygonClient:
         return _res.json()
 
     async def async_get_previous_close(self, symbol: str, adjusted: bool = True,
-                                       raw_response: bool = False) -> Union[Response, dict]:
+                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the previous day's OCHLV for the specified stock ticker - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor
@@ -646,7 +670,7 @@ class PolygonClient:
 
         return _res.json()
 
-    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker - to be used by async operations
@@ -680,7 +704,7 @@ class PolygonClient:
 
         return _res['results']['p']
 
-    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols - to be used by async operations
@@ -706,7 +730,7 @@ class PolygonClient:
         return _res.json()
 
     async def async_get_gainers_and_losers(self, direction: str = 'gainers',
-                                           raw_response: bool = False) -> Union[Response, dict]:
+                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor

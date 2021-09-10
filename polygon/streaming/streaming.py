@@ -8,7 +8,7 @@ from typing import Union
 from enum import Enum
 import time
 import logging
-# ========================================================= # TODO: Write Enums for all endpoints
+# ========================================================= # TODO: add feature of auto reconnection
 
 
 STOCKS = 'stocks'

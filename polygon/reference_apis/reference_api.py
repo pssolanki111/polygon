@@ -593,7 +593,7 @@ class ReferenceClient:
                                 ticker_gte=None, symbol_type: str = '', market: str = '', exchange: str = '',
                                 cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
                                 = None, search: str = None, active: bool = True, sort: str = 'ticker', order: str =
-                                'asc', limit: int = 100, raw_response: bool = False) -> Union[Response, dict]:
+                                'asc', limit: int = 100, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
          and Forex - to be used by async operations
@@ -657,8 +657,8 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_next_page_tickers(self, old_response: Union[Response, dict],
-                                          raw_response: bool = False) -> Union[Response, dict, bool]:
+    async def async_get_next_page_tickers(self, old_response: Union[HttpxResponse, dict],
+                                          raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
         """
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
@@ -680,7 +680,7 @@ class ReferenceClient:
         except KeyError:
             return False
 
-    async def async_get_ticker_types(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_ticker_types(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a mapping of ticker types to their descriptive names - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
@@ -699,7 +699,7 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_ticker_types_v3(self, asset_class=None, locale=None,
-                                        raw_response: bool = False) -> Union[Response, dict]:
+                                        raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a mapping of ticker types to their descriptive names - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
@@ -722,7 +722,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
         information such as name, sector, exchange, logo and similar companies - to be used by async operations
@@ -743,7 +743,7 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_ticker_details_vx(self, symbol: str, date: Union[str, datetime.date, datetime.datetime],
-                                          raw_response: bool = False) -> Union[Response, dict]:
+                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         This API is Experimental and will replace Ticker Details in future. It is recommended NOT to use this just
         yet as the endpoint name is likely to change and you might end up with a codebase that you'll dread to maintain.
@@ -778,7 +778,7 @@ class ReferenceClient:
                                     ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                                     published_utc=None, published_utc_lt=None, published_utc_lte=None,
                                     published_utc_gt=None, published_utc_gte=None,
-                                    raw_response: bool = False) -> Union[Response, dict]:
+                                    raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - to be used by async operations
@@ -842,8 +842,8 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_next_page_news(self, old_response: Union[Response, dict],
-                                       raw_response: bool = False) -> Union[Response, dict, bool]:
+    async def async_get_next_page_news(self, old_response: Union[HttpxResponse, dict],
+                                       raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
         """
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
@@ -865,7 +865,7 @@ class ReferenceClient:
         except KeyError:
             return False
 
-    async def async_get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend.
         to be used by async operations
@@ -886,7 +886,7 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_stock_financials(self, symbol: str, limit: int = 100, report_type: str = None, sort: str = None,
-                                         raw_response: bool = False) -> Union[Response, dict]:
+                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historical financial data for a stock ticker - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor
@@ -918,7 +918,7 @@ class ReferenceClient:
     async def async_get_stock_financials_vx(self):  # TODO: Finish this when this API is no longer experimental
         pass
 
-    async def async_get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
         stock split, and the split ratio - to be used by async operations
@@ -938,7 +938,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_market_holidays(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_market_holidays(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get upcoming market holidays and their open/close times - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor
@@ -956,7 +956,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_market_status(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_market_status(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current trading status of the exchanges and overall financial markets - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_now_anchor
@@ -975,7 +975,7 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_condition_mappings(self, tick_type: str = 'trades',
-                                           raw_response: bool = False) -> Union[Response, dict]:
+                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
         codes to identify conditions, so the same condition may have a different code depending on the originator of
@@ -997,7 +997,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_stock_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_stock_exchanges(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of stock exchanges which are supported by Polygon.io - to be used by asny coperations
         Official Docs: https://polygon.io/docs/get_v1_meta_exchanges_anchor
@@ -1015,7 +1015,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_crypto_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_crypto_exchanges(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of cryptocurrency exchanges which are supported by Polygon.io - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_meta_crypto-exchanges_anchor
@@ -1033,7 +1033,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_locales(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_locales(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of locales currently supported by Polygon.io - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_locales_anchor
@@ -1051,7 +1051,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_markets(self, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_markets(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of markets that are currently supported by Polygon.io - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_markets_anchor

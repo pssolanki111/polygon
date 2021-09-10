@@ -354,8 +354,8 @@ class ForexClient:
     # ASYNC Operations' Methods
     async def async_get_historic_forex_ticks(self, from_symbol: str, to_symbol: str,
                                              date: Union[datetime.date, datetime.datetime, str],
-                                             offset: Union[str, int] = None,
-                                             limit: int = 500, raw_response: bool = False) -> Union[Response, dict]:
+                                             offset: Union[str, int] = None, limit: int = 500,
+                                             raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historic trade ticks for a forex currency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor
@@ -386,7 +386,7 @@ class ForexClient:
         return _res.json()
 
     async def async_get_last_quote(self, from_symbol: str, to_symbol: str,
-                                   raw_response: bool = False) -> Union[Response, dict]:
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the last trade tick for a forex currency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor
@@ -409,7 +409,7 @@ class ForexClient:
     async def async_get_aggregate_bars(self, symbol: str, from_date: Union[datetime.date, datetime.datetime, str],
                                        to_date: Union[datetime.date, datetime.datetime, str], multiplier: int = 1,
                                        timespan: str = 'day', adjusted: bool = True, sort: str = 'asc',
-                                       limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+                                       limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if timespan = ‘minute’ and multiplier = ‘5’ then 5-minute bars will be returned.
@@ -452,7 +452,8 @@ class ForexClient:
         return _res.json()
 
     async def async_get_grouped_daily_bars(self, date: Union[datetime.date, datetime.datetime, str],
-                                           adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+                                           adjusted: bool = True,
+                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor
@@ -479,7 +480,7 @@ class ForexClient:
         return _res.json()
 
     async def async_get_previous_close(self, symbol: str, adjusted: bool = True,
-                                       raw_response: bool = False) -> Union[Response, dict]:
+                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
         to be used by async operations
@@ -503,7 +504,7 @@ class ForexClient:
 
         return _res.json()
 
-    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols - to be used by async operations
@@ -528,7 +529,7 @@ class ForexClient:
 
         return _res.json()
 
-    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
          traded forex symbol - to be used by async operations
@@ -549,7 +550,7 @@ class ForexClient:
         return _res.json()
 
     async def async_get_gainers_and_losers(self, direction: str = 'gainers',
-                                           raw_response: bool = False) -> Union[Response, dict]:
+                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current top 20 gainers or losers of the day in forex markets - to be used by async operations
         Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor
@@ -570,7 +571,7 @@ class ForexClient:
 
     async def async_real_time_currency_conversion(self, from_symbol: str, to_symbol: str, amount: float,
                                                   precision: int = 2,
-                                                  raw_response: bool = False) -> Union[Response, dict]:
+                                                  raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
          For example USD to CAD or CAD to USD - to be used by async operations

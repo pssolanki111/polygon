@@ -21,6 +21,7 @@ polygn.egg_info
 *.bmp
 *.jpg
 *.jpeg
+polygon.egg-info
 *.wav
 test.c
 test.cpp

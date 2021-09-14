@@ -43,6 +43,15 @@ class CryptoClient:
             self.session: httpx.AsyncClient
             await self.session.aclose()
 
+    def close(self):
+        if not self._async:
+            self.session.close()
+
+    async def async_close(self):
+        if self._async:
+            self.session: httpx.AsyncClient
+            await self.session.aclose()
+
     # Internal Functions
     def _get_response(self, path: str, params: dict = None,
                       raw_response: bool = True) -> Union[Response, dict]:

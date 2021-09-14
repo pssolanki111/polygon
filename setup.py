@@ -5,7 +5,7 @@ with open('README.md') as file:
 
 setup(
     name='polygon',
-    version='0.0.1',
+    version='0.0.2',
     packages=['polygon', 'polygon.forex', 'polygon.crypto', 'polygon.stocks', 'polygon.streaming',
               'polygon.reference_apis'],
     url='https://github.com/pssolanki111/polygon',

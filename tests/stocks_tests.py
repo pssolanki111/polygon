@@ -193,6 +193,145 @@ class TestStocks(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertLessEqual(len(data['results']), 10)
 
+    def test_get_grouped_daily_bars(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_grouped_daily_bars('2020-06-28')
+            data1 = client.get_grouped_daily_bars('2020-06-28', adjusted=False)
+            data2 = client.get_grouped_daily_bars('2020-06-28', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+            self.assertIn(data['adjusted'], ['true', True])
+            self.assertIn(data1['adjusted'], ['false', False])
+            self.assertIn(data2.json()['adjusted'], ['true', True])
+
+            self.assertEqual(data['resultsCount'], 0)
+            self.assertEqual(data1['resultsCount'], 0)
+            self.assertEqual(data2.json()['resultsCount'], 0)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_grouped_daily_bars('2020-06-28')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+        self.assertEqual(data['resultsCount'], 0)
+
+    def test_get_previous_close(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_previous_close('AMD')
+            data1 = client.get_previous_close('AMD', adjusted=False)
+            data2 = client.get_previous_close('AMD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+            self.assertIn(data['adjusted'], ['true', True])
+            self.assertIn(data1['adjusted'], ['false', False])
+            self.assertIn(data2.json()['adjusted'], ['true', True])
+
+            self.assertTrue(data['results'] == data1['results'] == data2.json()['results'])
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_previous_close('AMD')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_snapshot(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_snapshot('AMD')
+            data1 = client.get_snapshot('AMD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_snapshot('AMD')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_current_price(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_current_price('AMD')
+
+            self.assertTrue(isinstance(data, int) or isinstance(data, float))
+            self.assertGreater(data, 0)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_current_price('AMD')
+        client.close()
+        self.assertTrue(isinstance(data, int) or isinstance(data, float))
+        self.assertGreater(data, 0)
+
+    def test_get_snapshot_all(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_snapshot_all(['AMD', 'NVDA'])
+            data1 = client.get_snapshot_all(['AMD', 'NVDA'], raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+            self.assertEqual(data['count'], 2)
+            self.assertEqual(data1.json()['count'], 2)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_snapshot_all(['AMD', 'NVDA'])
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+        self.assertEqual(data['count'], 2)
+
+    def test_get_gainers_and_losers(self):
+        with polygon.PolygonClient(cred.KEY) as client:
+            data = client.get_gainers_and_losers()
+            data1 = client.get_gainers_and_losers('losers', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY)
+        data = client.get_gainers_and_losers()
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
     @async_test
     async def test_async_get_trades(self):
         async with polygon.PolygonClient(cred.KEY, True) as client:
@@ -365,6 +504,151 @@ class TestStocks(unittest.TestCase):
         await client.async_close()
         self.assertIsInstance(data, dict)
         self.assertLessEqual(len(data['results']), 10)
+
+    @async_test
+    async def test_async_get_grouped_daily_bars(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_grouped_daily_bars('2020-06-28')
+            data1 = await client.async_get_grouped_daily_bars('2020-06-28', adjusted=False)
+            data2 = await client.async_get_grouped_daily_bars('2020-06-28', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+            self.assertIn(data['adjusted'], ['true', True])
+            self.assertIn(data1['adjusted'], ['false', False])
+            self.assertIn(data2.json()['adjusted'], ['true', True])
+
+            self.assertEqual(data['resultsCount'], 0)
+            self.assertEqual(data1['resultsCount'], 0)
+            self.assertEqual(data2.json()['resultsCount'], 0)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, use_async=True)
+        data = await client.async_get_grouped_daily_bars('2020-06-28')
+        await client.async_close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+        self.assertEqual(data['resultsCount'], 0)
+
+    @async_test
+    async def test_async_get_previous_close(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_previous_close('AMD')
+            data1 = await client.async_get_previous_close('AMD', adjusted=False)
+            data2 = await client.async_get_previous_close('AMD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+            self.assertIn(data['adjusted'], ['true', True])
+            self.assertIn(data1['adjusted'], ['false', False])
+            self.assertIn(data2.json()['adjusted'], ['true', True])
+
+            self.assertTrue(data['results'] == data1['results'] == data2.json()['results'])
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, True)
+        data = await client.async_get_previous_close('AMD')
+        await client.async_close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_snapshot(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_snapshot('AMD')
+            data1 = await client.async_get_snapshot('AMD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, HttpxResponse)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, True)
+        data = await client.async_get_snapshot('AMD')
+        await client.async_close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_current_price(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_current_price('AMD')
+
+            self.assertTrue(isinstance(data, int) or isinstance(data, float))
+            self.assertGreater(data, 0)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, True)
+        data = await client.async_get_current_price('AMD')
+        await client.async_close()
+        self.assertTrue(isinstance(data, int) or isinstance(data, float))
+        self.assertGreater(data, 0)
+
+    @async_test
+    async def test_async_get_snapshot_all(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_snapshot_all(['AMD', 'NVDA'])
+            data1 = await client.async_get_snapshot_all(['AMD', 'NVDA'], raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, HttpxResponse)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+            self.assertEqual(data['count'], 2)
+            self.assertEqual(data1.json()['count'], 2)
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, True)
+        data = await client.async_get_snapshot_all(['AMD', 'NVDA'])
+        await client.async_close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+        self.assertEqual(data['count'], 2)
+
+    @async_test
+    async def test_get_gainers_and_losers(self):
+        async with polygon.PolygonClient(cred.KEY, True) as client:
+            data = await client.async_get_gainers_and_losers()
+            data1 = await client.async_get_gainers_and_losers('losers', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, HttpxResponse)
+
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # Testing without Context Manager
+        client = polygon.PolygonClient(cred.KEY, True)
+        data = await client.async_get_gainers_and_losers()
+        await client.async_close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
 
 
 # ========================================================= #

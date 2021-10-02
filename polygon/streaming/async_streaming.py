@@ -32,14 +32,14 @@ def get_logger():
 
 
 class AsyncStreamClient:
-    def __init__(self, api_key: str, market: str, host: str = HOST, ping_interval: int = 20,
+    def __init__(self, api_key: str, cluster: str, host: str = HOST, ping_interval: int = 20,
                  ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
                  read_limit: int = 65536, write_limit: int = 65536):
         """
         Initializes the stream client for async streaming.
         Official Docs: https://polygon.io/docs/websockets/getting-started
         :param api_key: Your API Key. Visit your dashboard to get the API key.
-        :param market: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
+        :param cluster: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
         :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
         on stocks websockets stream only.
         :param ping_interval: Send a ping to server every specified number of seconds to keep the connection alive.
@@ -58,7 +58,7 @@ class AsyncStreamClient:
         :param write_limit: The write_limit argument sets the high-water limit of the buffer for outgoing bytes. The
          low-water limit is a quarter of the high-water limit. The default value is 64 KiB, equal to asyncio’s default
         """
-        self.KEY, self._market, self.WS, self._subs, self._re = api_key, market, None, [], 0
+        self.KEY, self._market, self.WS, self._subs, self._re = api_key, cluster, None, [], 0
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
@@ -776,6 +776,23 @@ class AsyncStreamClient:
         _prefix = 'XL2'
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
+    # Convenience Functions
+    async def change_handler(self, service_prefix: str, handler_function):
+        """
+        Change your handler function for a service. Can be used to update handlers dynamically while stream is running.
+        :param service_prefix: The Prefix of the service you want to change handler for. Example: T for trades.
+        While you can find this info on polygon docs (Always mentioned in the sample message), it is recommended to
+        use enum: StreamServicePrefix
+        :param handler_function: The new handler function to assign for this service
+        :return: None
+        """
+
+        # TODO: see if we can assign sync handlers
+        if self._market in ['options']:
+            service_prefix = f'O{service_prefix}'
+
+        self._handlers[self._apis[service_prefix]] = handler_function
 
 
 # ========================================================= #

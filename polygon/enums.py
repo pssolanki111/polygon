@@ -225,6 +225,29 @@ class StreamHost(enum.Enum):
     DELAYED = 'delayed.polygon.io'
 
 
+# Stream Service Prefix - Websockets
+class StreamServicePrefix(enum.Enum):
+    """
+    Service Prefix for Stream endpoints. To be used for method: async change_handler()
+    """
+    STOCK_TRADES = 'T'
+    STOCK_QUOTES = 'Q'
+    STOCK_MINUTE_AGGREGATES = 'AM'
+    STOCK_SECOND_AGGREGATES = 'A'
+    STOCK_LULD = 'LULD'
+    STOCK_IMBALANCES = 'NOI'
+    FOREX_QUOTES = 'C'
+    FOREX_MINUTE_AGGREGATES = 'CA'
+    CRYPTO_TRADES = 'XT'
+    CRYPTO_QUOTES = 'XQ'
+    CRYPTO_LEVEL2 = 'XL2'
+    CRYPTO_MINUTE_AGGREGATES = 'XA'
+    STATUS = 'status'
+    OPTION_TRADES = 'T'
+    OPTION_MINUTE_AGGREGATES = 'AM'
+    OPTION_SECOND_AGGREGATES = 'A'
+
+
 # ========================================================= #
 
 if __name__ == '__main__':

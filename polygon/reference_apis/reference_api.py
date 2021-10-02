@@ -213,23 +213,18 @@ class ReferenceClient:
         except KeyError:
             return False
 
-    def get_ticker_types(self, raw_response: bool = False) -> Union[Response, dict]:
+    @staticmethod
+    def get_ticker_types(raw_response: bool = False) -> None:
         """
+        DEPRECATED! Replaced by ticker types V3: https://polygon.io/docs/get_v2_reference_types_anchor. This method
+        will be removed in a future version from the library
         Get a mapping of ticker types to their descriptive names.
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
-        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
-        _path = '/v2/reference/types'
-
-        _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
+        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (get_ticker_types_v3). Please Use '
+              f'the new endpoint.')
+        return
 
     def get_ticker_types_v3(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -277,8 +272,7 @@ class ReferenceClient:
     def get_ticker_details_vx(self, symbol: str, date: Union[str, datetime.date, datetime.datetime],
                               raw_response: bool = False) -> Union[Response, dict]:
         """
-        This API is Experimental and will replace Ticker Details in future. It is recommended NOT to use this just
-        yet as the endpoint name is likely to change and you might end up with a codebase that you'll dread to maintain.
+        This API is Experimental and will replace Ticker Details in future.
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
          the company behind it.
          Official Docs: https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor
@@ -297,6 +291,57 @@ class ReferenceClient:
         _path = f'/vX/reference/tickers/{symbol.upper()}'
 
         _data = {'date': date}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type: str = None,
+                             expiration_date: Union[datetime.date, datetime.datetime, str] = None,
+                             expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
+                             expiration_date_gte=None, order: str = 'asc', sort: str = None,
+                             raw_response: bool = False) -> Union[Response, dict]:
+        """
+        List currently active options contracts
+        Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor
+        :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
+        :param ticker: Query for a contract by option ticker.
+        :param contract_type: Query by the type of contract (ie call/put)
+        :param expiration_date: Query by contract expiration date. either datetime, date or string "YYYY-MM-DD"
+        :param expiration_date_lt: expiration date less than filter
+        :param expiration_date_lte: expiration date less than equal to filter
+        :param expiration_date_gt: expiration_date greater than filter
+        :param expiration_date_gte: expiration_date greater than equal to filter
+        :param order: Order of results. ascending or descending.
+        :param sort: Sort field for ordering. one of ticker, underlying_ticker, expiration_date and strike_price
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+        if isinstance(expiration_date, datetime.date) or isinstance(expiration_date, datetime.datetime):
+            expiration_date = expiration_date.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_lt, datetime.date) or isinstance(expiration_date_lt, datetime.datetime):
+            expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_lte, datetime.date) or isinstance(expiration_date_lte, datetime.datetime):
+            expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_gt, datetime.date) or isinstance(expiration_date_gt, datetime.datetime):
+            expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
+            expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
+
+        _path = f'/vX/reference/options/contracts'
+
+        _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
+                 'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
+                 'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
+                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort}
 
         _res = self._get_response(_path, params=_data)
 
@@ -788,6 +833,58 @@ class ReferenceClient:
 
         return _res.json()
 
+    async def async_get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
+                                         contract_type: str = None,
+                                         expiration_date: Union[datetime.date, datetime.datetime, str] = None,
+                                         expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
+                                         expiration_date_gte=None, order: str = 'asc', sort: str = None,
+                                         raw_response: bool = False) -> Union[Response, dict]:
+        """
+        List currently active options contracts
+        Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor
+        :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
+        :param ticker: Query for a contract by option ticker.
+        :param contract_type: Query by the type of contract (ie call/put)
+        :param expiration_date: Query by contract expiration date. either datetime, date or string "YYYY-MM-DD"
+        :param expiration_date_lt: expiration date less than filter
+        :param expiration_date_lte: expiration date less than equal to filter
+        :param expiration_date_gt: expiration_date greater than filter
+        :param expiration_date_gte: expiration_date greater than equal to filter
+        :param order: Order of results. ascending or descending.
+        :param sort: Sort field for ordering. one of ticker, underlying_ticker, expiration_date and strike_price
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+        if isinstance(expiration_date, datetime.date) or isinstance(expiration_date, datetime.datetime):
+            expiration_date = expiration_date.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_lt, datetime.date) or isinstance(expiration_date_lt, datetime.datetime):
+            expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_lte, datetime.date) or isinstance(expiration_date_lte, datetime.datetime):
+            expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_gt, datetime.date) or isinstance(expiration_date_gt, datetime.datetime):
+            expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
+            expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
+
+        _path = f'/vX/reference/options/contracts'
+
+        _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
+                 'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
+                 'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
+                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     async def async_get_ticker_news(self, symbol: str = None, limit: int = 100, order: str = 'desc',
                                     sort: str = 'published_utc',
                                     ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
@@ -1096,18 +1193,6 @@ class ReferenceClient:
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-
-    from pprint import pprint
-    from polygon import cred
-
-    client = ReferenceClient(cred.KEY)
-
-    res = client.get_markets(raw_response=False)
-
-    # res2 = client.get_next_page_news(res, raw_response=False)
-
-    pprint(res)
-    # pprint(res2)
 
 
 # ========================================================= #

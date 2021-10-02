@@ -195,6 +195,27 @@ class StreamCluster(enum.Enum):
     CRYPTO = 'crypto'
 
 
+# Options Contract Type - Common
+class OptionsContractType(enum.Enum):
+    """
+    Contract Type for method: get_options_contracts()
+    """
+    CALL = 'call',
+    PUT = 'put'
+    OTHER = 'other'
+
+
+# Option contract Sort Key
+class OptionsContractsSortType(enum.Enum):
+    """
+    Sort field used for ordering for method: get_options_contracts()
+    """
+    TICKER = 'ticker'
+    UNDERLYING_TICKER = 'underlying_ticker'
+    EXPIRATION_DATE = 'expiration_date'
+    STRIKE_PRICE = 'strike_price'
+
+
 # ========================================================= #
 
 if __name__ == '__main__':

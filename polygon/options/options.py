@@ -120,3 +120,101 @@ class OptionsClient:
             return _res
 
         return _res.json()
+
+    # Endpoints
+    def get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the most recent trade for a given options contract.
+        Official Docs: https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor
+        :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
+        """
+
+        _path = f'/v2/last/trade/{ticker}'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_previous_close(self, ticker: str, adjusted: bool = True,
+                           raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
+        Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor
+        :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        Set this to false to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
+        """
+
+        _path = f'/v2/aggs/ticker/{ticker}/prev'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    # ASYNC Methods
+    async def async_get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        """
+        Get the most recent trade for a given options contract - Async
+        Official Docs: https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor
+        :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
+        """
+
+        _path = f'/v2/last/trade/{ticker}'
+
+        _res = await self._get_async_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def async_get_previous_close(self, ticker: str, adjusted: bool = True,
+                                       raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
+        Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor
+        :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        Set this to false to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
+        """
+
+        _path = f'/v2/aggs/ticker/{ticker}/prev'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+
+# ========================================================= #
+
+
+if __name__ == '__main__':  # Tests
+    print('Don\'t You Dare Running Lib Files Directly')
+
+
+# ========================================================= #

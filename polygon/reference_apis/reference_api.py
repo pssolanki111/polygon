@@ -833,7 +833,7 @@ class ReferenceClient:
                                          expiration_date: Union[datetime.date, datetime.datetime, str] = None,
                                          expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
                                          expiration_date_gte=None, order: str = 'asc', sort: str = None,
-                                         raw_response: bool = False) -> Union[Response, dict]:
+                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         List currently active options contracts
         Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor

@@ -42,7 +42,6 @@ class TestStocks(unittest.TestCase):
 
             self.assertIsInstance(data1.json(), dict)
             self.assertIsInstance(data2.json(), dict)
-            self.assertIsInstance(data3, dict)
 
             self.assertEqual(len(data['results']), 10)
             self.assertEqual(len(data1.json()['results']), 10)

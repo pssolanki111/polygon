@@ -97,10 +97,12 @@ class TickerNewsSort(enum.Enum):
     PUBLISHED_UTC = 'published_utc'
     ALL = None
 
-# TODO: finish docstrings. Add enums.
 
 # Stock Report Type - Reference APIs
 class StockReportType(enum.Enum):
+    """
+    Type of report for method: get_stock_financials()
+    """
     YEAR = 'Y'
     Y = 'Y'
     YA = 'YA'
@@ -115,14 +117,52 @@ class StockReportType(enum.Enum):
     TRAILING_TWELVE_MONTHS_ANNUALIZED = 'TA'
 
 
+# Stock Report Sort Type - Reference APIs
+class StockFinancialsSortType(enum.Enum):
+    """
+    Direction to use for sorting report for method: get_stock_financials()
+    """
+    REPORT_PERIOD = 'reportPeriod'
+    REVERSE_REPORT_PERIOD = '-reportPeriod'
+    CALENDAR_DATE = 'calendarDate'
+    REVERSE_CALENDAR_DATE = '-calendarDate'
+
+
+# Stock Financial Time Frame - Reference APIs
+class StockFinancialsTimeframe(enum.Enum):
+    """
+    Query by timeframe. Annual financials originate from 10-K filings, and quarterly financials originate from 10-Q
+     filings. Note: Most companies do not file quarterly reports for Q4 and instead include those financials in their
+     annual report, so some companies my not return quarterly financials for Q4
+     for method: get_stock_financials_vx()
+    """
+    ANNUAL = 'annual'
+    QUARTERLY = 'quarterly'
+
+
+# Stock Financials Sort Key - Reference APIS
+class StockFinancialsSortKey(enum.Enum):
+    """
+    Sort field to use for get_stock_financials_vx()
+    """
+    FILLING_DATE = 'filling_date'
+    PERIOD_OF_REPORT_DATE = 'period_of_report_date'
+
+
 # Conditions Mapping Tick Type - Reference APIs
 class ConditionMappingTickType(enum.Enum):
+    """
+    Tick Type to be used for method: get_condition_mappings()
+    """
     TRADES = 'trades'
     QUOTES = 'quotes'
 
 
 # Exchanges Asset Class
 class ExchangesAssetClass(enum.Enum):
+    """
+    Asset Class filter for method: get_exchanges_v3()
+    """
     STOCKS = 'stocks'
     OPTIONS = 'options'
     FOREX = 'fx'
@@ -131,6 +171,9 @@ class ExchangesAssetClass(enum.Enum):
 
 # Exchanges Locales - Reference APIs
 class ExchangesLocale(enum.Enum):
+    """
+    Locale name for method: get_exchanges_v3()
+    """
     US = 'us'
     GLOBAL = 'global'
 
@@ -144,7 +187,13 @@ class SnapshotDirection:
     LOSE = 'losers'
 
 
-#
+# Stream Cluster - Websockets
+class StreamCluster(enum.Enum):
+    STOCKS = 'stocks'
+    OPTIONS = 'options'
+    FOREX = 'forex'
+    CRYPTO = 'crypto'
+
 
 # ========================================================= #
 

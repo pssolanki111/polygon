@@ -525,6 +525,12 @@ class ReferenceClient:
 
         return _res.json()
 
+    def get_conditions(self):
+        pass   # TODO: implement this endpoint when it is no longer experimental
+
+    def get_exchanges(self):
+        pass
+
     def get_stock_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get a list of stock exchanges which are supported by Polygon.io.
@@ -1005,6 +1011,12 @@ class ReferenceClient:
             return _res
 
         return _res.json()
+
+    async def async_get_conditions(self):
+        pass   # TODO: implement this endpoint when it is no longer experimental
+
+    async def async_get_exchanges(self):
+        pass  # TODO: implement this endpoint when it is no longer experimental
 
     async def async_get_stock_exchanges(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """

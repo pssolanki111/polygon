@@ -69,16 +69,13 @@ class StreamClient:
 
         self._run_in_thread: Union[threading.Thread, None] = None
 
-        # signal Handlers. Can be overridden by user.
-        signal.signal(signal.SIGINT, self.close_stream)
-        signal.signal(signal.SIGTERM, self.close_stream)
-
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print('exit handler of context manager called')
-        return  # TODO: figure out what to do when exiting context manager
+        self.WS.close()
+        return 
 
     def _start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
                       skip_utf8_validation: bool = True):
@@ -212,7 +209,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -246,7 +243,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -280,7 +277,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -314,7 +311,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -348,7 +345,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -361,7 +358,7 @@ class StreamClient:
     # OPTIONS Streams
     def subscribe_option_trades(self, symbols: list = None, action: str = 'subscribe'):
         """
-        Stream real-time Options Trades for given stock ticker symbol(s).
+        Stream real-time Options Trades for given Options contract.
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -383,7 +380,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -392,6 +389,74 @@ class StreamClient:
 
     def unsubscribe_option_trades(self, symbols: list = None):
         self.subscribe_option_trades(symbols, action='unsubscribe')
+
+    def subscribe_option_minute_aggregates(self, tickers: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Options Minute Aggregates for given Options contract(s).
+        :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        _prefix = 'AM.'
+
+        if tickers is None:
+            tickers = _prefix + '*'
+
+        else:
+            tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), tickers)
+
+        try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
+            self.WS.send(_payload)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
+
+    def unsubscribe_option_minute_aggregates(self, symbols: list = None):
+        self.subscribe_option_minute_aggregates(symbols, action='unsubscribe')
+
+    def subscribe_option_second_aggregates(self, tickers: list = None, action: str = 'subscribe'):
+        """
+        Stream real-time Options Second Aggregates for given Options contract(s).
+        :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :return: None
+        """
+
+        _prefix = 'A.'
+
+        if tickers is None:
+            tickers = _prefix + '*'
+
+        else:
+            tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
+
+        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), tickers)
+
+        try:
+            # Ensuring we are logged in and the socket is open to receive subscription messages
+            self._auth.wait()
+
+            self.WS.send(_payload)
+
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
+            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            return
+
+        except Exception:
+            raise
+        
+    def unsubscribe_option_second_aggregates(self, symbols: list = None):
+        self.subscribe_option_second_aggregates(symbols, action='unsubscribe')
 
     # FOREX Streams
     def subscribe_forex_quotes(self, symbols: list = None, action: str = 'subscribe'):
@@ -418,7 +483,7 @@ class StreamClient:
             self._auth.wait()
 
             self.WS.send(_payload)
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -453,7 +518,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -489,7 +554,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -524,7 +589,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -559,7 +624,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -594,7 +659,7 @@ class StreamClient:
 
             self.WS.send(_payload)
 
-        except ws_client._exceptions.WebSocketConnectionClosedException:  # TODO: inspect the behavior when market opens
+        except ws_client._exceptions.WebSocketConnectionClosedException:   
             get_logger().error('Login Failed. Please recheck your API key and try again.')
             return
 
@@ -655,16 +720,6 @@ class StreamClient:
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-    from polygon import cred
-    from pprint import pprint
-
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
-
-    # client = StreamClient(cred.KEY, STOCKS)
-    client = StreamClient('l', STOCKS)
-    client.start_stream_thread()
-    # client.unsubscribe_stock_limit_up_limit_down(['AMD', 'PYPL'])
-    client.subscribe_stock_trades(['AMD', 'NVDA'])
 
 
 # ========================================================= #

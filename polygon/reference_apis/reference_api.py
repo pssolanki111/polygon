@@ -740,23 +740,18 @@ class ReferenceClient:
         except KeyError:
             return False
 
-    async def async_get_ticker_types(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    @staticmethod
+    async def async_get_ticker_types(raw_response: bool = False) -> None:
         """
-        Get a mapping of ticker types to their descriptive names - to be used by async operations
+        DEPRECATED! Replaced by ticker types V3: https://polygon.io/docs/get_v2_reference_types_anchor. This method
+        will be removed in a future version from the library
+        Get a mapping of ticker types to their descriptive names - async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
-        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
-        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
-        _path = '/v2/reference/types'
-
-        _res = await self._get_async_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
+        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (async_get_ticker_types_v3). Please '
+              f'Use  the new endpoint.')
+        return
 
     async def async_get_ticker_types_v3(self, asset_class=None, locale=None,
                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:

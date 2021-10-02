@@ -216,6 +216,15 @@ class OptionsContractsSortType(enum.Enum):
     STRIKE_PRICE = 'strike_price'
 
 
+# Stream Host - Common Websockets
+class StreamHost(enum.Enum):
+    """
+    Host to be used for stream connections.
+    """
+    REAL_TIME = 'socket.polygon.io'
+    DELAYED = 'delayed.polygon.io'
+
+
 # ========================================================= #
 
 if __name__ == '__main__':

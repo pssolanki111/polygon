@@ -75,7 +75,8 @@ class AsyncStreamClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         print('exit handler of async context manager called')
-        return  # TODO: figure out what to do when exiting context manager
+        await self.WS.close()
+        return
 
     async def login(self, key: str = None):
         """

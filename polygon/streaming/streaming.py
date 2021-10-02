@@ -8,7 +8,7 @@ from typing import Union
 from enum import Enum
 import time
 import logging
-# ========================================================= # TODO: add feature of auto reconnection
+# ========================================================= # TODO: add auto reconnection
 
 
 STOCKS = 'stocks'
@@ -73,7 +73,6 @@ class StreamClient:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print('exit handler of context manager called')
         self.WS.close()
         return 
 

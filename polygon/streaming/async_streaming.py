@@ -74,7 +74,6 @@ class AsyncStreamClient:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        print('exit handler of async context manager called')
         await self.WS.close()
         return
 
@@ -301,7 +300,7 @@ class AsyncStreamClient:
         _apis = {'T': 'stock_trades', 'Q': 'stock_quotes', 'AM': 'stock_agg_min', 'A': 'stock_agg_sec',
                  'LULD': 'stock_luld', 'NOI': 'stock_imbalances', 'C': 'forex_quotes', 'CA': 'forex_agg_min',
                  'XT': 'crypto_trades', 'XQ': 'crypto_quotes', 'XL2': 'crypto_l2', 'XA': 'crypto_agg_min',
-                 'status': 'status'}
+                 'status': 'status', 'OT': 'options_trades', 'OAM': 'options_agg_min', 'OA': 'options_agg_sec'}
 
         for name in _apis.values():
             _handlers[name] = self._default_process_message
@@ -322,6 +321,10 @@ class AsyncStreamClient:
 
         if isinstance(symbols, str):
             pass
+
+        # options streamers. Need special handling as service prefix is same as stocks
+        if _prefix in ['OT', 'OAM', 'OA']:
+            _prefix = _prefix[1:]
 
         elif symbols is None:
             symbols = _prefix + '*'
@@ -521,7 +524,7 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = 'OT'
 
         if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
                 inspect.iscoroutine(handler_function):
@@ -536,7 +539,65 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = 'OT'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
+    async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time options minute aggregates for given ticker(s)
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied
+        MUST be either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'OAM'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'OAM'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
+    async def subscribe_option_second_aggregates(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time options second aggregates for given ticker(s)
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param handler_function: The function which you'd want to call to process messages received from this
+        subscription. Defaults to None which uses the default process message function. The function supplied
+        MUST be either one of a coroutine, a task, a future or an await-able.
+        :return: None
+        """
+
+        _prefix = 'OA'
+
+        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
+                inspect.iscoroutine(handler_function):
+            self._handlers[self._apis[_prefix]] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def unsubscribe_option_second_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream in concern.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :return: None
+        """
+
+        _prefix = 'OA'
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
@@ -729,24 +790,6 @@ def _terminate(_ws):
 # ========================================================= #
 
 if __name__ == '__main__':
-    from polygon import cred
+    print('Don\'t You Dare Running Lib Files Directly :/')
 
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: (%(asctime)s) : %(message)s')
-
-    async def test():
-        client = AsyncStreamClient(cred.KEY, market=STOCKS)
-        # client = AsyncStreamClient(cred.KEY+'l')
-
-        await client.subscribe_stock_trades(['AMD'])
-        # await client.subscribe_stock_quotes(['AMD'])
-
-        # await client.subscribe_option_trades(['AMD'])
-
-        # await client.unsubscribe_stock_trades(['MSFT'])
-
-        await client.start_stream(reconnect=True, max_reconnection_attempts=2)
-
-        # while 1:
-        #     await client.start_stream()
-
-    asyncio.run(test())
+# ========================================================= #

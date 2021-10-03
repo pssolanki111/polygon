@@ -194,8 +194,8 @@ class TestReferences(unittest.TestCase):
 
     def test_get_stock_financials_vx(self):
         with polygon.ReferenceClient(cred.KEY) as client:
-            data = client.get_stock_financials('AMD', limit=10)
-            data1 = client.get_stock_financials('AMD', report_type='YA', raw_response=True)
+            data = client.get_stock_financials_vx('AMD', limit=10)
+            data1 = client.get_stock_financials_vx('AMD', include_sources=True, raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
@@ -206,12 +206,151 @@ class TestReferences(unittest.TestCase):
 
         # without context manager
         client = polygon.ReferenceClient(cred.KEY)
-        data = client.get_stock_financials('AMD', limit=10)
+        data = client.get_stock_financials_vx('AMD', limit=10)
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
-    # TODO: cont with financials vx
+    def test_get_stock_splits(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_stock_splits('AMD')
+            data1 = client.get_stock_splits('AMD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_stock_splits('AMD')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_market_holidays(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_market_holidays()
+            data1 = client.get_market_holidays(raw_response=True)
+
+            self.assertIsInstance(data, list)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), list)
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_market_holidays()
+        client.close()
+        self.assertIsInstance(data, list)
+
+    def test_get_market_status(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_market_status()
+            data1 = client.get_market_status(raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_market_status()
+        client.close()
+        self.assertIsInstance(data, dict)
+
+    def test_get_condition_mappings(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_condition_mappings()
+            data1 = client.get_condition_mappings('quotes', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_condition_mappings('trades')
+        client.close()
+        self.assertIsInstance(data, dict)
+
+    def test_get_conditions(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_conditions()
+            data1 = client.get_conditions('options', data_type='nbbo', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_conditions()
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_exchanges(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_exchanges()
+            data1 = client.get_exchanges('stocks', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_exchanges(locale='us')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_locales(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_locales()
+            data1 = client.get_locales(raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_locales()
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_markets(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_markets()
+            data1 = client.get_markets(raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_markets()
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
 
 # ========================================================= #
 

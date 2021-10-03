@@ -158,10 +158,43 @@ class ConditionMappingTickType(enum.Enum):
     QUOTES = 'quotes'
 
 
-# Exchanges Asset Class
-class ExchangesAssetClass(enum.Enum):
+# Conditions Data Type - Reference APIs
+class ConditionsDataType(enum.Enum):
     """
-    Asset Class filter for method: get_exchanges_v3()
+    Type of data for method: get_conditions()
+    """
+    TRADE = 'trade'
+    BBO = 'bbo'
+    NBBO = 'nbbo'
+
+
+# Conditions SIP - Reference APIs
+class ConditionsSIP(enum.Enum):
+    """
+    SIP for method: get_conditions()
+    """
+    CTA = 'CTA'
+    UTP = 'UTP'
+    OPRA = 'OPRA'
+
+
+# Conditions Sort key - Reference APIs
+class ConditionsSortKey(enum.Enum):
+    """
+    Sort key to use for method: get_conditions()
+    """
+    ASSET_CLASS = 'asset_class'
+    ID = 'id'
+    TYPE = 'type'
+    NAME = 'name'
+    DATA_TYPES = 'data_types'
+    LEGACY = 'legacy'
+
+
+# Asset Class - Common
+class AssetClass(enum.Enum):
+    """
+    Asset Class for methods: get_exchanges_v3() and get_conditions() and wherever needed.
     """
     STOCKS = 'stocks'
     OPTIONS = 'options'

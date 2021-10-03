@@ -139,8 +139,8 @@ class TestStocks(unittest.TestCase):
         with polygon.PolygonClient(cred.KEY) as client:
             data = client.get_daily_open_close('AMD', '2021-06-28')
             data1 = client.get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True)
-            data2 = client.get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True, adjusted=
-                                                False)
+            data2 = client.get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True,
+                                                adjusted=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)

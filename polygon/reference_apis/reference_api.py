@@ -214,7 +214,7 @@ class ReferenceClient:
             return False
 
     @staticmethod
-    def get_ticker_types(raw_response: bool = False) -> None:
+    def get_ticker_types(*args, **kwargs) -> None:
         """
         DEPRECATED! Replaced by ticker types V3: https://polygon.io/docs/get_v2_reference_types_anchor. This method
         will be removed in a future version from the library
@@ -269,7 +269,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_ticker_details_vx(self, symbol: str, date: Union[str, datetime.date, datetime.datetime],
+    def get_ticker_details_vx(self, symbol: str, date=None,
                               raw_response: bool = False) -> Union[Response, dict]:
         """
         This API is Experimental and will replace Ticker Details in future.
@@ -302,7 +302,7 @@ class ReferenceClient:
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type: str = None,
                              expiration_date: Union[datetime.date, datetime.datetime, str] = None,
                              expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                             expiration_date_gte=None, order: str = 'asc', sort: str = None,
+                             expiration_date_gte=None, order: str = 'asc', sort: str = None, limit=100,
                              raw_response: bool = False) -> Union[Response, dict]:
         """
         List currently active options contracts
@@ -317,6 +317,7 @@ class ReferenceClient:
         :param expiration_date_gte: expiration_date greater than equal to filter
         :param order: Order of results. ascending or descending.
         :param sort: Sort field for ordering. one of ticker, underlying_ticker, expiration_date and strike_price
+        :param limit: Number of results to return
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -349,6 +350,31 @@ class ReferenceClient:
             return _res
 
         return _res.json()
+
+    def get_next_page_option_contracts(self, old_response, raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the next page using the most recent yet old response. This function simply parses the next_url
+        attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages).
+        :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
+        check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response
+        object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
 
     def get_ticker_news(self, symbol: str = None, limit: int = 100, order: str = 'desc', sort: str = 'published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
@@ -489,8 +515,67 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_stock_financials_vx(self):  # TODO: Finish this when this API is no longer experimental
-        pass
+    def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
+                                company_name_search: str = None, sic: str = None, filing_date=None,
+                                filing_date_lt=None, filing_date_lte=None, filing_date_gt=None, filing_date_gte=None,
+                                period_of_report_date=None, period_of_report_date_lt=None,
+                                period_of_report_date_lte=None, period_of_report_date_gt=None,
+                                period_of_report_date_gte=None, time_frame=None, include_sources: bool = False,
+                                order: str = 'asc', limit: int = 50, sort: str = 'filing_date',
+                                raw_response: bool = False):
+        """
+        Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
+        filings using the methodology outlined at: http://xbrl.squarespace.com/understanding-sec-xbrl-financi/
+        Official Docs: https://polygon.io/docs/get_vX_reference_financials_anchor
+        This API is experimental and will replace Stock financials.
+        :param ticker: Filter query by company ticker.
+        :param cik: filter the Query by central index key (CIK) Number
+        :param company_name: filter the query by company name
+        :param company_name_search: partial match text search for company names
+        :param sic: Query by standard industrial classification (SIC)
+        :param filing_date: Query by the date when the filing with financials data was filed. datetime/date or string
+        'YYYY-MM-DD'
+        :param filing_date_lt: filter for filing date less than given value
+        :param filing_date_lte: filter for filing date less than equal to given value
+        :param filing_date_gt: filter for filing date greater than given value
+        :param filing_date_gte: filter for filing date greater than equal to given value
+        :param period_of_report_date: query by The period of report for the filing with financials data.
+        datetime/date or string in format: 'YYY-MM-DD'.
+        :param period_of_report_date_lt: filter for period of report date less than given value
+        :param period_of_report_date_lte: filter for period of report date less than equal to given value
+        :param period_of_report_date_gt: filter for period of report date greater than given value
+        :param period_of_report_date_gte: filter for period of report date greater than equal to given value
+        :param time_frame: Query by timeframe. Annual financials originate from 10-K filings, and quarterly financials
+        originate from 10-Q filings. Note: Most companies do not file quarterly reports for Q4 and instead include
+        those financials in their annual report, so some companies my not return quarterly financials for Q4
+        :param include_sources: Whether or not to include the xpath and formula attributes for each financial data
+        point. See the xpath and formula response attributes for more info. False by default
+        :param order: Order results based on the sort field. 'asc' by default.
+        :param limit: number of max results to obtain. defaults to 50.
+        :param sort: Sort field key used for ordering. 'filing_date' default. 'period_of_report_date' another option.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/vX/reference/financials'
+
+        _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
+                 'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
+                 'filing_date_lt': filing_date_lt, 'filing_date_lte': filing_date_lte,
+                 'filing_date_gt': filing_date_gt, 'filing_date_gte': filing_date_gte,
+                 'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
+                 'period_of_report_date_lte': period_of_report_date_lte,
+                 'period_of_report_date_gt': period_of_report_date_gt,
+                 'period_of_report_date_gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
+                 'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
 
     def get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -570,47 +655,74 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_conditions(self):
-        pass   # TODO: implement this endpoint when it is no longer experimental
-
-    def get_exchanges(self):
-        pass
-
-    def get_stock_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+    def get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
+                       limit: int = 50, sort: str = None, raw_response: bool = False):
         """
-        Get a list of stock exchanges which are supported by Polygon.io.
-        Official Docs: https://polygon.io/docs/get_v1_meta_exchanges_anchor
+        List all conditions that Polygon.io uses.
+        Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+        :param asset_class: Filter for conditions within a given asset class.
+        :param data_type: Filter by data type
+        :param id: Filter for conditions with a given ID
+        :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
+        :param order: Order results based on the sort field.
+        :param limit: limit the number of results. defaults to 50.
+        :param sort: Sort field used for ordering.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
+        _path = f'/vX/reference/conditions'
 
-        _path = '/v1/meta/exchanges'
+        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
+                 'limit': limit, 'sort': sort}
 
-        _res = self._get_response(_path)
+        _res = self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    def get_crypto_exchanges(self, raw_response: bool = False) -> Union[Response, dict]:
+    def get_exchanges(self, asset_class: str = None, locale: str = None, raw_response: bool = False):
         """
-        Get a list of cryptocurrency exchanges which are supported by Polygon.io.
-        Official Docs: https://polygon.io/docs/get_v1_meta_crypto-exchanges_anchor
+        List all exchanges that Polygon.io knows about.
+        Official Docs: https://polygon.io/docs/get_v3_reference_exchanges_anchor
+        :param asset_class: filter by asset class.
+        :param locale: Filter by locale name.
+        :param raw_response:
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
-        _path = '/v1/meta/crypto-exchanges'
+        _path = f'/v3/reference/exchanges'
 
-        _res = self._get_response(_path)
+        _data = {'asset_class': asset_class, 'locale': locale}
+
+        _res = self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
+
+    @staticmethod
+    def get_stock_exchanges(*args, **kwargs):
+        """
+        DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
+        will be removed in a future version from the library
+        """
+        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
+        return
+
+    @staticmethod
+    def get_crypto_exchanges(*args, **kwargs):
+        """
+        DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
+        will be removed in a future version from the library
+        """
+        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
+        return
 
     def get_locales(self, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -741,7 +853,7 @@ class ReferenceClient:
             return False
 
     @staticmethod
-    async def async_get_ticker_types(raw_response: bool = False) -> None:
+    async def async_get_ticker_types(*args, **kwargs) -> None:
         """
         DEPRECATED! Replaced by ticker types V3: https://polygon.io/docs/get_v2_reference_types_anchor. This method
         will be removed in a future version from the library
@@ -1022,8 +1134,67 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_stock_financials_vx(self):  # TODO: Finish this when this API is no longer experimental
-        pass
+    async def async_get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
+                                            company_name_search: str = None, sic: str = None, filing_date=None,
+                                            filing_date_lt=None, filing_date_lte=None, filing_date_gt=None,
+                                            filing_date_gte=None, period_of_report_date=None,
+                                            period_of_report_date_lt=None, period_of_report_date_lte=None,
+                                            period_of_report_date_gt=None, period_of_report_date_gte=None,
+                                            time_frame=None, include_sources: bool = False, order: str = 'asc',
+                                            limit: int = 50, sort: str = 'filing_date', raw_response: bool = False):
+        """
+        Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
+        filings using the methodology outlined at: http://xbrl.squarespace.com/understanding-sec-xbrl-financi/
+        Official Docs: https://polygon.io/docs/get_vX_reference_financials_anchor
+        This API is experimental and will replace Stock financials.
+        :param ticker: Filter query by company ticker.
+        :param cik: filter the Query by central index key (CIK) Number
+        :param company_name: filter the query by company name
+        :param company_name_search: partial match text search for company names
+        :param sic: Query by standard industrial classification (SIC)
+        :param filing_date: Query by the date when the filing with financials data was filed. datetime/date or string
+        'YYYY-MM-DD'
+        :param filing_date_lt: filter for filing date less than given value
+        :param filing_date_lte: filter for filing date less than equal to given value
+        :param filing_date_gt: filter for filing date greater than given value
+        :param filing_date_gte: filter for filing date greater than equal to given value
+        :param period_of_report_date: query by The period of report for the filing with financials data.
+        datetime/date or string in format: 'YYY-MM-DD'.
+        :param period_of_report_date_lt: filter for period of report date less than given value
+        :param period_of_report_date_lte: filter for period of report date less than equal to given value
+        :param period_of_report_date_gt: filter for period of report date greater than given value
+        :param period_of_report_date_gte: filter for period of report date greater than equal to given value
+        :param time_frame: Query by timeframe. Annual financials originate from 10-K filings, and quarterly financials
+        originate from 10-Q filings. Note: Most companies do not file quarterly reports for Q4 and instead include
+        those financials in their annual report, so some companies my not return quarterly financials for Q4
+        :param include_sources: Whether or not to include the xpath and formula attributes for each financial data
+        point. See the xpath and formula response attributes for more info. False by default
+        :param order: Order results based on the sort field. 'asc' by default.
+        :param limit: number of max results to obtain. defaults to 50.
+        :param sort: Sort field key used for ordering. 'filing_date' default. 'period_of_report_date' another option.
+        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
+        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        """
+
+        _path = f'/vX/reference/financials'
+
+        _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
+                 'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
+                 'filing_date_lt': filing_date_lt, 'filing_date_lte': filing_date_lte,
+                 'filing_date_gt': filing_date_gt, 'filing_date_gte': filing_date_gte,
+                 'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
+                 'period_of_report_date_lte': period_of_report_date_lte,
+                 'period_of_report_date_gt': period_of_report_date_gt,
+                 'period_of_report_date_gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
+                 'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
 
     async def async_get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
@@ -1104,47 +1275,74 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_conditions(self):
-        pass   # TODO: implement this endpoint when it is no longer experimental
-
-    async def async_get_exchanges(self):
-        pass  # TODO: implement this endpoint when it is no longer experimental
-
-    async def async_get_stock_exchanges(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def async_get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
+                                   limit: int = 50, sort: str = None, raw_response: bool = False):
         """
-        Get a list of stock exchanges which are supported by Polygon.io - to be used by asny coperations
-        Official Docs: https://polygon.io/docs/get_v1_meta_exchanges_anchor
+        List all conditions that Polygon.io uses - Async
+        Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+        :param asset_class: Filter for conditions within a given asset class.
+        :param data_type: Filter by data type
+        :param id: Filter for conditions with a given ID
+        :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
+        :param order: Order results based on the sort field.
+        :param limit: limit the number of results. defaults to 50.
+        :param sort: Sort field used for ordering.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
+        _path = f'/vX/reference/conditions'
 
-        _path = '/v1/meta/exchanges'
+        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
+                 'limit': limit, 'sort': sort}
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_async_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_crypto_exchanges(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def async_get_exchanges(self, asset_class: str = None, locale: str = None, raw_response: bool = False):
         """
-        Get a list of cryptocurrency exchanges which are supported by Polygon.io - to be used by async operations
-        Official Docs: https://polygon.io/docs/get_v1_meta_crypto-exchanges_anchor
+        List all exchanges that Polygon.io knows about - Async
+        Official Docs: https://polygon.io/docs/get_v3_reference_exchanges_anchor
+        :param asset_class: filter by asset class.
+        :param locale: Filter by locale name.
+        :param raw_response:
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
         """
 
-        _path = '/v1/meta/crypto-exchanges'
+        _path = f'/v3/reference/exchanges'
 
-        _res = await self._get_async_response(_path)
+        _data = {'asset_class': asset_class, 'locale': locale}
+
+        _res = await self._get_async_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
+
+    @staticmethod
+    async def async_get_stock_exchanges(**kwargs):
+        """
+        DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
+        will be removed in a future version from the library
+        """
+        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
+        return
+
+    @staticmethod
+    async def async_get_crypto_exchanges(**kwargs):
+        """
+        DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
+        will be removed in a future version from the library
+        """
+        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
+        return
 
     async def async_get_locales(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """

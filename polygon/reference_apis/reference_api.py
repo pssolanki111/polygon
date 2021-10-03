@@ -342,7 +342,7 @@ class ReferenceClient:
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
                  'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
-                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort}
+                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
         _res = self._get_response(_path, params=_data)
 
@@ -656,7 +656,7 @@ class ReferenceClient:
         return _res.json()
 
     def get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
-                       limit: int = 50, sort: str = None, raw_response: bool = False):
+                       limit: int = 50, sort: str = 'name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses.
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
@@ -666,7 +666,7 @@ class ReferenceClient:
         :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
         :param order: Order results based on the sort field.
         :param limit: limit the number of results. defaults to 50.
-        :param sort: Sort field used for ordering.
+        :param sort: Sort field used for ordering. Defaults to 'name'
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -909,7 +909,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_ticker_details_vx(self, symbol: str, date: Union[str, datetime.date, datetime.datetime],
+    async def async_get_ticker_details_vx(self, symbol: str, date=None,
                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         This API is Experimental and will replace Ticker Details in future. It is recommended NOT to use this just
@@ -945,9 +945,10 @@ class ReferenceClient:
                                          expiration_date: Union[datetime.date, datetime.datetime, str] = None,
                                          expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
                                          expiration_date_gte=None, order: str = 'asc', sort: str = None,
+                                         limit: int = 50,
                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
-        List currently active options contracts
+        List currently active options contracts - Async
         Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
@@ -959,6 +960,7 @@ class ReferenceClient:
         :param expiration_date_gte: expiration_date greater than equal to filter
         :param order: Order of results. ascending or descending.
         :param sort: Sort field for ordering. one of ticker, underlying_ticker, expiration_date and strike_price
+        :param limit: limit the number of results
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -983,7 +985,7 @@ class ReferenceClient:
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
                  'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
-                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort}
+                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
         _res = await self._get_async_response(_path, params=_data)
 
@@ -1276,7 +1278,7 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
-                                   limit: int = 50, sort: str = None, raw_response: bool = False):
+                                   limit: int = 50, sort: str = 'name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses - Async
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
@@ -1286,7 +1288,7 @@ class ReferenceClient:
         :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
         :param order: Order results based on the sort field.
         :param limit: limit the number of results. defaults to 50.
-        :param sort: Sort field used for ordering.
+        :param sort: Sort field used for ordering. Defaults to 'name'.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object

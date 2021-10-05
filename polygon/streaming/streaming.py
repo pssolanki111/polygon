@@ -35,6 +35,7 @@ class StreamClient:
         """
         Initializes the stream connection.
         Official Docs: https://polygon.io/docs/websockets/getting-started
+
         :param api_key: Your API Key. Visit your dashboard to get the API key.
         :param market: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
         :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
@@ -82,6 +83,7 @@ class StreamClient:
         Starts the Stream Event Loop. The loop is infinite and will continue to run until the stream is
         terminated, either manually or due to an exception.This method is for internal use only.
         ALWAYS start your streams using client.start_stream_thread.
+
         :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
         alive. Set to 0 to disable pinging. Defaults to 21 seconds
         :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
@@ -104,6 +106,7 @@ class StreamClient:
         """
         Starts the Stream event loop in a thread. This will not block the main thread. Useful for GUI applications
         and use cases where you have more than one event loop in general
+
         :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
         alive. Set to 0 to disable pinging. Defaults to 21 seconds
         :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
@@ -121,6 +124,7 @@ class StreamClient:
     def close_stream(self, *args, **kwargs):
         """
         Close the websocket connection. Wait for thread to finish if running.
+
         :param args: Arguments supplied by signal handlers
         :param kwargs: KWArguments supplied by signal handlers
         :return: None
@@ -138,6 +142,7 @@ class StreamClient:
     def _authenticate(self):
         """
         Authenticates the client with the server using API key.
+
         :return: None
         """
 
@@ -153,6 +158,7 @@ class StreamClient:
     def subscribe_stock_trades(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time trades for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -187,6 +193,7 @@ class StreamClient:
     def subscribe_stock_quotes(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Quotes for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -221,6 +228,7 @@ class StreamClient:
     def subscribe_stock_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time minute aggregates for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -255,6 +263,7 @@ class StreamClient:
     def subscribe_stock_seconds_aggregates(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time second aggregates for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -289,6 +298,7 @@ class StreamClient:
     def subscribe_stock_limit_up_limit_down(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time LULD events for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -323,6 +333,7 @@ class StreamClient:
     def subscribe_stock_imbalances(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Imbalance Events for given stock ticker symbol(s).
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -358,6 +369,7 @@ class StreamClient:
     def subscribe_option_trades(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Options Trades for given Options contract.
+
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -392,6 +404,7 @@ class StreamClient:
     def subscribe_option_minute_aggregates(self, tickers: list = None, action: str = 'subscribe'):
         """
         Stream real-time Options Minute Aggregates for given Options contract(s).
+
         :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -426,6 +439,7 @@ class StreamClient:
     def subscribe_option_second_aggregates(self, tickers: list = None, action: str = 'subscribe'):
         """
         Stream real-time Options Second Aggregates for given Options contract(s).
+
         :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
@@ -461,6 +475,7 @@ class StreamClient:
     def subscribe_forex_quotes(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time forex quotes for given forex pair(s).
+
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from/to. For example: USD/CNH
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -495,6 +510,7 @@ class StreamClient:
     def subscribe_forex_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time forex Minute Aggregates for given forex pair(s).
+
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from/to. For example: USD/CNH
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -531,6 +547,7 @@ class StreamClient:
     def subscribe_crypto_trades(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Trades for given cryptocurrency pair(s).
+
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from-to. For example: BTC-USD
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -566,6 +583,7 @@ class StreamClient:
     def subscribe_crypto_quotes(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Quotes for given cryptocurrency pair(s).
+
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from-to. For example: BTC-USD
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -601,6 +619,7 @@ class StreamClient:
     def subscribe_crypto_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time Minute Aggregates for given cryptocurrency pair(s).
+
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from-to. For example: BTC-USD
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -636,6 +655,7 @@ class StreamClient:
     def subscribe_crypto_level2_book(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time level 2 book data for given cryptocurrency pair(s).
+
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
         each Ticker must be in format: from-to. For example: BTC-USD
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
@@ -672,6 +692,7 @@ class StreamClient:
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
         """
         Default handler for message processing
+
         :param msg: The message as received from the server
         :param args: Other args supplied by the handler
         :return: None
@@ -683,6 +704,7 @@ class StreamClient:
     def _default_on_close(_ws: ws_client.WebSocketApp, close_code, msg):
         """
         THe default function to be called when stream is closed.
+
         :param close_code: The close code as received from server
         :param msg: The close message as received from server
         :return:
@@ -698,6 +720,7 @@ class StreamClient:
     def _default_on_error(_ws: ws_client.WebSocketApp, error, *args):
         """
         Default function to be called when an error is encountered.
+
         :param error: The exception object as supplied by the handler
         :return: None
         """
@@ -707,6 +730,7 @@ class StreamClient:
     def _default_on_open(self, _ws: ws_client.WebSocketApp, *args):
         """
         Default function to be called when stream client is initialized. Takes care of the authentication.
+
         :param args: Any args supplied by the handler
         :return: None
         """

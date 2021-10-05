@@ -12,6 +12,7 @@ class ForexClient:
     def __init__(self, api_key: str, use_async: bool = False):
         """
         Initiates a Client to be used to access all the endpoints.
+
         :param api_key: Your API Key. Visit your dashboard to get yours.
         """
         self.KEY, self._async = api_key, use_async
@@ -57,6 +58,7 @@ class ForexClient:
                       raw_response: bool = True) -> Union[Response, dict]:
         """
         Get response on a path - to be used by sync client
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -74,6 +76,7 @@ class ForexClient:
                                   raw_response: bool = True) -> Union[HttpxResponse, dict]:
         """
         Get response on a path - to be used by Async operations
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
@@ -92,6 +95,7 @@ class ForexClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination.
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -109,6 +113,7 @@ class ForexClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination - to be used by async operations
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -128,6 +133,7 @@ class ForexClient:
         """
         Get historic trade ticks for a forex currency pair.
         Official Docs: https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
         :param date: The date/day of the historic ticks to retrieve. Could be datetime, date or string 'YYYY-MM-DD'
@@ -158,6 +164,7 @@ class ForexClient:
         """
         Get the last trade tick for a forex currency pair.
         Official Docs: https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor
+
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -183,6 +190,7 @@ class ForexClient:
         For example, if timespan = ‘minute’ and multiplier = ‘5’ then 5-minute bars will be returned.
         Official Docs:
          https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor
+
         :param symbol: The ticker symbol of the forex pair. eg: C:EURUSD
         :param from_date: The start of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
         :param to_date: The end of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
@@ -223,6 +231,7 @@ class ForexClient:
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets.
         Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor
+
         :param date: The date for the aggregate window. Could be datetime, date or string 'YYYY-MM-DD'
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
          this to False to get results that are NOT adjusted for splits.
@@ -250,6 +259,7 @@ class ForexClient:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor
+
         :param symbol: The ticker symbol of the forex pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
         to False to get results that are NOT adjusted for splits.
@@ -274,6 +284,7 @@ class ForexClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers_anchor
+
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -299,6 +310,7 @@ class ForexClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
          traded forex symbol.
          Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor
+
         :param symbol: Symbol of the forex pair
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -318,6 +330,7 @@ class ForexClient:
         """
         Get the current top 20 gainers or losers of the day in forex markets.
         Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor
+
         :param direction: The direction of the snapshot results to return. Default: 'gainers'. Can be 'losers' too
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -339,6 +352,7 @@ class ForexClient:
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
          For example USD to CAD or CAD to USD.
         Official Docs: https://polygon.io/docs/get_v1_conversion__from___to__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param amount: The amount to convert,
@@ -368,6 +382,7 @@ class ForexClient:
         """
         Get historic trade ticks for a forex currency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
         :param date: The date/day of the historic ticks to retrieve. Could be datetime, date or string 'YYYY-MM-DD'
@@ -399,6 +414,7 @@ class ForexClient:
         """
         Get the last trade tick for a forex currency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor
+
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -425,6 +441,7 @@ class ForexClient:
         to be used by async operations
         Official Docs:
          https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor
+
         :param symbol: The ticker symbol of the forex pair. eg: C:EURUSD
         :param from_date: The start of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
         :param to_date: The end of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
@@ -466,6 +483,7 @@ class ForexClient:
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor
+
         :param date: The date for the aggregate window. Could be datetime, date or string 'YYYY-MM-DD'
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
          this to False to get results that are NOT adjusted for splits.
@@ -494,6 +512,7 @@ class ForexClient:
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
         to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor
+
         :param symbol: The ticker symbol of the forex pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
         to False to get results that are NOT adjusted for splits.
@@ -518,6 +537,7 @@ class ForexClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers_anchor
+
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -543,6 +563,7 @@ class ForexClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
          traded forex symbol - to be used by async operations
          Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor
+
         :param symbol: Symbol of the forex pair
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -563,6 +584,7 @@ class ForexClient:
         """
         Get the current top 20 gainers or losers of the day in forex markets - to be used by async operations
         Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor
+
         :param direction: The direction of the snapshot results to return. Default: 'gainers'. Can be 'losers' too
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -585,6 +607,7 @@ class ForexClient:
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
          For example USD to CAD or CAD to USD - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_conversion__from___to__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param amount: The amount to convert,

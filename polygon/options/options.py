@@ -12,6 +12,7 @@ class OptionsClient:
     def __init__(self, api_key: str, use_async: bool = False):
         """
         Initiates a Client to be used to access all the endpoints.
+
         :param api_key: Your API Key. Visit your dashboard to get yours.
         """
         self.KEY, self._async = api_key, use_async
@@ -57,6 +58,7 @@ class OptionsClient:
                       raw_response: bool = True) -> Union[Response, dict]:
         """
         Get response on a path - to be used by sync client
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -74,6 +76,7 @@ class OptionsClient:
                                   raw_response: bool = True) -> Union[HttpxResponse, dict]:
         """
         Get response on a path - to be used by Async operations
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
@@ -92,6 +95,7 @@ class OptionsClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination.
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -109,6 +113,7 @@ class OptionsClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination - to be used by async operations
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -126,6 +131,7 @@ class OptionsClient:
         """
         Get the most recent trade for a given options contract.
         Official Docs: https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor
+
         :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -146,6 +152,7 @@ class OptionsClient:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor
+
         :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
         Set this to false to get results that are NOT adjusted for splits.
@@ -170,6 +177,7 @@ class OptionsClient:
         """
         Get the most recent trade for a given options contract - Async
         Official Docs: https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor
+
         :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -190,6 +198,7 @@ class OptionsClient:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor
+
         :param ticker: The ticker symbol of the options contract. Eg: O:TSLA210903C00700000
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
         Set this to false to get results that are NOT adjusted for splits.

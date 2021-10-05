@@ -38,6 +38,7 @@ class AsyncStreamClient:
         """
         Initializes the stream client for async streaming.
         Official Docs: https://polygon.io/docs/websockets/getting-started
+
         :param api_key: Your API Key. Visit your dashboard to get the API key.
         :param cluster: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
         :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
@@ -80,6 +81,7 @@ class AsyncStreamClient:
     async def login(self, key: str = None):
         """
         Creates Websocket Socket client using the configuration and Logs to the stream with credentials.
+
         :return: None
         """
 
@@ -99,6 +101,7 @@ class AsyncStreamClient:
     async def _send(self, data: str):
         """
         Internal function to send data to websocket endpoints
+
         :param data: The formatted string to be sent.
         :return: None
         """
@@ -113,6 +116,7 @@ class AsyncStreamClient:
     async def _recv(self):
         """
         Internal function to receive messages from websocket endpoints.
+
         :return: The JSON decoded message data.
         """
 
@@ -134,7 +138,8 @@ class AsyncStreamClient:
     async def start_stream(self, reconnect: bool = False, max_reconnection_attempts: Union[int, bool] = 5,
                            reconnection_delay: Union[int, float] = 5):
         """
-        The Main method to start the stream. Connects & Logs in.Allows Reconnecting by simply specifying a parameter.
+        The Main method to start the stream. Connects & Logs in. Allows Reconnecting by simply specifying a parameter.
+
         :param reconnect: Defaults to False. Setting True creates an inner loop which traps disconnection errors
         except login failed due to invalid Key, and reconnects to the stream with the same subscriptions it had
         earlier before getting disconnected.
@@ -251,6 +256,7 @@ class AsyncStreamClient:
         based on success status. While this instance method is supposed to be used internally, it is possible to
         utilize this function in your your custom attempts of reconnection implementation. Feel free to share your
         implementations with the community if you find success :)
+
         :return: (True, message) if reconnection succeeds else (False, message)
         """
         print('reconnect called')
@@ -269,6 +275,7 @@ class AsyncStreamClient:
     async def _default_process_message(self, update):
         """
         The default Handler for Message Streams which were NOT initialized with a handler function
+
         :param update: The update message as received after decoding the message.
         :return: None
         """
@@ -310,6 +317,7 @@ class AsyncStreamClient:
     async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.'):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket.
+
         :param symbols: The list of symbols to apply the actions to.
         :param action: Defaults to subscribe which subscribes to requested stream. Change to unsubscribe to remove an
         existing subscription.
@@ -342,6 +350,7 @@ class AsyncStreamClient:
     async def subscribe_stock_trades(self, symbols: list = None, handler_function=None):
         """
         Get Real time trades for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -360,6 +369,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -371,6 +381,7 @@ class AsyncStreamClient:
     async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time quotes for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -389,6 +400,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -400,6 +412,7 @@ class AsyncStreamClient:
     async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Minute Aggregates for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -418,6 +431,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -429,6 +443,7 @@ class AsyncStreamClient:
     async def subscribe_stock_seconds_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Seconds Aggregates for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -447,6 +462,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -458,6 +474,7 @@ class AsyncStreamClient:
     async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None):
         """
         Get Real time LULD Events for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -476,6 +493,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -487,6 +505,7 @@ class AsyncStreamClient:
     async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None):
         """
         Get Real time Imbalance Events for provided symbol(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -505,6 +524,7 @@ class AsyncStreamClient:
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -517,6 +537,7 @@ class AsyncStreamClient:
     async def subscribe_option_trades(self, symbols: list = None, handler_function=None):
         """
         Get Real time options trades for provided ticker(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -535,6 +556,7 @@ class AsyncStreamClient:
     async def unsubscribe_option_trades(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -546,6 +568,8 @@ class AsyncStreamClient:
     async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time options minute aggregates for given ticker(s)
+
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied
@@ -564,6 +588,7 @@ class AsyncStreamClient:
     async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -575,6 +600,7 @@ class AsyncStreamClient:
     async def subscribe_option_second_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time options second aggregates for given ticker(s)
+
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied
@@ -593,6 +619,7 @@ class AsyncStreamClient:
     async def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -605,6 +632,7 @@ class AsyncStreamClient:
     async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time Forex Quotes for provided symbol(s)
+
         :param symbols: A list of symbol  to unsubscribe from. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -623,6 +651,7 @@ class AsyncStreamClient:
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -634,6 +663,7 @@ class AsyncStreamClient:
     async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Forex Minute Aggregates for provided symbol(s)
+
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -652,6 +682,7 @@ class AsyncStreamClient:
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -664,6 +695,7 @@ class AsyncStreamClient:
     async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Trades for provided symbol(s)
+
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -682,6 +714,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -693,6 +726,7 @@ class AsyncStreamClient:
     async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Quotes for provided symbol(s)
+
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -711,6 +745,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -722,6 +757,7 @@ class AsyncStreamClient:
     async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Minute Aggregates for provided symbol(s)
+
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -740,6 +776,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -751,6 +788,7 @@ class AsyncStreamClient:
     async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None):
         """
         Get Real time Crypto Level 2 Book Data for provided symbol(s)
+
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
         subscription. Defaults to None which uses the default process message function. The function supplied MUST be
@@ -769,6 +807,7 @@ class AsyncStreamClient:
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
         Unsubscribe from the stream in concern.
+
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
         """
@@ -781,6 +820,7 @@ class AsyncStreamClient:
     async def change_handler(self, service_prefix: str, handler_function):
         """
         Change your handler function for a service. Can be used to update handlers dynamically while stream is running.
+
         :param service_prefix: The Prefix of the service you want to change handler for. Example: T for trades.
         While you can find this info on polygon docs (Always mentioned in the sample message), it is recommended to
         use enum: StreamServicePrefix

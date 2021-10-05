@@ -7,8 +7,6 @@ from requests.models import Response
 import asyncio
 from httpx import Response as HttpxResponse
 import polygon.enums as enums
-
-
 # ========================================================= #
 
 # Test Runners

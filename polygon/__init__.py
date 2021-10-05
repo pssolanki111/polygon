@@ -1,5 +1,5 @@
 # ========================================================= #
-from .stocks import PolygonClient
+from .stocks import StocksClient
 from .streaming import StreamClient, AsyncStreamClient
 from .forex import ForexClient
 from .crypto import CryptoClient

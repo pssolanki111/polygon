@@ -12,6 +12,7 @@ class CryptoClient:
     def __init__(self, api_key: str, use_async: bool = False):
         """
         Initiates a Client to be used to access all the endpoints.
+
         :param api_key: Your API Key. Visit your dashboard to get yours.
         """
         self.KEY, self._async = api_key, use_async
@@ -57,6 +58,7 @@ class CryptoClient:
                       raw_response: bool = True) -> Union[Response, dict]:
         """
         Get response on a path - to be used by sync client
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -74,6 +76,7 @@ class CryptoClient:
                                   raw_response: bool = True) -> Union[HttpxResponse, dict]:
         """
         Get response on a path - to be used by Async operations
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
@@ -92,6 +95,7 @@ class CryptoClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination.
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -109,6 +113,7 @@ class CryptoClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination - to be used by async operations
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -128,6 +133,7 @@ class CryptoClient:
         """
         Get historic trade ticks for a cryptocurrency pair.
         Official Docs: https://polygon.io/docs/get_v1_historic_crypto__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the crypto pair.
         :param to_symbol: The "to" symbol of the crypto pair.
         :param date: The date/day of the historic ticks to retrieve. Could be datetime, date or string 'YYYY-MM-DD'
@@ -158,6 +164,7 @@ class CryptoClient:
         """
         Get the last trade tick for a cryptocurrency pair.
         Official Docs: https://polygon.io/docs/get_v1_last_crypto__from___to__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -179,6 +186,7 @@ class CryptoClient:
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day.
         Official Docs: https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param date: The date of the requested open/close. Could be datetime, date or string `YYYY-MM-DD`.
@@ -209,6 +217,7 @@ class CryptoClient:
         For example, if timespan = ‘minute’ and multiplier = ‘5’ then 5-minute bars will be returned.
         Official Docs:
          https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor
+
         :param symbol: The ticker symbol of the currency pair. eg: X:BTCUSD
         :param from_date: The start of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
         :param to_date: The end of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
@@ -249,6 +258,7 @@ class CryptoClient:
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency markets.
         Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor
+
         :param date: The date for the aggregate window. Could be datetime, date or string 'YYYY-MM-DD'
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
          this to False to get results that are NOT adjusted for splits.
@@ -276,6 +286,7 @@ class CryptoClient:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor
+
         :param symbol: The ticker symbol of the currency pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
         to False to get results that are NOT adjusted for splits.
@@ -300,6 +311,7 @@ class CryptoClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers_anchor
+
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -325,6 +337,7 @@ class CryptoClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
          traded cryptocurrency symbol.
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor
+
         :param symbol: Symbol of the currency pair
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -344,6 +357,7 @@ class CryptoClient:
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor
+
         :param direction: The direction of the snapshot results to return. Default: 'gainers'. Can be 'losers' too
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -363,6 +377,7 @@ class CryptoClient:
         """
         Get the current level 2 book of a single ticker. This is the combined book from all of the exchanges.
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor
+
         :param symbol: The cryptocurrency ticker.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -386,6 +401,7 @@ class CryptoClient:
         """
         Get historic trade ticks for a cryptocurrency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_historic_crypto__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the crypto pair.
         :param to_symbol: The "to" symbol of the crypto pair.
         :param date: The date/day of the historic ticks to retrieve. Could be datetime, date or string 'YYYY-MM-DD'
@@ -417,6 +433,7 @@ class CryptoClient:
         """
         Get the last trade tick for a cryptocurrency pair - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_last_crypto__from___to__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -439,6 +456,7 @@ class CryptoClient:
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor
+
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param date: The date of the requested open/close. Could be datetime, date or string `YYYY-MM-DD`.
@@ -470,6 +488,7 @@ class CryptoClient:
         to be used by async operations
         Official Docs:
          https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor
+
         :param symbol: The ticker symbol of the currency pair. eg: X:BTCUSD
         :param from_date: The start of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
         :param to_date: The end of the aggregate time window. Could be datetime, date or string 'YYYY-MM-DD'
@@ -512,6 +531,7 @@ class CryptoClient:
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency markets.
         to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor
+
         :param date: The date for the aggregate window. Could be datetime, date or string 'YYYY-MM-DD'
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
          this to False to get results that are NOT adjusted for splits.
@@ -540,6 +560,7 @@ class CryptoClient:
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         To be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor
+
         :param symbol: The ticker symbol of the currency pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
         to False to get results that are NOT adjusted for splits.
@@ -564,6 +585,7 @@ class CryptoClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers_anchor
+
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -589,6 +611,7 @@ class CryptoClient:
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
          traded cryptocurrency symbol - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor
+
         :param symbol: Symbol of the currency pair
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -610,6 +633,7 @@ class CryptoClient:
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         to be used by async operations
         Official docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor
+
         :param direction: The direction of the snapshot results to return. Default: 'gainers'. Can be 'losers' too
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -630,6 +654,7 @@ class CryptoClient:
         Get the current level 2 book of a single ticker. This is the combined book from all of the exchanges.
         to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor
+
         :param symbol: The cryptocurrency ticker.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.

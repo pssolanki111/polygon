@@ -12,6 +12,7 @@ class ReferenceClient:
     def __init__(self, api_key: str, use_async: bool = False):
         """
         Initiates a Client to be used to access all the endpoints.
+
         :param api_key: Your API Key. Visit your dashboard to get yours.
         """
         self.KEY, self._async = api_key, use_async
@@ -57,6 +58,7 @@ class ReferenceClient:
                       raw_response: bool = True) -> Union[Response, dict]:
         """
         Get response on a path - to be used by sync client
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -74,6 +76,7 @@ class ReferenceClient:
                                   raw_response: bool = True) -> Union[HttpxResponse, dict]:
         """
         Get response on a path - to be used by Async operations
+
         :param path: RESTful path for the endpoint
         :param params: Query Parameters to be supplied with the request
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
@@ -92,6 +95,7 @@ class ReferenceClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination.
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -109,6 +113,7 @@ class ReferenceClient:
         Get the next page of a response. The URl is returned within next_url attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination - to be used by async operations
+
         :param url: The next URL. As contained in next_url of the response.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -131,6 +136,7 @@ class ReferenceClient:
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
          and Forex.
         Official Docs: https://polygon.io/docs/get_v3_reference_tickers_anchor
+
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
         :param ticker_lt: Return results where this field is less than the value.
         :param ticker_lte: Return results where this field is less than or equal to the value.
@@ -196,6 +202,7 @@ class ReferenceClient:
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages).
+
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -220,6 +227,7 @@ class ReferenceClient:
         will be removed in a future version from the library
         Get a mapping of ticker types to their descriptive names.
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+
         """
 
         print(f'This endpoint has been deprecated and Replaced by New Ticker Types (get_ticker_types_v3). Please Use '
@@ -230,6 +238,7 @@ class ReferenceClient:
         """
         Get a mapping of ticker types to their descriptive names.
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+
         :param asset_class: Filter by asset class.
         :param locale: Filter by locale.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -254,6 +263,7 @@ class ReferenceClient:
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
         information such as name, sector, exchange, logo and similar companies.
         Official Docs: https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -276,6 +286,7 @@ class ReferenceClient:
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
          the company behind it.
          Official Docs: https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor
+
         :param symbol: The ticker symbol of the asset.
         :param date:Specify a point in time to get information about the ticker available on that date. When retrieving
          information from SEC filings, we compare this date with the period of report date on the SEC filing.
@@ -307,6 +318,7 @@ class ReferenceClient:
         """
         List currently active options contracts
         Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor
+
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
         :param contract_type: Query by the type of contract (ie call/put)
@@ -357,6 +369,7 @@ class ReferenceClient:
         attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages).
+
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say
         check the
@@ -384,6 +397,7 @@ class ReferenceClient:
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source.
         Official Docs: https://polygon.io/docs/get_v2_reference_news_anchor
+
         :param symbol: To get news mentioning the name given. Defaults to empty which doesn't filter tickers
         :param limit: Limit the size of the response, default is 100 and max is 1000. Use pagination helper function
         for larger responses.
@@ -449,6 +463,7 @@ class ReferenceClient:
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages).
+
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -470,6 +485,7 @@ class ReferenceClient:
         """
         Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend.
         Official Docs: https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -490,6 +506,7 @@ class ReferenceClient:
         """
         Get historical financial data for a stock ticker.
         Official Docs: https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param limit: Limit the number of results. Defaults to 100
         :param report_type: Specify a type of report to return. Defaults to empty returning all types. Options are
@@ -527,6 +544,7 @@ class ReferenceClient:
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using the methodology outlined at: http://xbrl.squarespace.com/understanding-sec-xbrl-financi/
         Official Docs: https://polygon.io/docs/get_vX_reference_financials_anchor
+
         This API is experimental and will replace Stock financials.
         :param ticker: Filter query by company ticker.
         :param cik: filter the Query by central index key (CIK) Number
@@ -582,6 +600,7 @@ class ReferenceClient:
         Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
         stock split, and the split ratio.
         Official Docs: https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -601,6 +620,7 @@ class ReferenceClient:
         """
         Get upcoming market holidays and their open/close times.
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -619,6 +639,7 @@ class ReferenceClient:
         """
         Get the current trading status of the exchanges and overall financial markets.
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_now_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -640,6 +661,7 @@ class ReferenceClient:
          the data. Polygon.io defines its own mapping to allow for uniformly identifying a condition across
          feeds/exchanges.
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+
         :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -660,6 +682,7 @@ class ReferenceClient:
         """
         List all conditions that Polygon.io uses.
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+
         :param asset_class: Filter for conditions within a given asset class.
         :param data_type: Filter by data type
         :param id: Filter for conditions with a given ID
@@ -687,6 +710,7 @@ class ReferenceClient:
         """
         List all exchanges that Polygon.io knows about.
         Official Docs: https://polygon.io/docs/get_v3_reference_exchanges_anchor
+
         :param asset_class: filter by asset class.
         :param locale: Filter by locale name.
         :param raw_response:
@@ -711,6 +735,7 @@ class ReferenceClient:
         """
         DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
         will be removed in a future version from the library
+
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
@@ -720,6 +745,7 @@ class ReferenceClient:
         """
         DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
         will be removed in a future version from the library
+
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
@@ -728,6 +754,7 @@ class ReferenceClient:
         """
         Get a list of locales currently supported by Polygon.io.
         Official Docs: https://polygon.io/docs/get_v2_reference_locales_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -746,6 +773,7 @@ class ReferenceClient:
         """
         Get a list of markets that are currently supported by Polygon.io.
         Official Docs: https://polygon.io/docs/get_v2_reference_markets_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -770,6 +798,7 @@ class ReferenceClient:
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
          and Forex - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v3_reference_tickers_anchor
+
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
         :param ticker_lt: Return results where this field is less than the value.
         :param ticker_lte: Return results where this field is less than or equal to the value.
@@ -835,6 +864,7 @@ class ReferenceClient:
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages) - to be used by async operations
+
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -859,6 +889,7 @@ class ReferenceClient:
         will be removed in a future version from the library
         Get a mapping of ticker types to their descriptive names - async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+
         """
 
         print(f'This endpoint has been deprecated and Replaced by New Ticker Types (async_get_ticker_types_v3). Please '
@@ -870,6 +901,7 @@ class ReferenceClient:
         """
         Get a mapping of ticker types to their descriptive names - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_types_anchor
+
         :param asset_class: Filter by asset class.
         :param locale: Filter by locale.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -894,6 +926,7 @@ class ReferenceClient:
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
         information such as name, sector, exchange, logo and similar companies - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -917,6 +950,7 @@ class ReferenceClient:
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
          the company behind it - to be used by async operations
          Official Docs: https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor
+
         :param symbol: The ticker symbol of the asset.
         :param date:Specify a point in time to get information about the ticker available on that date. When retrieving
          information from SEC filings, we compare this date with the period of report date on the SEC filing.
@@ -950,6 +984,7 @@ class ReferenceClient:
         """
         List currently active options contracts - Async
         Official Docs: https://polygon.io/docs/get_vX_reference_options_contracts_anchor
+
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
         :param contract_type: Query by the type of contract (ie call/put)
@@ -1004,6 +1039,7 @@ class ReferenceClient:
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_news_anchor
+
         :param symbol: To get news mentioning the name given. Defaults to empty which doesn't filter tickers
         :param limit: Limit the size of the response, default is 100 and max is 1000. Use pagination helper function
         for larger responses.
@@ -1069,6 +1105,7 @@ class ReferenceClient:
         Get the next page using the most recent yet old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
         remaining (which implies that you have reached the end of all pages) - to be used by async operations
+
         :param old_response: The most recent existing response. Can be either Response Object or Dictionaries
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -1091,6 +1128,7 @@ class ReferenceClient:
         Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend.
         to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -1111,6 +1149,7 @@ class ReferenceClient:
         """
         Get historical financial data for a stock ticker - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param limit: Limit the number of results. Defaults to 100
         :param report_type: Specify a type of report to return. Defaults to empty returning all types. Options are
@@ -1148,6 +1187,7 @@ class ReferenceClient:
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using the methodology outlined at: http://xbrl.squarespace.com/understanding-sec-xbrl-financi/
         Official Docs: https://polygon.io/docs/get_vX_reference_financials_anchor
+
         This API is experimental and will replace Stock financials.
         :param ticker: Filter query by company ticker.
         :param cik: filter the Query by central index key (CIK) Number
@@ -1203,6 +1243,7 @@ class ReferenceClient:
         Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
         stock split, and the split ratio - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor
+
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -1222,6 +1263,7 @@ class ReferenceClient:
         """
         Get upcoming market holidays and their open/close times - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -1240,6 +1282,7 @@ class ReferenceClient:
         """
         Get the current trading status of the exchanges and overall financial markets - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_marketstatus_now_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -1262,6 +1305,7 @@ class ReferenceClient:
          the data. Polygon.io defines its own mapping to allow for uniformly identifying a condition across
          feeds/exchanges - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+
         :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
@@ -1282,6 +1326,7 @@ class ReferenceClient:
         """
         List all conditions that Polygon.io uses - Async
         Official Docs: https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor
+
         :param asset_class: Filter for conditions within a given asset class.
         :param data_type: Filter by data type
         :param id: Filter for conditions with a given ID
@@ -1309,6 +1354,7 @@ class ReferenceClient:
         """
         List all exchanges that Polygon.io knows about - Async
         Official Docs: https://polygon.io/docs/get_v3_reference_exchanges_anchor
+
         :param asset_class: filter by asset class.
         :param locale: Filter by locale name.
         :param raw_response:
@@ -1333,6 +1379,7 @@ class ReferenceClient:
         """
         DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
         will be removed in a future version from the library
+
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
@@ -1342,6 +1389,7 @@ class ReferenceClient:
         """
         DEPRECATED! Replaced by Exchanges: https://polygon.io/docs/get_v3_reference_exchanges_anchor. This method
         will be removed in a future version from the library
+
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
@@ -1350,6 +1398,7 @@ class ReferenceClient:
         """
         Get a list of locales currently supported by Polygon.io - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_locales_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
@@ -1368,6 +1417,7 @@ class ReferenceClient:
         """
         Get a list of markets that are currently supported by Polygon.io - to be used by async operations
         Official Docs: https://polygon.io/docs/get_v2_reference_markets_anchor
+
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
         status code or inspect the headers. Defaults to False which returns the json decoded dictionary.
         :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object

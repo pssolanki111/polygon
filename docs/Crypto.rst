@@ -4,4 +4,4 @@
 Crypto
 ======
 
-Docs Coming soon. see :ref:`stocks_header`
+Docs Coming soon. see :ref:`crypto_client_interface_header` Interface until then.

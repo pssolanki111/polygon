@@ -1,5 +1,4 @@
 
-
 ``polygon`` - A complete Python Client for Polygon.io
 =====================================================
 

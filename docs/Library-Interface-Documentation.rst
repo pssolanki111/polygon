@@ -1,4 +1,5 @@
 
+
 .. _lib_interface_doc_header:
 
 +++++++++++++++++++++++++++++++
@@ -69,3 +70,13 @@ Async Streamer Client
    :members:
    :special-members: __init__
    :private-members:
+
+.. _enums_interface_header:
+
+Enums Interface
+---------------
+
+.. automodule:: polygon.enums
+   :members:
+   :undoc-members:
+   :member-order: bysource

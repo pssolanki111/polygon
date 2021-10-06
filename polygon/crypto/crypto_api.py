@@ -14,7 +14,7 @@ class CryptoClient:
     available on the index page when they are prepared.
 
     This class implements all the crypto REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import CryptoClient`` or ``import polygon` (which allows you to access all names easily)
+    eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
 
     Creating the client is as simple as: ``client = CryptoClient('MY_API_KEY')``
     Once you have the client, you can call its methods to get data from the APIs. All methods have sane default
@@ -27,8 +27,8 @@ class CryptoClient:
     Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
     parameters to avoid supplying error prone values.
 
-    It is also a good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. This
-    page has all the endpoints. I highly recommend using the UI there to play with the endpoints a bit. Observe the
+    It is also a very good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. I
+    highly recommend using the UI there to play with the endpoints a bit. Observe the
     data you receive as the actual data received through python lib is exactly the same as shown on their page when
     you click ``Run Query``.
     """
@@ -349,7 +349,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
@@ -373,7 +373,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         if not isinstance(symbols, list):
@@ -400,7 +400,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}'
@@ -634,7 +634,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
@@ -658,7 +658,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         if not isinstance(symbols, list):
@@ -685,7 +685,7 @@ class CryptoClient:
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
-        :return: A JSON decoded Dictionary by default. Make `raw_response=True` to get underlying response object
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
         _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}'

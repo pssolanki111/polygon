@@ -16,6 +16,7 @@ Stocks Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _options_client_interface_header:
 
@@ -25,6 +26,7 @@ Options Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _references_client_interface_header:
 
@@ -34,6 +36,7 @@ References Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _forex_client_interface_header:
 
@@ -43,6 +46,7 @@ Forex Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _crypto_client_interface_header:
 
@@ -52,6 +56,7 @@ Crypto Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _callback_streamer_client_interface_header:
 
@@ -61,6 +66,7 @@ Callback Streamer Client (Sync)
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _async_streamer_client_interface_header:
 
@@ -70,6 +76,7 @@ Async Streamer Client
    :members:
    :special-members: __init__
    :private-members:
+   :member-order: bysource
 
 .. _enums_interface_header:
 

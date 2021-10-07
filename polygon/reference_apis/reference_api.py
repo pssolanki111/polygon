@@ -941,7 +941,7 @@ class ReferenceClient:
     @staticmethod
     async def async_get_ticker_types(*args, **kwargs) -> None:
         """
-        DEPRECATED! Replaced by :meth:`get_ticker_types_v3`. This method
+        DEPRECATED! Replaced by :meth:`async_get_ticker_types_v3`. This method
         will be removed in a future version from the library.
 
         Get a mapping of ticker types to their descriptive names.
@@ -984,7 +984,7 @@ class ReferenceClient:
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
         information such as name, sector, exchange, logo and similar companies - Async method
 
-        This endpoint will be replaced by :meth:`get_ticker_details_vx` in future.
+        This endpoint will be replaced by :meth:`async_get_ticker_details_vx` in future.
         `Official Docs <https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
@@ -1006,7 +1006,7 @@ class ReferenceClient:
     async def async_get_ticker_details_vx(self, symbol: str, date=None,
                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
-        This API is Experimental and will replace :meth:`get_ticker_details` in future - Async method
+        This API is Experimental and will replace :meth:`async_get_ticker_details` in future - Async method
 
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -1205,7 +1205,7 @@ class ReferenceClient:
                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historical financial data for a stock ticker. This API will be replaced by
-        :meth:`get_stock_financials_vx` in future - Async method
+        :meth:`async_get_stock_financials_vx` in future - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
@@ -1245,7 +1245,7 @@ class ReferenceClient:
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__ - Async method
         `Official Docs <https://polygon.io/docs/get_vX_reference_financials_anchor>`__
 
-        This API is experimental and will replace :meth:`get_stock_financials` in future.
+        This API is experimental and will replace :meth:`async_get_stock_financials` in future.
 
         :param ticker: Filter query by company ticker.
         :param cik: filter the Query by ``central index key (CIK)`` Number
@@ -1448,7 +1448,7 @@ class ReferenceClient:
     @staticmethod
     async def async_get_stock_exchanges(**kwargs):
         """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! Replaced by :meth:`async_get_exchanges`. This method will be removed in a future version from the library
 
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
@@ -1457,7 +1457,7 @@ class ReferenceClient:
     @staticmethod
     async def async_get_crypto_exchanges(**kwargs):
         """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! Replaced by :meth:`async_get_exchanges`. This method will be removed in a future version from the library
 
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')

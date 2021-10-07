@@ -30,30 +30,52 @@ def get_logger():
 
 
 class StreamClient:
-    def __init__(self, api_key: str, market: str, host: str = HOST, on_message=None, on_close=None,
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    Note that this is callback based stream client which is suitable for threaded/multi-processed applications. If
+    you need to stream using an ``asyncio`` based stream client, see :ref:`async_streamer_client_interface_header`.
+
+    This class implements all the websocket endpoints. Note that you should always import names from top level.
+    eg: ``from polygon import StreamClient`` or ``import polygon`` (which allows you to access all names easily)
+
+    Creating the client is as simple as: ``client = StreamClient('MY_API_KEY', 'other_options')``
+
+    Once you have the client, you can call its methods to subscribe/unsubscribe to streams, change handlers and
+    process messages. All methods have sane default values and almost everything can be customized.
+
+    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
+    parameters to avoid supplying error prone values.
+
+    Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
+    to get an idea of the stream, data formatting for messages and related useful stuff.
+    """
+    def __init__(self, api_key: str, cluster: str, host: str = HOST, on_message=None, on_close=None,
                  on_error=None, enable_connection_logs: bool = False):
         """
-        Initializes the stream connection.
-        Official Docs: https://polygon.io/docs/websockets/getting-started
+        Initializes the callback function based stream client
+        `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
 
-        :param api_key: Your API Key. Visit your dashboard to get the API key.
-        :param market: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
-        :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
-        on stocks websockets stream only.
+        :param api_key: Your API Key. Visit your dashboard to get yours.
+        :param cluster: Which market/cluster to connect to. Default 'stocks'. See
+                        :class:`polygon.enums.StreamCluster` for choices
+        :param host: Host url to connect to. Default is real time. See :class:`polygon.enums.StreamHost` for choices.
         :param on_message: The function to be called when data is received. This is primary function you'll write to
-        process the data from the stream. The function should accept one and only one arg (message).
+                           process the data from the stream. The function should accept one and only one ``arg``
+                           (message). Default handler is :meth:`_default_on_msg`.
         :param on_close: The function to be called when stream is closed. Function should accept two args (
-          close_status_code, close_message)
+                         close_status_code, close_message). Default handler is :meth:`_default_on_close`
         :param on_error: Function to be called when an error is encountered. Function should accept one arg (
-         exception object)
-        :param enable_connection_logs: Whether or not to print useful debug info related to the stream connection.
-        Helpful for trying to debug something. Defaults to False.
+                         exception object). Default handler is :meth:`_default_on_error`
+        :param enable_connection_logs: Whether or not to print debug info related to the stream connection.
+                                       Helpful for debugging.
         """
 
         if enable_connection_logs:  # enable connection logs if requested.
             ws_client.enableTrace(True)
 
-        self._host, self._url, self.KEY = host, f'wss://{host}/{market}', api_key
+        self._host, self._url, self.KEY = host, f'wss://{host}/{cluster}', api_key
 
         self._ping_interval, self._ping_timeout, self._ping_payload = None, None, None
 
@@ -70,6 +92,7 @@ class StreamClient:
 
         self._run_in_thread: Union[threading.Thread, None] = None
 
+    # Context managers
     def __enter__(self):
         return self
 
@@ -81,16 +104,19 @@ class StreamClient:
                       skip_utf8_validation: bool = True):
         """
         Starts the Stream Event Loop. The loop is infinite and will continue to run until the stream is
-        terminated, either manually or due to an exception.This method is for internal use only.
-        ALWAYS start your streams using client.start_stream_thread.
+        terminated, either manually or due to an exception. This method is for internal use only. you should always
+        use :meth:`start_stream_thread` to start the stream.
 
-        :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
-        alive. Set to 0 to disable pinging. Defaults to 21 seconds
-        :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
-        is terminated as it is considered to be dead if no pong is received within the specified timeout. default: 20
+        :param ping_interval: client would send a ``ping`` every specified number of seconds to server to keep
+                              connection alive. Set to 0 to disable pinging. Defaults to 21 seconds
+        :param ping_timeout: Timeout in seconds if a ``pong`` (response to ping from server) is not received. The Stream
+                             is terminated as it is considered to be dead if no pong is received within the specified
+                             timeout. default: 20 seconds
         :param ping_payload: The option message to be sent with the ping. Better to leave it empty string.
         :param skip_utf8_validation: Whether to skip utf validation of messages. Defaults to True. Setting it to
-        False may result in performance downgrade.
+                                     False may result in `performance downgrade
+                                     <https://websocket-client.readthedocs.io/en/latest/faq.html#why-is-this-library
+                                     -slow>`__
         :return: None
         """
 
@@ -104,16 +130,18 @@ class StreamClient:
     def start_stream_thread(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
                             skip_utf8_validation: bool = True):
         """
-        Starts the Stream event loop in a thread. This will not block the main thread. Useful for GUI applications
-        and use cases where you have more than one event loop in general
+        Starts the Stream. This will not block the main thread and it spawns the streamer in its own thread.
 
-        :param ping_interval: client would send a ping every specified number of seconds to server to keep connection
-        alive. Set to 0 to disable pinging. Defaults to 21 seconds
-        :param ping_timeout: Timeout in seconds if a pong (response to ping from server) is not received. The Stream
-        is terminated as it is considered to be dead if no pong is received within the specified timeout. default: 20
+        :param ping_interval: client would send a ``ping`` every specified number of seconds to server to keep
+                              connection alive. Set to 0 to disable pinging. Defaults to 21 seconds
+        :param ping_timeout: Timeout in seconds if a ``pong`` (response to ping from server) is not received. The Stream
+                             is terminated as it is considered to be dead if no pong is received within the specified
+                             timeout. default: 20 seconds
         :param ping_payload: The option message to be sent with the ping. Better to leave it empty string.
         :param skip_utf8_validation: Whether to skip utf validation of messages. Defaults to True. Setting it to
-        False may result in performance downgrade.
+                                     False may result in `performance downgrade
+                                     <https://websocket-client.readthedocs.io/en/latest/faq.html#why-is-this-library
+                                     -slow>`__
         :return: None
         """
 
@@ -124,10 +152,6 @@ class StreamClient:
     def close_stream(self, *args, **kwargs):
         """
         Close the websocket connection. Wait for thread to finish if running.
-
-        :param args: Arguments supplied by signal handlers
-        :param kwargs: KWArguments supplied by signal handlers
-        :return: None
         """
 
         get_logger().info('Terminating Stream...')
@@ -141,7 +165,8 @@ class StreamClient:
 
     def _authenticate(self):
         """
-        Authenticates the client with the server using API key.
+        Authenticates the client with the server using API key. Internal function, not meant to be called directly
+        by users.
 
         :return: None
         """
@@ -159,7 +184,7 @@ class StreamClient:
         """
         Stream real-time trades for given stock ticker symbol(s).
 
-        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param symbols: A list of tickers. Default is ``*`` which subscribes to ALL tickers in the market
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -477,7 +502,7 @@ class StreamClient:
         Stream real-time forex quotes for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from/to. For example: USD/CNH
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -512,7 +537,7 @@ class StreamClient:
         Stream real-time forex Minute Aggregates for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from/to. For example: USD/CNH
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -549,7 +574,7 @@ class StreamClient:
         Stream real-time Trades for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from-to. For example: BTC-USD
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -585,7 +610,7 @@ class StreamClient:
         Stream real-time Quotes for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from-to. For example: BTC-USD
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -621,7 +646,7 @@ class StreamClient:
         Stream real-time Minute Aggregates for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from-to. For example: BTC-USD
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -657,7 +682,7 @@ class StreamClient:
         Stream real-time level 2 book data for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-        each Ticker must be in format: from-to. For example: BTC-USD
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
         :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
@@ -694,7 +719,6 @@ class StreamClient:
         Default handler for message processing
 
         :param msg: The message as received from the server
-        :param args: Other args supplied by the handler
         :return: None
         """
 

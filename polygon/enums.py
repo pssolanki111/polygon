@@ -1,6 +1,7 @@
 # ========================================================= #
 import enum
 # ========================================================= #
+# TODO: Update doc-strings for enums
 
 
 # Ticker Market Types - Reference APIs
@@ -132,9 +133,9 @@ class StockFinancialsSortType(enum.Enum):
 class StockFinancialsTimeframe(enum.Enum):
     """
     Query by timeframe. Annual financials originate from 10-K filings, and quarterly financials originate from 10-Q
-     filings. Note: Most companies do not file quarterly reports for Q4 and instead include those financials in their
-     annual report, so some companies my not return quarterly financials for Q4
-     for method: get_stock_financials_vx()
+    filings. Note: Most companies do not file quarterly reports for Q4 and instead include those financials in their
+    annual report, so some companies my not return quarterly financials for Q4
+    for method: get_stock_financials_vx()
     """
     ANNUAL = 'annual'
     QUARTERLY = 'quarterly'

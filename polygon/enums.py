@@ -281,6 +281,21 @@ class StreamServicePrefix(enum.Enum):
     OPTION_SECOND_AGGREGATES = 'A'
 
 
+# Timespan - common
+class Timespan(enum.Enum):
+    """
+    The timespan values. Usually meant for aggregates endpoints. It is best to consult the relevant docs before using
+    any value on an endpoint.
+    """
+    MINUTE = 'minute'
+    HOUR = 'hour'
+    DAY = 'day'
+    WEEK = 'week'
+    MONTH = 'month'
+    QUARTER = 'quarter'
+    YEAR = 'year'
+
+
 # ========================================================= #
 
 if __name__ == '__main__':

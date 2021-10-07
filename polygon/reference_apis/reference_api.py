@@ -178,7 +178,7 @@ class ReferenceClient:
     # Endpoints
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                     symbol_type: str = '', market: str = '', exchange: str = '', cusip: str = None, cik: str = '',
-                    date: Union[str, datetime.date, datetime.datetime] = None, search: str = None,
+                    date=None, search: str = None,
                     active: bool = True, sort: str = 'ticker', order: str = 'asc', limit: int = 100,
                     raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -362,7 +362,7 @@ class ReferenceClient:
         return _res.json()
 
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type: str = None,
-                             expiration_date: Union[datetime.date, datetime.datetime, str] = None,
+                             expiration_date= None,
                              expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
                              expiration_date_gte=None, order: str = 'asc', sort: str = None, limit=100,
                              raw_response: bool = False) -> Union[Response, dict]:
@@ -1038,7 +1038,7 @@ class ReferenceClient:
 
     async def async_get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
                                          contract_type: str = None,
-                                         expiration_date: Union[datetime.date, datetime.datetime, str] = None,
+                                         expiration_date= None,
                                          expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
                                          expiration_date_gte=None, order: str = 'asc', sort: str = None,
                                          limit: int = 50,

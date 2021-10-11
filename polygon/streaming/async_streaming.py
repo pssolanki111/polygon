@@ -32,32 +32,55 @@ def get_logger():
 
 
 class AsyncStreamClient:
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    Note that this is asyncio based stream client which is suitable for async applications. If
+    you need to stream using an ``callback`` based stream client, see :ref:`callback_streamer_client_interface_header`.
+
+    This class implements all the websocket endpoints. Note that you should always import names from top level.
+    eg: ``from polygon import AsyncStreamClient`` or ``import polygon`` (which allows you to access all names easily)
+
+    Creating the client is as simple as: ``client = AsyncStreamClient('MY_API_KEY', 'other_options')``
+
+    Once you have the client, you can call its methods to subscribe/unsubscribe to streams, change handlers and
+    process messages. All methods have sane default values and almost everything can be customized.
+
+    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
+    parameters to avoid supplying error prone values.
+
+    Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
+    to get an idea of the stream, data formatting for messages and related useful stuff.
+    """
     def __init__(self, api_key: str, cluster: str, host: str = HOST, ping_interval: int = 20,
                  ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
                  read_limit: int = 65536, write_limit: int = 65536):
         """
-        Initializes the stream client for async streaming.
-        Official Docs: https://polygon.io/docs/websockets/getting-started
+        Initializes the stream client for async streaming
+        `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
 
-        :param api_key: Your API Key. Visit your dashboard to get the API key.
-        :param cluster: Which market/cluster to connect to. Default 'stocks'. Options: 'crypto', 'forex'
-        :param host: Host url to connect to. Default is real time. Change to polygon.DELAYED_HOST for delayed stream
-        on stocks websockets stream only.
-        :param ping_interval: Send a ping to server every specified number of seconds to keep the connection alive.
-        Defaults to 20 seconds. Setting to 0 disables pinging.
-        :param ping_timeout: The number of seconds to wait after sending a ping for the response (pong). If no
-        response is received from the server in those many seconds, stream is considered dead and exits with code
-        1011. Defaults to 19 seconds.
+        :param api_key: Your API Key. Visit your dashboard to get yours.
+        :param cluster: Which market/cluster to connect to. See :class:`polygon.enums.StreamCluster` for choices.
+        :param host: Host url to connect to. Default is real time. See :class:`polygon.enums.StreamHost` for choices
+        :param ping_interval: Send a ``ping`` to server every specified number of seconds to keep the connection alive.
+                              Defaults to 20 seconds. Setting to 0 disables pinging.
+        :param ping_timeout: The number of seconds to wait after sending a ping for the response (``pong``). If no
+                             response is received from the server in those many seconds, stream is considered dead
+                             and exits with code ``1011``. Defaults to 19 seconds.
         :param max_message_size: The max_size parameter enforces the maximum size for incoming messages in bytes. The
-        default value is 1 MiB. None disables the limit. If a message larger than the maximum size is received,
-         recv() will raise ConnectionClosedError and the connection will be closed with code 1009
+                                 default value is ``1 MiB`` (not MB). None disables the limit. If a message larger
+                                 than the maximum size is received, ``recv()`` will raise ``ConnectionClosedError``
+                                 and the connection will be closed with code ``1009``
         :param max_memory_queue: sets the maximum length of the queue that holds incoming messages. The default value
-        is 32. None disables the limit. Messages are added to an in-memory queue when they’re received; then recv()
-        pops from that queue
+                                 is ``32``. None disables the limit. Messages are added to an in-memory queue when
+                                 they’re received; then ``recv()`` pops from that queue
         :param read_limit: sets the high-water limit of the buffer for incoming bytes. The low-water limit is half the
-        high-water limit. The default value is 64 KiB, half of asyncio’s default
+                           high-water limit. The default value is ``64 KiB``, half of asyncio’s default. Don't change
+                           if you are unsure of what it implies.
         :param write_limit: The write_limit argument sets the high-water limit of the buffer for outgoing bytes. The
-         low-water limit is a quarter of the high-water limit. The default value is 64 KiB, equal to asyncio’s default
+                            low-water limit is a quarter of the high-water limit. The default value is ``64 KiB``,
+                            equal to asyncio’s default. Don't change if you're unsure what it implies.
         """
         self.KEY, self._market, self.WS, self._subs, self._re = api_key, cluster, None, [], 0
 
@@ -71,6 +94,7 @@ class AsyncStreamClient:
 
         self._read_limit, self._write_limit, self._auth = read_limit, write_limit, False
 
+    # Context managers
     async def __aenter__(self):
         return self
 
@@ -80,7 +104,9 @@ class AsyncStreamClient:
 
     async def login(self, key: str = None):
         """
-        Creates Websocket Socket client using the configuration and Logs to the stream with credentials.
+        Creates Websocket Socket client using the configuration and Logs to the stream with credentials. Primarily
+        meant for internal uses. You shouldn't need to call this method manually as the streamer does it
+        automatically behind the scenes
 
         :return: None
         """
@@ -100,9 +126,9 @@ class AsyncStreamClient:
 
     async def _send(self, data: str):
         """
-        Internal function to send data to websocket endpoints
+        Internal function to send data to websocket server endpoint
 
-        :param data: The formatted string to be sent.
+        :param data: The formatted data string to be sent.
         :return: None
         """
 
@@ -115,9 +141,9 @@ class AsyncStreamClient:
 
     async def _recv(self):
         """
-        Internal function to receive messages from websocket endpoints.
+        Internal function to receive messages from websocket server endpoint.
 
-        :return: The JSON decoded message data.
+        :return: The JSON decoded message data dictionary.
         """
 
         if self.WS is None:
@@ -135,19 +161,25 @@ class AsyncStreamClient:
 
         return _data
 
-    async def start_stream(self, reconnect: bool = False, max_reconnection_attempts: Union[int, bool] = 5,
-                           reconnection_delay: Union[int, float] = 5):
+    async def handle_messages(self, reconnect: bool = False, max_reconnection_attempts=5, reconnection_delay=5):
         """
-        The Main method to start the stream. Connects & Logs in. Allows Reconnecting by simply specifying a parameter.
+        The primary method to start the stream. Connects & Logs in by itself. Allows Reconnecting by simply
+        altering a parameter (subscriptions are persisted across reconnected streams)
 
-        :param reconnect: Defaults to False. Setting True creates an inner loop which traps disconnection errors
-        except login failed due to invalid Key, and reconnects to the stream with the same subscriptions it had
-        earlier before getting disconnected.
-        :param max_reconnection_attempts: Determines max how many times should the program attempt to reconnect in
-        case of failed attempts. The Counter is reset as soon as a successful connection is re-established. Setting
-        to False disables the limit which is NOT recommended unless you know you got a situation. This value is
-        ignored if reconnect is False (The default)
-        :param reconnection_delay: Number of seconds to sleep before attempting to reconnect after a disconnection.
+        :param reconnect: If this is ``False``(default), it simply awaits the next message and calls the
+                          appropriate handler. Uses the :meth:`_default_process_message` if no handler was specified.
+                          You should use the statement inside a while loop in that case. Setting it to True creates an
+                          inner loop which traps disconnection errors except login failed due to invalid Key,
+                          and reconnects to the stream with the same subscriptions it had earlier before getting
+                          disconnected.
+        :param max_reconnection_attempts: Determines how many times should the program attempt to reconnect in
+                                          case of failed attempts. The Counter is reset as soon as a successful
+                                          connection is re-established. Setting it to False disables the limit which is
+                                          NOT recommended unless you know you got a situation. This value is ignored
+                                          if ``reconnect`` is False (The default)
+        :param reconnection_delay: Number of seconds to wait before attempting to reconnect after a failed
+                                   reconnection attempt or a disconnection. This value is ignored if ``reconnect``
+                                   is False (the default)
         :return: None
         """
         if not self._auth:
@@ -166,9 +198,9 @@ class AsyncStreamClient:
                              'recommended as it disables the limit)')
 
         if not max_reconnection_attempts:
-            print('It is never recommended to allow Infinite reconnection attempts as this does not account for when '
-                  'Server has an outage\nor when the client loses access to internet. It is suggested to Re-start '
-                  'stream with a finite limit for attempts')
+            get_logger().warning('It is never recommended to allow Infinite reconnection attempts as this does not '
+                                 'account for when  Server has an outage\nor when the client loses access to '
+                                 'internet. It is suggested to Re-start the stream with a finite limit for attempts')
             max_reconnection_attempts = float('inf')
 
         elif max_reconnection_attempts < 1:
@@ -180,9 +212,8 @@ class AsyncStreamClient:
             loop.add_signal_handler(signal.SIGINT, lambda *args: _terminate(self.WS))
             loop.add_signal_handler(signal.SIGTERM, lambda *args: _terminate(self.WS))
 
-        # TODO: Check availability of handlers on OSX
+        # TODO: Check availability of handlers on OSX or perhaps just remove them completely.
 
-        # while not killer.kill_me:
         while 1:
             try:
                 if self._re:
@@ -201,9 +232,9 @@ class AsyncStreamClient:
                             self._re = False
 
                         # Right After reconnection to ensure we can actually communicate with the stream
-                        # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-                        #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
-                        #     return
+                        except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
+                            print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+                            return
 
                         except (wss.ConnectionClosedError, Exception) as exc:
                             # Verify there are more reconnection attempts remaining
@@ -230,9 +261,9 @@ class AsyncStreamClient:
                 for msg in _msg:  # Processing messages. Using a dict to manage handlers to avoid using if-else :D
                     asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
 
-            # except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-            #     print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
-            #     return
+            except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
+                print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+                return
 
             except (wss.ConnectionClosedError, Exception) as exc:
                 # Verify there are more reconnection attempts remaining
@@ -251,15 +282,16 @@ class AsyncStreamClient:
 
     async def reconnect(self) -> tuple:
         """
-        Reconnects the stream. Existing subscriptions (ones before disconnections are persisted and automatically
-        subscribed when reconnection succeeds). All the handlers are also automatically restored. Returns a tuple
+        Reconnects the stream. Existing subscriptions (ones before disconnections) are persisted and automatically
+        re-subscribed when reconnection succeeds. All the handlers are also automatically restored. Returns a tuple
         based on success status. While this instance method is supposed to be used internally, it is possible to
-        utilize this function in your your custom attempts of reconnection implementation. Feel free to share your
-        implementations with the community if you find success :)
+        utilize this in your your custom attempts of reconnection implementation. Feel free to
+        `share your implementations with the community <https://github.com/pssolanki111/polygon/wiki>`__ if you find
+        success :)
 
-        :return: (True, message) if reconnection succeeds else (False, message)
+        :return: ``(True, message)`` if reconnection succeeds else ``(False, message)``
         """
-        print('reconnect called')
+        get_logger().info('Attempting reconnection')
 
         try:
             await self.login()
@@ -301,7 +333,7 @@ class AsyncStreamClient:
         self._attempts = 0
 
     def _default_handlers_and_apis(self):
-        """Assign default handler value to all stream setups"""
+        """Assign default handler value to all stream setups. ONLY meant for internal use"""
         _handlers = {}
 
         _apis = {'T': 'stock_trades', 'Q': 'stock_quotes', 'AM': 'stock_agg_min', 'A': 'stock_agg_sec',
@@ -316,11 +348,13 @@ class AsyncStreamClient:
 
     async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.'):
         """
-        Internal Function to send subscribe or unsubscribe requests to websocket.
+        Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
+        corresponding methods to subscribe or unsubscribe to streams.
 
         :param symbols: The list of symbols to apply the actions to.
         :param action: Defaults to subscribe which subscribes to requested stream. Change to unsubscribe to remove an
-        existing subscription.
+                       existing subscription.
+        :param _prefix: prefix of the stream service. See :class:`polygon.enums.StreamServicePrefix` for choices.
         :return: None
         """
 
@@ -351,10 +385,10 @@ class AsyncStreamClient:
         """
         Get Real time trades for provided symbol(s)
 
-        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -368,7 +402,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -382,10 +416,10 @@ class AsyncStreamClient:
         """
         Get Real time quotes for provided symbol(s)
 
-        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -399,7 +433,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -415,8 +449,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -430,7 +464,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -446,8 +480,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -461,7 +495,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -477,8 +511,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -492,7 +526,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -508,8 +542,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -523,7 +557,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied ticker symbols.
 
         :param symbols: A list of tickers to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -540,8 +574,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -555,7 +589,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_option_trades(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied option symbols.
 
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -569,11 +603,10 @@ class AsyncStreamClient:
         """
         Get Real time options minute aggregates for given ticker(s)
 
-
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied
-        MUST be either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -587,7 +620,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied option symbols.
 
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -603,8 +636,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied
-        MUST be either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -618,7 +651,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied option symbols.
 
         :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -633,10 +666,10 @@ class AsyncStreamClient:
         """
         Get Real time Forex Quotes for provided symbol(s)
 
-        :param symbols: A list of symbol  to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbols to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -650,7 +683,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied forex symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -666,8 +699,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -681,7 +714,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied forex symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -698,8 +731,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -713,7 +746,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied crypto symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -729,8 +762,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -744,7 +777,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied crypto symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -760,8 +793,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -775,7 +808,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied crypto symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -791,8 +824,8 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-        subscription. Defaults to None which uses the default process message function. The function supplied MUST be
-        either one of a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function. The
+                                 function supplied MUST be a coroutine, a task, a future or an await-able.
         :return: None
         """
 
@@ -806,7 +839,7 @@ class AsyncStreamClient:
 
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
-        Unsubscribe from the stream in concern.
+        Unsubscribe from the stream for the supplied crypto symbols.
 
         :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
         :return: None
@@ -821,9 +854,8 @@ class AsyncStreamClient:
         """
         Change your handler function for a service. Can be used to update handlers dynamically while stream is running.
 
-        :param service_prefix: The Prefix of the service you want to change handler for. Example: T for trades.
-        While you can find this info on polygon docs (Always mentioned in the sample message), it is recommended to
-        use enum: StreamServicePrefix
+        :param service_prefix: The Prefix of the service you want to change handler for. see
+                               :class:`polygon.enums.StreamServicePrefix` for choices.
         :param handler_function: The new handler function to assign for this service
         :return: None
         """

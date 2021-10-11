@@ -20,10 +20,10 @@
    Callback-Streaming
    Async-Streaming
    Async-support-for-REST-endpoints
+   using_enums
    getting_help
    bugs_discussions_wikis_faqs
    contrib_and_license
-   using_enums
    Library-Interface-Documentation
 
 Indices and tables

@@ -35,8 +35,8 @@ If this doesn't throw any errors, the install worked. You may proceed to next st
 
 .. _create_and_use_header:
 
-The clients
------------
+Simple General guide for clients
+--------------------------------
 This section would provide general guidance on the clients without going into specific endpoints as stocks or options.
 
 As you already know polygon.io has two major classes of APIs. The ``REST`` APIs and ``websockets`` streaming APIs.
@@ -85,6 +85,20 @@ Now that you have a client, simply call its methods to get data from the API
 
 **Note that you can have multiple instances of all 5 different types of http clients together. So you can create client for each one of the stocks, options and other APIs**
 
-All the clients in the lib support context managers ``with polygon.StocksClient('KEY') as client:``.
+All the clients in the lib support context managers
+
+.. code-block:: python
+
+  with polygon.StocksClient('KEY') as client:
+      last_quote = client.get_last_quote('AMD)
+      print(f'Last quote for AMD: {last_quote}')
 
 
+Using context managers ensures that the connections opened up to make requests are closed properly.
+
+You can manually close the connections if you're not using context managers:
+
+1. for regular non-async: ``client.close()``
+#. for async: ``await client.async_close()``
+
+This is not an absolute necessity but rather a good software practice to close out resources when you don't need them.

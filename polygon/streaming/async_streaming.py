@@ -62,6 +62,9 @@ class AsyncStreamClient:
 
         :param api_key: Your API Key. Visit your dashboard to get yours.
         :param cluster: Which market/cluster to connect to. See :class:`polygon.enums.StreamCluster` for choices.
+                        NEVER connect to the same cluster again if there is an existing stream connected to it.
+                        The existing connection would be dropped and new one will be established. You can have up to 4
+                        concurrent streams connected to 4 different clusters.
         :param host: Host url to connect to. Default is real time. See :class:`polygon.enums.StreamHost` for choices
         :param ping_interval: Send a ``ping`` to server every specified number of seconds to keep the connection alive.
                               Defaults to 20 seconds. Setting to 0 disables pinging.

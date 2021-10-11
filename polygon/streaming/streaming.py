@@ -58,8 +58,10 @@ class StreamClient:
         `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
 
         :param api_key: Your API Key. Visit your dashboard to get yours.
-        :param cluster: Which market/cluster to connect to. Default 'stocks'. See
-                        :class:`polygon.enums.StreamCluster` for choices
+        :param cluster: Which market/cluster to connect to. See :class:`polygon.enums.StreamCluster` for choices.
+                        NEVER connect to the same cluster again if there is an existing stream connected to it.
+                        The existing connection would be dropped and new one will be established. You can have up to 4
+                        concurrent streams connected to 4 different clusters.
         :param host: Host url to connect to. Default is real time. See :class:`polygon.enums.StreamHost` for choices.
         :param on_message: The function to be called when data is received. This is primary function you'll write to
                            process the data from the stream. The function should accept one and only one ``arg``

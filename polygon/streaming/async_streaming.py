@@ -166,7 +166,7 @@ class AsyncStreamClient:
         The primary method to start the stream. Connects & Logs in by itself. Allows Reconnecting by simply
         altering a parameter (subscriptions are persisted across reconnected streams)
 
-        :param reconnect: If this is ``False``(default), it simply awaits the next message and calls the
+        :param reconnect: If this is ``False`` (default), it simply awaits the next message and calls the
                           appropriate handler. Uses the :meth:`_default_process_message` if no handler was specified.
                           You should use the statement inside a while loop in that case. Setting it to True creates an
                           inner loop which traps disconnection errors except login failed due to invalid Key,
@@ -176,10 +176,10 @@ class AsyncStreamClient:
                                           case of failed attempts. The Counter is reset as soon as a successful
                                           connection is re-established. Setting it to False disables the limit which is
                                           NOT recommended unless you know you got a situation. This value is ignored
-                                          if ``reconnect`` is False (The default)
+                                          if ``reconnect`` is False (The default). Defaults to 5.
         :param reconnection_delay: Number of seconds to wait before attempting to reconnect after a failed
                                    reconnection attempt or a disconnection. This value is ignored if ``reconnect``
-                                   is False (the default)
+                                   is False (the default). Defaults to 5.
         :return: None
         """
         if not self._auth:

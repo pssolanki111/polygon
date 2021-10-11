@@ -1,13 +1,12 @@
 # ========================================================= #
 import enum
 # ========================================================= #
-# TODO: Update doc-strings for enums
 
 
 # Ticker Market Types - Reference APIs
 class TickerMarketType(enum.Enum):
     """
-    Market Type to be used for method: ReferenceClient.get_tickers()
+    Market Types for method: ``ReferenceClient.get_tickers()``
     """
     STOCKS = 'stocks'
     OPTIONS = 'options'
@@ -18,7 +17,7 @@ class TickerMarketType(enum.Enum):
 # Ticker Types - Reference APIs
 class TickerType(enum.Enum):
     """
-    Ticker type to be used for method: ReferenceClient.get_tickers()
+    Ticker types for method: ``ReferenceClient.get_tickers()``
     """
     CS = 'CS'
     COMMON_STOCKS = 'CS'
@@ -38,7 +37,7 @@ class TickerType(enum.Enum):
 
 # Ticker Sort Type - Reference APIs
 class TickerSortType(enum.Enum):
-    """Sort key to be used for method: ReferenceClient.get_tickers()"""
+    """Sort key for method: ``ReferenceClient.get_tickers()``"""
     TICKER = 'ticker'
     NAME = 'name'
     MARKET = 'market'
@@ -73,7 +72,7 @@ class SortOrder(enum.Enum):
 # Ticker Type Asset Class - Reference APIs
 class TickerTypeAssetClass(enum.Enum):
     """
-    Asset Class to be used for method: ReferenceClient.get_ticker_types_v3()
+    Asset Class for method: ``ReferenceClient.get_ticker_types_v3()``
     """
     STOCKS = 'stocks'
     OPTIONS = 'options'
@@ -84,7 +83,7 @@ class TickerTypeAssetClass(enum.Enum):
 # Ticker Type Locales - Reference APIs
 class TickerTypeLocale(enum.Enum):
     """
-    Locale Type to be used for method: ReferenceClient.get_ticker_types_v3()
+    Locale Type for method: ``ReferenceClient.get_ticker_types_v3()``
     """
     US = 'us'
     GLOBAL = 'global'
@@ -93,7 +92,7 @@ class TickerTypeLocale(enum.Enum):
 # Ticker News Sort - Reference APIs
 class TickerNewsSort(enum.Enum):
     """
-    Sort key to be used for method: ReferenceClient.get_ticker_news()
+    Sort key for method: ``ReferenceClient.get_ticker_news()``
     """
     PUBLISHED_UTC = 'published_utc'
     ALL = None
@@ -102,7 +101,7 @@ class TickerNewsSort(enum.Enum):
 # Stock Report Type - Reference APIs
 class StockReportType(enum.Enum):
     """
-    Type of report for method: get_stock_financials()
+    Type of report for method: ``ReferenceClient.get_stock_financials()``
     """
     YEAR = 'Y'
     Y = 'Y'
@@ -121,7 +120,7 @@ class StockReportType(enum.Enum):
 # Stock Report Sort Type - Reference APIs
 class StockFinancialsSortType(enum.Enum):
     """
-    Direction to use for sorting report for method: get_stock_financials()
+    Direction to use for sorting report for method: ``ReferenceClient.get_stock_financials()``
     """
     REPORT_PERIOD = 'reportPeriod'
     REVERSE_REPORT_PERIOD = '-reportPeriod'
@@ -135,7 +134,7 @@ class StockFinancialsTimeframe(enum.Enum):
     Query by timeframe. Annual financials originate from 10-K filings, and quarterly financials originate from 10-Q
     filings. Note: Most companies do not file quarterly reports for Q4 and instead include those financials in their
     annual report, so some companies my not return quarterly financials for Q4
-    for method: get_stock_financials_vx()
+    for method: ``ReferenceClient.get_stock_financials_vx()``
     """
     ANNUAL = 'annual'
     QUARTERLY = 'quarterly'
@@ -144,7 +143,7 @@ class StockFinancialsTimeframe(enum.Enum):
 # Stock Financials Sort Key - Reference APIS
 class StockFinancialsSortKey(enum.Enum):
     """
-    Sort field to use for get_stock_financials_vx()
+    Sort field for method: ``ReferenceClient.get_stock_financials_vx()``
     """
     FILLING_DATE = 'filling_date'
     PERIOD_OF_REPORT_DATE = 'period_of_report_date'
@@ -153,7 +152,7 @@ class StockFinancialsSortKey(enum.Enum):
 # Conditions Mapping Tick Type - Reference APIs
 class ConditionMappingTickType(enum.Enum):
     """
-    Tick Type to be used for method: get_condition_mappings()
+    Tick Type for method: ``ReferenceClient.get_condition_mappings()``
     """
     TRADES = 'trades'
     QUOTES = 'quotes'
@@ -162,7 +161,7 @@ class ConditionMappingTickType(enum.Enum):
 # Conditions Data Type - Reference APIs
 class ConditionsDataType(enum.Enum):
     """
-    Type of data for method: get_conditions()
+    Type of data for method: ``ReferenceClient.get_conditions()``
     """
     TRADE = 'trade'
     BBO = 'bbo'
@@ -172,7 +171,7 @@ class ConditionsDataType(enum.Enum):
 # Conditions SIP - Reference APIs
 class ConditionsSIP(enum.Enum):
     """
-    SIP for method: get_conditions()
+    SIP for method: ``ReferenceClient.get_conditions()``
     """
     CTA = 'CTA'
     UTP = 'UTP'
@@ -182,7 +181,7 @@ class ConditionsSIP(enum.Enum):
 # Conditions Sort key - Reference APIs
 class ConditionsSortKey(enum.Enum):
     """
-    Sort key to use for method: get_conditions()
+    Sort key for method: ``ReferenceClient.get_conditions()``
     """
     ASSET_CLASS = 'asset_class'
     ID = 'id'
@@ -195,7 +194,8 @@ class ConditionsSortKey(enum.Enum):
 # Asset Class - Common
 class AssetClass(enum.Enum):
     """
-    Asset Class for methods: get_exchanges_v3() and get_conditions() and wherever needed.
+    Asset Class for methods: ``ReferenceClient.get_exchanges_v3()`` and ``ReferenceClient.get_conditions()`` and
+    wherever needed.
     """
     STOCKS = 'stocks'
     OPTIONS = 'options'
@@ -206,7 +206,7 @@ class AssetClass(enum.Enum):
 # Exchanges Locales - Reference APIs
 class ExchangesLocale(enum.Enum):
     """
-    Locale name for method: get_exchanges_v3()
+    Locale name for method: ``ReferenceClient.get_exchanges_v3()``
     """
     US = 'us'
     GLOBAL = 'global'
@@ -223,6 +223,11 @@ class SnapshotDirection:
 
 # Stream Cluster - Websockets
 class StreamCluster(enum.Enum):
+    """
+    The cluster to connect to. To be used for both callback and async stream client. NEVER connect to the same
+    cluster again if there is an existing stream connected to it. The existing connection would be dropped and new
+    one will be established. You can have 4 concurrent streams connected to 4 different clusters.
+    """
     STOCKS = 'stocks'
     OPTIONS = 'options'
     FOREX = 'forex'
@@ -232,7 +237,7 @@ class StreamCluster(enum.Enum):
 # Options Contract Type - Common
 class OptionsContractType(enum.Enum):
     """
-    Contract Type for method: get_options_contracts()
+    Contract Type for method: ``ReferenceClient.get_options_contracts()``
     """
     CALL = 'call',
     PUT = 'put'
@@ -242,7 +247,7 @@ class OptionsContractType(enum.Enum):
 # Option contract Sort Key
 class OptionsContractsSortType(enum.Enum):
     """
-    Sort field used for ordering for method: get_options_contracts()
+    Sort field used for ordering for method: ``ReferenceClient.get_options_contracts()``
     """
     TICKER = 'ticker'
     UNDERLYING_TICKER = 'underlying_ticker'
@@ -253,7 +258,7 @@ class OptionsContractsSortType(enum.Enum):
 # Stream Host - Common Websockets
 class StreamHost(enum.Enum):
     """
-    Host to be used for stream connections.
+    Host to be used for stream connections. WHY on earth would you use delayed if you're paying for polygon??
     """
     REAL_TIME = 'socket.polygon.io'
     DELAYED = 'delayed.polygon.io'
@@ -262,7 +267,7 @@ class StreamHost(enum.Enum):
 # Stream Service Prefix - Websockets
 class StreamServicePrefix(enum.Enum):
     """
-    Service Prefix for Stream endpoints. To be used for method: async change_handler()
+    Service Prefix for Stream endpoints. To be used for method: ``AsyncStreamClient.async change_handler()``
     """
     STOCK_TRADES = 'T'
     STOCK_QUOTES = 'Q'

@@ -427,7 +427,7 @@ class ReferenceClient:
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response
-        object
+                 object
         """
 
         try:

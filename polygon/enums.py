@@ -226,7 +226,7 @@ class StreamCluster(enum.Enum):
     """
     The cluster to connect to. To be used for both callback and async stream client. NEVER connect to the same
     cluster again if there is an existing stream connected to it. The existing connection would be dropped and new
-    one will be established. You can have 4 concurrent streams connected to 4 different clusters.
+    one will be established. You can have up to 4 concurrent streams connected to 4 different clusters.
     """
     STOCKS = 'stocks'
     OPTIONS = 'options'

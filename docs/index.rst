@@ -15,6 +15,8 @@
    Callback-Streaming
    Async-Streaming
    Async-support-for-REST-endpoints
+   getting_help
+   contrib_and_license
    using_enums
    Library-Interface-Documentation
 

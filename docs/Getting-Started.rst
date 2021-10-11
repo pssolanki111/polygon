@@ -44,10 +44,12 @@ As you already know polygon.io has two major classes of APIs. The ``REST`` APIs 
 This library implements all of them.
 
 - For REST HTTP endpoints
+
   + Regular client is implemented for all endpoints.
   + Support for ``async`` client is also provided. See :ref:`async_support_header` for more.
 
 - For websocket streaming endpoints
+
   + a ``callback`` based stream client is implemented. See :ref:`callback_streaming_header`
   + an async based stream client is also implemented. See :ref:`async_streaming_header`
 

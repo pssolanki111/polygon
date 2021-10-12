@@ -40,6 +40,8 @@ current_price = stocks_client.get_current_price('AMD')
 print(current_price)
 ```
 
+See the documentation to start using the library in its full capabilities.
+
 ## what if I need help?
 
 See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html)

@@ -6,6 +6,8 @@ Getting Started
 
 Welcome to ``polygon``. Read this page to quickly install and configure this library to write your first Polygon Python application.
 
+**It is highly recommended to read this page to the full as it has important information**
+
 What you need to have
 ---------------------
 
@@ -102,6 +104,36 @@ You can manually close the connections if you're not using context managers:
 #. for async: ``await client.async_close()``
 
 This is not an absolute necessity but rather a good software practice to close out resources when you don't need them.
+
+Calling the methods/functions
+-----------------------------
+
+Most methods and functions have sane default values which can be customized as needed. Required parameters need to be
+supplied as positional arguments (which just means that the order of arguments matter when passing more than one).
+
+**Parameters which have special values are supplied as python enums**. You can however always pass in your own values
+but it is recommended to use enums as they mitigate the possibilities of an error.
+
+All enums are available in the module ``polygon.enums`` and can be imported the way you like.
+
+If you're still unsure about enums, see our dedicated section: :ref:`enums_header`
+
+Return Values
+-------------
+
+Most methods would by default return a dictionary/list object containing the data from the API. If you need the underlying response object
+you need to pass in ``raw_response=True`` in the function call. It might be useful for checking ``status_code`` or inspecting ``headers``.
+
+For 99% users, the default should be good enough.
+
+The underlying response object returned is ``requests.models.Response`` for regular client and ``httpx.Response`` for async client.
+Using ``.json()`` on the response object gets you the same dict/list
+
+Once you have the response, you can utilize the data in any way that you like. You can push it to a database,
+`create a pandas dataframe <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.from_dict.html>`__, save it to a file
+or process it the way you like.
+
+Every method's documentation contains a direct link to the corresponding official documentation page where you can see what the keys in the response mean.
 
 **so good so far? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 

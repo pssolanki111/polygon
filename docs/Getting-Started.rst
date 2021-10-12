@@ -135,6 +135,51 @@ or process it the way you like.
 
 Every method's documentation contains a direct link to the corresponding official documentation page where you can see what the keys in the response mean.
 
+.. _async_support_header:
+
+Async Support for REST endpoints
+--------------------------------
+
+As you saw above in the example, the clients have methods for each endpoint. The usual client is a sync client.
+However support for async is also provided for all the endpoints on all the clients.
+
+Here is how to make use of it (**This info is applicable to ALL rest client**)
+
+First up, you'd create a client. Earlier you created a client by passing in just your API key. Here you'd create the client
+with an additional argument.
+
+so instead of something like: ``StocksClient('API_KEY')``, you'd do
+
+.. code-block:: python
+
+  client = StocksClient('KEY', True)   # or use_async=True for second parameter
+
+This gives you an async client. Similar to sync, you can have all 5 different clients together.
+
+**ALL the methods you'd use for async client have ``async_`` in front of their sync counterparts.**
+
+So if a method is named ``get_trades()`` in usual client, in async client you'd have it as ``async_get_trades()``
+and this behavior is true for all methods
+
+Here is how you can use it grab the current price of a symbol
+
+.. code-block:: python
+
+  import polygon
+
+  async def main():
+      stocks_client = polygon.StocksClient('API_KEY', True)
+
+      current_price = await stocks_client.async_get_current_price('AMD')
+      print(current_price)
+
+  if __name__ == '__main__':
+      import asyncio
+      asyncio.run(main())
+
+
+Note that I'm working towards avoiding this name difference across sync and async clients. Feedback is appreciated.
+
 **so good so far? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 
 * :ref:`stocks_header`

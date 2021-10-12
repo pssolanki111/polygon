@@ -19,7 +19,6 @@
    Crypto
    Callback-Streaming
    Async-Streaming
-   Async-support-for-REST-endpoints
    using_enums
    getting_help
    bugs_discussions_wikis_faqs

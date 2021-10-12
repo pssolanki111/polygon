@@ -30,7 +30,7 @@ Setting Up the Development Environment
 
 May not be needed for documentation improvements.
 
-Dependencies are listed in `requirements.txt <https://github.com/pssolanki111/polygon/blob/main/requirements.txt>`.
+Dependencies are listed in `requirements.txt <https://github.com/pssolanki111/polygon/blob/main/requirements.txt>`__.
 The list has ``sphinx`` and ``sphinx_rtd_theme`` which are only meant to build documentation.
 
 It is highly recommended to install the dependencies in a virtual environment to avoid messing with your global interpreter.

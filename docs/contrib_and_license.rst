@@ -13,6 +13,18 @@ Read this small guide to know how you can start contributing.
 
 **If this is your first time contributing to an open source project, Welcome. You'd probably want to contribute to something you are confident about**
 
+Picking up what to work on
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you already know what you're going to work on, Great! If you don't or just wanna explore the options; below are the places to look at:
+
+1. Take a look at `open issues <https://github.com/pssolanki111/polygon/issues>`__ and see which ones you can work on.
+#. Anything which could be improved in the `documentation <https://polygon.readthedocs.io/>`__ or `readme <https://github.com/pssolanki111/polygon/blob/main/README.md>`__ ?
+#. Any new endpoints introduced by polygon.io which are not in the library?
+#. Any changes to endpoints which are already in the lib but not adjusted according to the new changes?
+
+Once you know what to work on, you can proceed with setting up your environment.
+
 Setting Up the Development Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

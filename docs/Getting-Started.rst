@@ -143,7 +143,7 @@ Async Support for REST endpoints
 As you saw above in the example, the clients have methods for each endpoint. The usual client is a sync client.
 However support for async is also provided for all the endpoints on all the clients.
 
-Here is how to make use of it (**This info is applicable to ALL rest client**)
+Here is how to make use of it (**This info is applicable to ALL rest clients**)
 
 First up, you'd create a client. Earlier you created a client by passing in just your API key. Here you'd create the client
 with an additional argument.
@@ -156,7 +156,7 @@ so instead of something like: ``StocksClient('API_KEY')``, you'd do
 
 This gives you an async client. Similar to sync, you can have all 5 different clients together.
 
-**ALL the methods you'd use for async client have ``async_`` in front of their sync counterparts.**
+**ALL the methods you'd use for async client have** ``async_`` **in front of their sync counterpart names.**
 
 So if a method is named ``get_trades()`` in usual client, in async client you'd have it as ``async_get_trades()``
 and this behavior is true for all methods

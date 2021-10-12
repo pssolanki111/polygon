@@ -83,7 +83,7 @@ Now that you have a client, simply call its methods to get data from the API
   print(f'Current price for AMD is {current_price}')
 
 
-**Note that you can have multiple instances of all 5 different types of http clients together. So you can create client for each one of the stocks, options and other APIs**
+**Note that you can have instances of all 5 different types of http clients together. So you can create client for each one of the stocks, options and other APIs**
 
 All the clients in the lib support context managers
 
@@ -102,3 +102,12 @@ You can manually close the connections if you're not using context managers:
 #. for async: ``await client.async_close()``
 
 This is not an absolute necessity but rather a good software practice to close out resources when you don't need them.
+
+**so good so far? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
+
+* :ref:`stocks_header`
+* :ref:`options_header`
+* :ref:`forex_header` and :ref:`crypto_header`
+* :ref:`callback_streaming_header` and :ref:`async_streaming_header`
+* :ref:`async_support_header`
+* :ref:`enums_header`

@@ -127,7 +127,7 @@ you need to pass in ``raw_response=True`` in the function call. It might be usef
 For 99% users, the default should be good enough.
 
 The underlying response object returned is ``requests.models.Response`` for regular client and ``httpx.Response`` for async client.
-Using ``.json()`` on the response object gets you the same dict/list
+Using ``.json()`` on the response object gets you the data dict/list
 
 Once you have the response, you can utilize the data in any way that you like. You can push it to a database,
 `create a pandas dataframe <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.from_dict.html>`__, save it to a file

@@ -44,7 +44,7 @@ It is highly recommended to install the dependencies in a virtual environment to
   virtualenv venv
   . venv/bin/activate
 
-The last instruction above is for *nix machines. For windows ``.\venv\Scripts\activate.bat`` (or similar) is used
+The last instruction above is for \*nix machines. For windows ``.\venv\Scripts\activate.bat`` (or similar) is used
 
 Install the requirements using
 

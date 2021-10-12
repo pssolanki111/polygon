@@ -25,6 +25,7 @@ Creating a client is just creating an instance of ``polygon.StreamClient``. Note
 This is how the initializer looks like:
 
 .. automethod:: polygon.streaming.streaming.StreamClient.__init__
+   :noindex:
 
 Example use:
 
@@ -43,6 +44,7 @@ Once you have a stream client, you can start the stream thread by calling the me
 This method has default values which should be good enough for most people. For those who need customization, here is how it looks like:
 
 .. automethod:: polygon.streaming.streaming.StreamClient.start_stream_thread
+   :noindex:
 
 Example use:
 
@@ -105,37 +107,49 @@ Stock Trades
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_trades
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_trades
+   :noindex:
 
 Stock Quotes
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_quotes
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_quotes
+   :noindex:
 
 Stock Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_minute_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_minute_aggregates
+   :noindex:
 
 Stock Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_second_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_second_aggregates
+   :noindex:
 
 Stock Limit Up Limit Down (LULD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_limit_up_limit_down
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_limit_up_limit_down
+   :noindex:
 
 Stock Imbalances
 ~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_imbalances
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_imbalances
+   :noindex:
 
 Options Streams
 ---------------
@@ -144,19 +158,25 @@ Options Trades
 ~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_trades
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_trades
+   :noindex:
 
 Options Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_minute_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_minute_aggregates
+   :noindex:
 
 Options Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_second_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_second_aggregates
+   :noindex:
 
 
 Forex Streams
@@ -166,13 +186,17 @@ Forex Quotes
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_forex_quotes
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_forex_quotes
+   :noindex:
 
 Forex Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_forex_minute_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_forex_minute_aggregates
+   :noindex:
 
 Crypto Streams
 --------------
@@ -181,25 +205,33 @@ Crypto Trades
 ~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_trades
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_trades
+   :noindex:
 
 Crypto Quotes
 ~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_quotes
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_quotes
+   :noindex:
 
 Crypto Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_minute_aggregates
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_minute_aggregates
+   :noindex:
 
 Crypto Level 2 Book
 ~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_level2_book
+   :noindex:
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_level2_book
+   :noindex:
 
 
 

@@ -31,7 +31,7 @@ Get Last Trade
    :noindex:
 
 Get Daily Open Close
--------------------
+--------------------
 
 .. automethod:: polygon.crypto.crypto_api.CryptoClient.get_daily_open_close
    :noindex:

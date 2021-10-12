@@ -290,7 +290,7 @@ class StreamClient:
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_minute_aggregates(symbols, action='unsubscribe')
 
-    def subscribe_stock_seconds_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+    def subscribe_stock_second_aggregates(self, symbols: list = None, action: str = 'subscribe'):
         """
         Stream real-time second aggregates for given stock ticker symbol(s).
 
@@ -322,9 +322,9 @@ class StreamClient:
         except Exception:
             raise
 
-    def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
+    def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_seconds_aggregates(symbols, action='unsubscribe')
+        self.subscribe_stock_second_aggregates(symbols, action='unsubscribe')
 
     def subscribe_stock_limit_up_limit_down(self, symbols: list = None, action: str = 'subscribe'):
         """

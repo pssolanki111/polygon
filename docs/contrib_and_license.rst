@@ -62,6 +62,7 @@ subscription, just make the changes, test them the way you like and raise the PR
 However if you made changes to the documentation, run the below commands to build locally and test the documentation
 
 .. code-block:: shell
+
   cd docs
   make html
 

@@ -215,6 +215,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_trades(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_trades(symbols, action='unsubscribe')
 
     def subscribe_stock_quotes(self, symbols: list = None, action: str = 'subscribe'):
@@ -250,6 +251,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_quotes(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_quotes(symbols, action='unsubscribe')
 
     def subscribe_stock_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
@@ -285,6 +287,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_minute_aggregates(symbols, action='unsubscribe')
 
     def subscribe_stock_seconds_aggregates(self, symbols: list = None, action: str = 'subscribe'):
@@ -320,6 +323,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_seconds_aggregates(symbols, action='unsubscribe')
 
     def subscribe_stock_limit_up_limit_down(self, symbols: list = None, action: str = 'subscribe'):
@@ -355,6 +359,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_limit_up_limit_down(symbols, action='unsubscribe')
 
     def subscribe_stock_imbalances(self, symbols: list = None, action: str = 'subscribe'):
@@ -390,6 +395,7 @@ class StreamClient:
             raise
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_stock_imbalances(symbols, action='unsubscribe')
 
     # OPTIONS Streams
@@ -426,6 +432,7 @@ class StreamClient:
             raise
 
     def unsubscribe_option_trades(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_option_trades(symbols, action='unsubscribe')
 
     def subscribe_option_minute_aggregates(self, tickers: list = None, action: str = 'subscribe'):
@@ -461,6 +468,7 @@ class StreamClient:
             raise
 
     def unsubscribe_option_minute_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_option_minute_aggregates(symbols, action='unsubscribe')
 
     def subscribe_option_second_aggregates(self, tickers: list = None, action: str = 'subscribe'):
@@ -496,6 +504,7 @@ class StreamClient:
             raise
         
     def unsubscribe_option_second_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_option_second_aggregates(symbols, action='unsubscribe')
 
     # FOREX Streams
@@ -532,6 +541,7 @@ class StreamClient:
             raise
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_forex_quotes(symbols, action='unsubscribe')
 
     def subscribe_forex_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
@@ -568,6 +578,7 @@ class StreamClient:
             raise
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_forex_minute_aggregates(symbols, action='unsubscribe')
 
     # CRYPTO Streams
@@ -605,6 +616,7 @@ class StreamClient:
             raise
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_crypto_trades(symbols, action='unsubscribe')
 
     def subscribe_crypto_quotes(self, symbols: list = None, action: str = 'subscribe'):
@@ -641,6 +653,7 @@ class StreamClient:
             raise
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_crypto_quotes(symbols, action='unsubscribe')
 
     def subscribe_crypto_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
@@ -677,6 +690,7 @@ class StreamClient:
             raise
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_crypto_minute_aggregates(symbols, action='unsubscribe')
 
     def subscribe_crypto_level2_book(self, symbols: list = None, action: str = 'subscribe'):
@@ -713,6 +727,7 @@ class StreamClient:
             raise
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
         self.subscribe_crypto_level2_book(symbols, action='unsubscribe')
 
     @staticmethod

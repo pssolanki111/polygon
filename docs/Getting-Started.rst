@@ -186,5 +186,4 @@ Note that I'm working towards avoiding this name difference across sync and asyn
 * :ref:`options_header`
 * :ref:`forex_header` and :ref:`crypto_header`
 * :ref:`callback_streaming_header` and :ref:`async_streaming_header`
-* :ref:`async_support_header`
 * :ref:`enums_header`

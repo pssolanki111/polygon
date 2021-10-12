@@ -35,20 +35,20 @@ If this doesn't throw any errors, the install worked. You may proceed to next st
 
 .. _create_and_use_header:
 
-Simple General guide for clients
---------------------------------
+General guide for clients
+-------------------------
 This section would provide general guidance on the clients without going into specific endpoints as stocks or options.
 
 As you already know polygon.io has two major classes of APIs. The ``REST`` APIs and ``websockets`` streaming APIs.
 
 This library implements all of them.
 
-- For REST HTTP endpoints
+- For `REST HTTP endpoints <https://polygon.io/docs/getting-started>`__
 
   + Regular client is implemented for all endpoints.
   + Support for ``async`` client is also provided. See :ref:`async_support_header` for more.
 
-- For websocket streaming endpoints
+- For `websocket streaming endpoints <https://polygon.io/docs/websockets/getting-started>`__
 
   + a ``callback`` based stream client is implemented. See :ref:`callback_streaming_header`
   + an async based stream client is also implemented. See :ref:`async_streaming_header`

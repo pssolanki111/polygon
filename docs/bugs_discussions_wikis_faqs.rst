@@ -58,3 +58,5 @@ FAQs
 
 This is a handpicked collection of common questions and answers about the lib and endpoints in general.
 A must read if you're looking for answers.
+
+FAQs are added here as soon I have any solid conclusions about a useful question.

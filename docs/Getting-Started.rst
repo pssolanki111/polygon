@@ -57,6 +57,8 @@ This library implements all of them.
 
 **A detailed description of how to use the streaming endpoints is provided in the streamer docs linked above.**
 
+Need examples? The github repository has a few you could use.
+
 Creating and Using REST HTTP clients
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This section aims to outline the general procedure to create and use the http clients in both regular and async programming methods.

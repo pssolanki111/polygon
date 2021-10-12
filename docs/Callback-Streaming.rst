@@ -79,13 +79,16 @@ Your handler function should accept one argument which is the message received.
 
 .. code-block:: python
 
-  def sampler_handler(msg):
+  def sample_handler(msg):
       print(msg)
 
-Once you have the message in your callback handler function, you can process it the way you want. print it out, write it to a file, push it to a redis queue, write to a database
+Once you have the message in your callback handler function, you can process it the way you want. print it out, write it to a file, push it to a redis queue, write to a database,
 offload to a multi-threaded queue. Just whatever.
 
 The default handler for the messages is ``_default_on_msg`` which does some checks on messages having event as ``status``. and prints out other messages.
+Messages from polygon having the key ``ev`` equal to ``status`` are status updates from polygon about login and relevant actions you take (ev indicates event)
+
+The data messages will have different ``ev`` value than the string 'status'. The ev values would match the :class:`polygon.enums.StreamServicePrefix` values.
 
 You can specify your own handlers for other callbacks too or leave those to defaults.
 
@@ -102,31 +105,37 @@ Stock Trades
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_trades
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_trades
 
 Stock Quotes
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_quotes
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_quotes
 
 Stock Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_minute_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_minute_aggregates
 
 Stock Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_second_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_second_aggregates
 
 Stock Limit Up Limit Down (LULD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_limit_up_limit_down
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_limit_up_limit_down
 
 Stock Imbalances
 ~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_stock_imbalances
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_stock_imbalances
 
 Options Streams
 ---------------
@@ -135,16 +144,19 @@ Options Trades
 ~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_trades
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_trades
 
 Options Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_minute_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_minute_aggregates
 
 Options Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_option_second_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_option_second_aggregates
 
 
 Forex Streams
@@ -154,11 +166,13 @@ Forex Quotes
 ~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_forex_quotes
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_forex_quotes
 
 Forex Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_forex_minute_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_forex_minute_aggregates
 
 Crypto Streams
 --------------
@@ -167,21 +181,25 @@ Crypto Trades
 ~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_trades
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_trades
 
 Crypto Quotes
 ~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_quotes
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_quotes
 
 Crypto Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_minute_aggregates
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_minute_aggregates
 
 Crypto Level 2 Book
 ~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: polygon.streaming.streaming.StreamClient.subscribe_crypto_level2_book
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_level2_book
 
 
 

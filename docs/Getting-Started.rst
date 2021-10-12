@@ -157,6 +157,7 @@ so instead of something like: ``StocksClient('API_KEY')``, you'd do
 This gives you an async client. Similar to sync, you can have all 5 different clients together.
 
 **ALL the methods you'd use for async client have** ``async_`` **in front of their sync counterpart names.**
+so ``async_get_trades``, ``async_get_snapshot`` and so on...
 
 So if a method is named ``get_trades()`` in usual client, in async client you'd have it as ``async_get_trades()``
 and this behavior is true for all methods
@@ -180,7 +181,20 @@ Here is how you can use it grab the current price of a symbol
 
 Note that I'm working towards avoiding this name difference across sync and async clients. Feedback is appreciated.
 
-**so good so far? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
+Special Points
+--------------
+
+* All the date parameters in any method/function in the library can be supplied as ``datetime.date`` or ``datetime.datetime``
+  You may also pass in a string in format: ``YYYY-MM-DD``.
+* You would notice some parameters having ``lt``, ``lte``, ``gt`` and ``gte`` in their names. Those parameters are supposed to be filters for
+  ``less than``, ``less than or equal to``, ``greater than``, ``greater than or equal to`` respectively.
+  To explain: imagine a parameter: ``fill_date_lt``. now the date you'll supply would be a filter for values less than the given value and hence you'd get results which have fill_date
+  less than your specified value, which in this case is a date.
+* Some endpoints may not return a dictionary and instead return a ``list``. The number of such endpoints is very low. Similarly get current price returns a float/integer.
+  I'm working towards reflecting the same in individual method's docs.
+* It is highly recommended to use the polygon.io documentation website's quick test functionality to play around with the endpoints.
+
+**so far so good? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 
 * :ref:`stocks_header`
 * :ref:`options_header`

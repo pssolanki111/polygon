@@ -23,70 +23,72 @@ Get Trades
 ----------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_trades
+   :noindex:
 
 Get Quotes
 ----------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_quotes
+   :noindex:
 
 Get Last Trade
 --------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_last_trade
+   :noindex:
 
 Get last Quote
 --------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_last_quote
+   :noindex:
 
 Get Daily Open Close
 --------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_daily_open_close
+   :noindex:
 
 Get Aggregate Bars (Candles)
 ----------------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_aggregate_bars
+   :noindex:
 
 Get Grouped daily Bars (Candles)
 --------------------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_grouped_daily_bars
+   :noindex:
 
 Get Previous Close
 ------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_previous_close
+   :noindex:
 
 Get Snapshot
 ------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_snapshot
+   :noindex:
 
 Get Snapshot (All)
 ------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_snapshot_all
+   :noindex:
 
 Get Current Price
 -----------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_current_price
+   :noindex:
 
 Get Gainers & Losers
 --------------------
 
 .. automethod:: polygon.stocks.stocks.StocksClient.get_gainers_and_losers
-
-
-Note on Async Methods
-=====================
-
-All async methods basically have the same name as above except having ``async_`` in the beginning of the name.
-
-so ``async_get_trades``, ``async_get_snapshot`` and so on...
-
-See :ref:`async_support_header` for guide on how to use them.
+   :noindex:
 
 

@@ -14,6 +14,7 @@ Read this small guide to know how you can start contributing.
 **If this is your first time contributing to an open source project, Welcome. You'd probably want to contribute to something you are confident about**
 
 Want to discuss anything related to the lib? head over to `Developer Discussions <https://github.com/pssolanki111/polygon/discussions/2>`__.
+You may also use discussions to ask anything related to contributions or library in general.
 
 Picking up what to work on
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

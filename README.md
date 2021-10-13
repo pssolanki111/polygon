@@ -1,5 +1,7 @@
 # `polygon`: A Polygon.io API Wrapper
 
+[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/?badge=latest)
+
 ## what is `polygon`
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 
 simple and elegant programmatic access over each endpoint. Functionalities include but not limited to:
@@ -108,7 +110,18 @@ if __name__ == '__main__':
 
 See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html)
 
-## anything else?
+## Quick Links for `Speed Runners`
+
+-  [Getting Started](https://polygon.readthedocs.io/en/latest/Getting-Started.html) - a must-read for almost everyone
+-  [Async support for REST endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)
+-  Documentation for all [Stocks APIs](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Options APIs](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
+-  Documentation for all [Forex APIs](https://polygon.readthedocs.io/en/latest/Forex.html) || [Crypto APIs](https://polygon.readthedocs.io/en/latest/Crypto.html)
+-  Documentation for [Callback Streaming](https://polygon.readthedocs.io/en/latest/Callback-Streaming.html) || [Async Streaming](https://polygon.readthedocs.io/en/latest/Async-Streaming.html)
+-  [Easy guide to enums](https://polygon.readthedocs.io/en/latest/using_enums.html) || [Library Interface Docs](https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html)
+-  [Docs on bugs, discussions, wikis and FAQs](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html)
+-  [Contribution and License](https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html)
+
+## Anything else?
 
 Bug reports, suggestions and pull requests are always welcome. 
 

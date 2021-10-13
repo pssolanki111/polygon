@@ -54,8 +54,8 @@ in the fixed set.
 
 Finally, it's not an absolute necessity to use enums but they are very much recommended.
 
-Okay how do I use them then
----------------------------
+Okay how do I use them
+----------------------
 
 To start off, like any other name, you'd need to import the names. Now there are many ways to do that and it's up to your
 coding preferences. Make use of your IDE auto-completions to make it easier to fill in enums.

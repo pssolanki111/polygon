@@ -80,15 +80,6 @@ class TickerTypeAssetClass(enum.Enum):
     CRYPTO = 'crypto'
 
 
-# Ticker Type Locales - Reference APIs
-class TickerTypeLocale(enum.Enum):
-    """
-    Locale Type for method: ``ReferenceClient.get_ticker_types_v3()``
-    """
-    US = 'us'
-    GLOBAL = 'global'
-
-
 # Ticker News Sort - Reference APIs
 class TickerNewsSort(enum.Enum):
     """
@@ -203,10 +194,10 @@ class AssetClass(enum.Enum):
     CRYPTO = 'crypto'
 
 
-# Exchanges Locales - Reference APIs
-class ExchangesLocale(enum.Enum):
+# Locales - common
+class Locale(enum.Enum):
     """
-    Locale name for method: ``ReferenceClient.get_exchanges_v3()``
+    Locale name``
     """
     US = 'us'
     GLOBAL = 'global'

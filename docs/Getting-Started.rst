@@ -55,9 +55,11 @@ This library implements all of them.
   + a ``callback`` based stream client is implemented. See :ref:`callback_streaming_header`
   + an async based stream client is also implemented. See :ref:`async_streaming_header`
 
+Be sure to check out our special section :ref:`enums_header` for info on ``enums`` which will be used in many functions in this library to avoid passing error prone data.
+
 **A detailed description of how to use the streaming endpoints is provided in the streamer docs linked above.**
 
-Need examples? The github repository has a few you could use.
+Need examples? The `github repository <https://github.com/pssolanki111/polygon>`__ has a few you could use.
 
 Creating and Using REST HTTP clients
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

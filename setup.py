@@ -7,7 +7,7 @@ setup(
     name='polygon',
     version='0.5.0',
     packages=['polygon', 'polygon.forex', 'polygon.crypto', 'polygon.stocks', 'polygon.streaming',
-              'polygon.reference_apis'],
+              'polygon.reference_apis', 'polygon.options'],
     url='https://github.com/pssolanki111/polygon',
     license='MIT',
     author='P S Solanki',
@@ -33,6 +33,7 @@ setup(
     install_requires=[
         'requests',
         'websockets',
-        'websocket-client'],
+        'websocket-client',
+        'httpx'],
     keywords='finance trading equities bonds options research data',
 )

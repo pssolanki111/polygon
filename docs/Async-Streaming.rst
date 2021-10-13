@@ -17,7 +17,7 @@ If you're looking for callback based streaming client, See :ref:`callback_stream
 Also note that async client has a reconnection mechanism built into it already. It is very basic at the moment. It resubscribes to the same set of services it already had
 before the disconnection and restores the handlers when reconnection establishes. More info in starting the stream below.
 
-It also exposes a few methods which you could use to create your own reconnect mechanism. Method :meth:`polygon.streaming.streaming.AsyncStreamClient.reconnect` is one of them
+It also exposes a few methods which you could use to create your own reconnect mechanism. Method :meth:`polygon.streaming.async_streaming.AsyncStreamClient.reconnect` is one of them
 
 Have a reconnect mechanism to share? Share in `discussions <https://github.com/pssolanki111/polygon/discussions>`__ or on the `wiki <https://github.com/pssolanki111/polygon/wiki>`__.
 
@@ -28,7 +28,7 @@ Creating a client is just creating an instance of ``polygon.AsyncStreamClient``.
 
 This is how the initializer looks like:
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.__init__
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.__init__
    :noindex:
 
 Example use:
@@ -82,7 +82,7 @@ simple use example
 
 That's it. This should be enough for most users. For those who need more control over the behavior here; this is how the method definition looks like:
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.handle_messages
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.handle_messages
    :noindex:
 
 Subscribing/Unsubscribing to Streams
@@ -120,7 +120,7 @@ Library allows you to change your handlers after your main stream loop has start
 
 The function you'd need is:
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.change_handler
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.change_handler
    :noindex:
 
 Note that you should never need to change handler for ``status`` ( which handles ``ev`` messages) unless you know you got a situation. Service prefixes just indicate which service (eg stock trades? options aggregates?)
@@ -137,49 +137,49 @@ Stock Streams
 Stock Trades
 ~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_trades
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_trades
    :noindex:
 
 Stock Quotes
 ~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_quotes
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_quotes
    :noindex:
 
 Stock Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_minute_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_minute_aggregates
    :noindex:
 
 Stock Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_second_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_second_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_second_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_second_aggregates
    :noindex:
 
 Stock Limit Up Limit Down (LULD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_limit_up_limit_down
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_limit_up_limit_down
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_limit_up_limit_down
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_limit_up_limit_down
    :noindex:
 
 Stock Imbalances
 ~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_stock_imbalances
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_stock_imbalances
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_stock_imbalances
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_stock_imbalances
    :noindex:
 
 Options Streams
@@ -188,25 +188,25 @@ Options Streams
 Options Trades
 ~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_option_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_option_trades
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_option_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_option_trades
    :noindex:
 
 Options Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_option_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_option_minute_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_option_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_option_minute_aggregates
    :noindex:
 
 Options Second Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_option_second_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_option_second_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_option_second_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_option_second_aggregates
    :noindex:
 
 
@@ -216,17 +216,17 @@ Forex Streams
 Forex Quotes
 ~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_forex_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_forex_quotes
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_forex_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_forex_quotes
    :noindex:
 
 Forex Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_forex_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_forex_minute_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_forex_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_forex_minute_aggregates
    :noindex:
 
 Crypto Streams
@@ -235,33 +235,33 @@ Crypto Streams
 Crypto Trades
 ~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_crypto_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_trades
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_crypto_trades
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_trades
    :noindex:
 
 Crypto Quotes
 ~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_crypto_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_quotes
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_crypto_quotes
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_quotes
    :noindex:
 
 Crypto Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_crypto_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_minute_aggregates
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_crypto_minute_aggregates
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_minute_aggregates
    :noindex:
 
 Crypto Level 2 Book
 ~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.subscribe_crypto_level2_book
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_level2_book
    :noindex:
-.. automethod:: polygon.streaming.streaming.AsyncStreamClient.unsubscribe_crypto_level2_book
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_level2_book
    :noindex:
 
 

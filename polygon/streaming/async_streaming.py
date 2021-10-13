@@ -481,7 +481,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_seconds_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_second_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time Seconds Aggregates for provided symbol(s)
 
@@ -500,7 +500,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
-    async def unsubscribe_stock_seconds_aggregates(self, symbols: list = None):
+    async def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream for the supplied ticker symbols.
 

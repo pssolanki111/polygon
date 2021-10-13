@@ -27,9 +27,9 @@ For example
  so in another words this enum class has 4 member enums which can be used to specify the value wherever needed.
  Like this ``some_function(arg1, asset=AssetClass.STOCKS)``.
 
-**when you pass in an enum to a function or a method, it is equal to passing in the value of that enum.**
+when you pass in an enum to a function or a method, it is equal to passing in the value of that enum.
 
-so instead of `some_function(arg1, asset=AssetClass.STOCKS)`` i could have said `some_function(arg1, asset='stocks')`` and both mean the same thing.
+so instead of ``some_function(arg1, asset=AssetClass.STOCKS)`` i could have said ``some_function(arg1, asset='stocks')`` and both mean the same thing.
 
 Here are `All the enums of this library in one place <https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#module-polygon.enums>`__
 

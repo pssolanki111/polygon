@@ -45,9 +45,9 @@ Starting the Stream
 -------------------
 
 Once you have a stream client, you MUST subscribe to streams before you start the main stream loop. Note that you can alter your subscriptions from other coroutines easily even after
- starting the main stream loop. See subscriptions methods below this section to know how to subscribe to streams.
+starting the main stream loop. See subscriptions methods below this section to know how to subscribe to streams.
 
-AFTER you have called your initial subscription methods, Now you have two ways to start the main stream loop.
+AFTER you have called your initial subscription methods, you have two ways to start the main stream loop.
 
 Without using the built-in reconnect functionality
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,7 +60,7 @@ In this case you'd need to have your own while loop, like so:
   while 1:
       await stream_client.handle_messages()
 
-and that's basically it. handle_message would take care of receiving messages and calling appropriate handlers (see below section on info on that aspect).
+and that's basically it. handle_message would take care of receiving messages and calling appropriate handlers (see below section for info on that aspect).
 You may want to implement your own reconnect mechanism here.
 
 If that's your use case, you can basically ignore the below section completely.
@@ -77,7 +77,7 @@ simple use example
 
 .. code-block:: python
 
-  # assuming we already client subscribed to streams
+  # assuming we already have a client subscribed to streams
   await stream_client.handle_messages(reconnect=True)
 
 That's it. This should be enough for most users. For those who need more control over the behavior here; this is how the method definition looks like:
@@ -94,7 +94,7 @@ Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']``
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
 
 The Second argument on all unsubscribe methods is the ``handler_function`` which represents the handler function you'd like the library to call when a message from that service is
- received. You can have one handler for multiple services. Not supplying a handler results in the library using the default message handler.
+received. You can have one handler for multiple services. Not supplying a handler results in the library using the default message handler.
 
 Handling Messages
 -----------------
@@ -111,7 +111,9 @@ offload to a multi-threaded queue. Just whatever.
 
 The default handler for the messages is ``_default_process_message``.
 
-All methods are async coroutines which need to be awaited. EG: ``await stream_client.subscribe_stock_trades(['AMD', 'NVDA'], handler_function=my_handler_function)``
+All methods are async coroutines which need to be awaited.
+
+``await stream_client.subscribe_stock_trades(['AMD', 'NVDA'], handler_function=my_handler_function)``
 
 Changing message handler functions while stream is running
 ----------------------------------------------------------
@@ -124,6 +126,7 @@ The function you'd need is:
    :noindex:
 
 Note that you should never need to change handler for ``status`` ( which handles ``ev`` messages) unless you know you got a situation. Service prefixes just indicate which service (eg stock trades? options aggregates?)
+you want to change the handler.
 
 Closing the Stream
 ------------------

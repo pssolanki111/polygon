@@ -102,5 +102,8 @@ This approach is nicer for cases when you only specifically need a few enums.
 
   client.some_other_function(other_args, arg=TickerType.CS, other_arg=AssetClass.STOCKS)
 
+Other Approaches
+~~~~~~~~~~~~~~~~
 
-You could use any other import syntax if you like.
+You could use any other import syntax if you like. such as ``from polygon.enums import *`` but I `wouldn't recommend <https://stackoverflow.com/questions/3615125/should-wildcard-import-be-avoided>`__
+`wild card imports <https://realpython.com/lessons/importing-asterisk-from-package/>`__.

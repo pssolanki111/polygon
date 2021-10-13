@@ -35,6 +35,7 @@ Example use:
 
   stream_client = polygon.StreamClient('KEY', 'stocks', on_message=my_own_handler_function)  # in the simplest form
 
+Note that you don't have to call login methods as the library does it internally itself.
 
 Starting the Stream
 -------------------
@@ -92,7 +93,7 @@ Messages from polygon having the key ``ev`` equal to ``status`` are status updat
 
 The data messages will have different ``ev`` value than the string 'status'. The ev values would match the :class:`polygon.enums.StreamServicePrefix` values.
 
-You can specify your own handlers for other callbacks too or leave those to defaults.
+You can specify your own handlers for other callbacks (``on_error``, ``on_close`` etc) too or leave those to defaults.
 
 Closing Stream
 ~~~~~~~~~~~~~~

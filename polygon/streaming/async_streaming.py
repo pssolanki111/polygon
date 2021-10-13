@@ -105,6 +105,10 @@ class AsyncStreamClient:
         await self.WS.close()
         return
 
+    async def close_stream(self):
+        await self.WS.close()
+        return
+
     async def login(self, key: str = None):
         """
         Creates Websocket Socket client using the configuration and Logs to the stream with credentials. Primarily

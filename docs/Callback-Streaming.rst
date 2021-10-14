@@ -71,6 +71,10 @@ All subscription methods have names in pattern ``subscribe_service_name`` and ``
 
 Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']`` is the correct way to specify symbols.
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
+Note that either of ``[]``, ``None`` or ``'all'`` as value of symbols would also results in ALL tickers.
+
+The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
+Note that a list of single ticker is accepted.
 
 You'd also notice that subscribe methods have an argument with name ``action`` which defaults to subscribe. You should never need to change/specify that parameter at all.
 To unsubscribe, use the relevant methods instead.
@@ -78,11 +82,11 @@ To unsubscribe, use the relevant methods instead.
 Handling messages
 ~~~~~~~~~~~~~~~~~
 
-Your handler function should accept one argument which is the message received.
+Your handler function should accept two arguments. You can ignore the first argument which is going to be the websocket instance itself. The second argument is the actual message.
 
 .. code-block:: python
 
-  def sample_handler(msg):
+  def sample_handler(ws, msg):
       print(msg)
 
 Once you have the message in your callback handler function, you can process it the way you want. print it out, write it to a file, push it to a redis queue, write to a database,
@@ -91,7 +95,7 @@ offload to a multi-threaded queue. Just whatever.
 The default handler for the messages is ``_default_on_msg`` which does some checks on messages having event as ``status``. and prints out other messages.
 Messages from polygon having the key ``ev`` equal to ``status`` are status updates from polygon about login and relevant actions you take (ev indicates event)
 
-The data messages will have different ``ev`` value than the string 'status'. The ev values would match the :class:`polygon.enums.StreamServicePrefix` values.
+The data messages will have different ``ev`` value than the string 'status'. The ev values for those would match the :class:`polygon.enums.StreamServicePrefix` values.
 
 You can specify your own handlers for other callbacks (``on_error``, ``on_close`` etc) too or leave those to defaults.
 

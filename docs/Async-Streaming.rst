@@ -92,9 +92,17 @@ All subscription methods have names in pattern ``subscribe_service_name`` and ``
 
 Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']`` is the correct way to specify symbols.
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
+Note that either of ``[]``, ``None`` or ``'all'`` as value of symbols would also results in ALL tickers.
+
+The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
+Note that a list of single ticker is accepted.
 
 The Second argument on all unsubscribe methods is the ``handler_function`` which represents the handler function you'd like the library to call when a message from that service is
 received. You can have one handler for multiple services. Not supplying a handler results in the library using the default message handler.
+
+All methods are async coroutines which need to be awaited.
+
+``await stream_client.subscribe_stock_trades(['AMD', 'NVDA'], handler_function=my_handler_function)``
 
 Handling Messages
 -----------------
@@ -106,14 +114,17 @@ your handler functions should accept one argument which indicates the message.
   async def sample_handler(msg):
       print(f'Look at me! I am the handler now. {msg}')
 
+Note that you can also use a sync function as handler
+
+.. code-block:: python
+
+  def sample_handler(msg):
+      print(f'I am also a handler. But sync.. {msg}')
+
 Once you have the message in your callback handler function, you can process it the way you want. print it out, write it to a file, push it to a redis queue, write to a database,
 offload to a multi-threaded queue. Just whatever.
 
 The default handler for the messages is ``_default_process_message``.
-
-All methods are async coroutines which need to be awaited.
-
-``await stream_client.subscribe_stock_trades(['AMD', 'NVDA'], handler_function=my_handler_function)``
 
 Changing message handler functions while stream is running
 ----------------------------------------------------------

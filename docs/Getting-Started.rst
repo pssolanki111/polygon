@@ -197,6 +197,11 @@ Special Points
 * Some endpoints may not return a dictionary and instead return a ``list``. The number of such endpoints is very low. Similarly get current price returns a float/integer.
   I'm working towards reflecting the same in individual method's docs.
 * It is highly recommended to use the polygon.io documentation website's quick test functionality to play around with the endpoints.
+* Type hinting in function/method definitions indicate what data type does that parameter is supposed to be. If you think the type hinting is incomplete/incorrect, let me know.
+  For example you might ses: ``cost: int`` which means this parameter ``cost`` is supposed to be an integer. ``adjusted: bool`` is another example for a boolean (either ``True`` or ``False``)
+* You'll notice some type hints having ``Union`` in them followed by two or more types inside a square bracket. That simply means the parameter could be of any type from that list in bracket
+  . For example: ``price: Union[str, float, int]`` means the parameter ``price`` could be either a string, a float or an integer. You'd notice Union type hints more on return types
+  of the functions/methods.
 
 **so far so good? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 

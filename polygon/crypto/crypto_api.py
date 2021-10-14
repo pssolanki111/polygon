@@ -263,8 +263,8 @@ class CryptoClient:
 
         return _res.json()
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan: str = 'day',
-                           adjusted: bool = True, sort: str = 'asc', limit: int = 5000,
+    def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
+                           adjusted: bool = True, sort='asc', limit: int = 5000,
                            raw_response: bool = False) -> Union[Response, dict]:
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
@@ -277,7 +277,8 @@ class CryptoClient:
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param multiplier: The size of the timespan multiplier
-        :param timespan: The size of the time window.
+        :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
+                         for choices
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
@@ -295,6 +296,8 @@ class CryptoClient:
 
         if isinstance(to_date, datetime.datetime) or isinstance(to_date, datetime.date):
             to_date = to_date.strftime('%Y-%m-%d')
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
@@ -412,7 +415,7 @@ class CryptoClient:
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction: str = 'gainers', raw_response: bool = False) -> Union[Response, dict]:
+    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
@@ -425,7 +428,7 @@ class CryptoClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{direction}'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
 
         _res = self._get_response(_path)
 
@@ -548,7 +551,7 @@ class CryptoClient:
         return _res.json()
 
     async def async_get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1,
-                                       timespan: str = 'day', adjusted: bool = True, sort: str = 'asc',
+                                       timespan='day', adjusted: bool = True, sort='asc',
                                        limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         et aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
@@ -561,7 +564,8 @@ class CryptoClient:
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param multiplier: The size of the timespan multiplier
-        :param timespan: The size of the time window.
+        :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
+                         for choices
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
@@ -579,6 +583,8 @@ class CryptoClient:
 
         if isinstance(to_date, datetime.datetime) or isinstance(to_date, datetime.date):
             to_date = to_date.strftime('%Y-%m-%d')
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
@@ -697,7 +703,7 @@ class CryptoClient:
 
         return _res.json()
 
-    async def async_get_gainers_and_losers(self, direction: str = 'gainers',
+    async def async_get_gainers_and_losers(self, direction='gainers',
                                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
@@ -711,7 +717,7 @@ class CryptoClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{direction}'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
 
         _res = await self._get_async_response(_path)
 
@@ -741,6 +747,17 @@ class CryptoClient:
             return _res
 
         return _res.json()
+
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
 
 
 # ========================================================= #

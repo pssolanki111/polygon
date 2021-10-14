@@ -1,13 +1,10 @@
 # ========================================================= #
-import os
-import websocket as ws_client
-import threading
-import signal
-import asyncio
-from typing import Union
-from enum import Enum
-import time
 import logging
+import threading
+import time
+from typing import Union
+import websocket as ws_client
+
 # ========================================================= # TODO: add auto reconnection
 
 
@@ -51,7 +48,7 @@ class StreamClient:
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
-    def __init__(self, api_key: str, cluster: str, host: str = HOST, on_message=None, on_close=None,
+    def __init__(self, api_key: str, cluster, host=HOST, on_message=None, on_close=None,
                  on_error=None, enable_connection_logs: bool = False):
         """
         Initializes the callback function based stream client
@@ -77,7 +74,9 @@ class StreamClient:
         if enable_connection_logs:  # enable connection logs if requested.
             ws_client.enableTrace(True)
 
-        self._host, self._url, self.KEY = host, f'wss://{host}/{cluster}', api_key
+        self._host, self.KEY = self._change_enum(host, str), api_key
+
+        self._url = f'wss://{self._host}/{self._change_enum(cluster, str)}'
 
         self._ping_interval, self._ping_timeout, self._ping_payload = None, None, None
 
@@ -193,8 +192,11 @@ class StreamClient:
 
         _prefix = 'T.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -229,8 +231,11 @@ class StreamClient:
 
         _prefix = 'Q.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -265,8 +270,11 @@ class StreamClient:
 
         _prefix = 'AM.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -301,8 +309,11 @@ class StreamClient:
 
         _prefix = 'A.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -337,8 +348,11 @@ class StreamClient:
 
         _prefix = 'LULD.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -373,8 +387,11 @@ class StreamClient:
 
         _prefix = 'NOI.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -410,8 +427,11 @@ class StreamClient:
 
         _prefix = 'T.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -446,8 +466,11 @@ class StreamClient:
 
         _prefix = 'AM.'
 
-        if tickers is None:
-            tickers = _prefix + '*'
+        if tickers in [None, [], 'all']:
+            symbols = _prefix + '*'
+
+        elif isinstance(tickers, str):
+            pass
 
         else:
             tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
@@ -482,8 +505,11 @@ class StreamClient:
 
         _prefix = 'A.'
 
-        if tickers is None:
-            tickers = _prefix + '*'
+        if tickers in [None, [], 'all']:
+            symbols = _prefix + '*'
+
+        elif isinstance(tickers, str):
+            pass
 
         else:
             tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
@@ -520,8 +546,11 @@ class StreamClient:
 
         _prefix = 'C.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -556,8 +585,11 @@ class StreamClient:
 
         _prefix = 'CA.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -594,8 +626,11 @@ class StreamClient:
 
         _prefix = 'XT.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -631,8 +666,11 @@ class StreamClient:
 
         _prefix = 'XQ.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -668,8 +706,11 @@ class StreamClient:
 
         _prefix = 'XA.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -705,8 +746,11 @@ class StreamClient:
 
         _prefix = 'XL2.'
 
-        if symbols is None:
+        if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
+
+        elif isinstance(symbols, str):
+            pass
 
         else:
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
@@ -778,6 +822,16 @@ class StreamClient:
 
         self._authenticate()
 
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
 
 # ========================================================= #
 

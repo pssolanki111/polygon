@@ -177,9 +177,9 @@ class ReferenceClient:
 
     # Endpoints
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                    symbol_type: str = '', market: str = '', exchange: str = '', cusip: str = None, cik: str = '',
+                    symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
                     date=None, search: str = None,
-                    active: bool = True, sort: str = 'ticker', order: str = 'asc', limit: int = 100,
+                    active: bool = True, sort='ticker', order='asc', limit: int = 100,
                     raw_response: bool = False) -> Union[Response, dict]:
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
@@ -225,6 +225,9 @@ class ReferenceClient:
 
         if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
             date = date.strftime('%Y-%m-%d')
+
+        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
         _path = '/v3/reference/tickers'
 
@@ -291,6 +294,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(locale, str)
 
         _path = '/v3/reference/tickers/types'
 
@@ -361,11 +366,10 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type: str = None,
-                             expiration_date= None,
-                             expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                             expiration_date_gte=None, order: str = 'asc', sort: str = None, limit=100,
-                             raw_response: bool = False) -> Union[Response, dict]:
+    def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
+                             expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
+                             expiration_date_gt=None, expiration_date_gte=None, order='asc', sort=None,
+                             limit=100, raw_response: bool = False) -> Union[Response, dict]:
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
@@ -401,6 +405,9 @@ class ReferenceClient:
 
         if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
             expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
+
+        contract_type = self._change_enum(contract_type, str)
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
         _path = f'/vX/reference/options/contracts'
 
@@ -441,7 +448,7 @@ class ReferenceClient:
         except KeyError:
             return False
 
-    def get_ticker_news(self, symbol: str = None, limit: int = 100, order: str = 'desc', sort: str = 'published_utc',
+    def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc', sort='published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
                         published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
                         raw_response: bool = False) -> Union[Response, dict]:
@@ -484,6 +491,8 @@ class ReferenceClient:
 
         if isinstance(published_utc_gte, datetime.date) or isinstance(published_utc_gte, datetime.datetime):
             published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
         _path = '/v2/reference/news'
 
@@ -546,7 +555,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_stock_financials(self, symbol: str, limit: int = 100, report_type: str = None, sort: str = None,
+    def get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
                              raw_response: bool = False) -> Union[Response, dict]:
         """
         Get historical financial data for a stock ticker. This API will be replaced by
@@ -563,6 +572,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        report_type, sort = self._change_enum(report_type, str), self._change_enum(sort)
 
         _path = f'/v2/reference/financials/{symbol.upper()}'
 
@@ -583,7 +594,7 @@ class ReferenceClient:
                                 period_of_report_date=None, period_of_report_date_lt=None,
                                 period_of_report_date_lte=None, period_of_report_date_gt=None,
                                 period_of_report_date_gte=None, time_frame=None, include_sources: bool = False,
-                                order: str = 'asc', limit: int = 50, sort: str = 'filing_date',
+                                order='asc', limit: int = 50, sort='filing_date',
                                 raw_response: bool = False):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
@@ -625,6 +636,9 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        time_frame = self._change_enum(time_frame)
+        order, sort = self._change_enum(order), self._change_enum(sort)
 
         _path = f'/vX/reference/financials'
 
@@ -707,7 +721,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_condition_mappings(self, tick_type: str = 'trades', raw_response: bool = False) -> Union[Response, dict]:
+    def get_condition_mappings(self, tick_type='trades', raw_response: bool = False) -> Union[Response, dict]:
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
         codes to identify conditions, so the same condition may have a different code depending on the originator of
@@ -723,6 +737,8 @@ class ReferenceClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
+        tick_type = self._change_enum(tick_type)
+
         _path = f'/v1/meta/conditions/{tick_type.lower()}'
 
         _res = self._get_response(_path)
@@ -732,8 +748,8 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
-                       limit: int = 50, sort: str = 'name', raw_response: bool = False):
+    def get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
+                       limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses.
         `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
@@ -753,6 +769,10 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
+        order, sort = self._change_enum(order), self._change_enum(sort)
+
         _path = f'/vX/reference/conditions'
 
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
@@ -765,7 +785,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_exchanges(self, asset_class: str = None, locale: str = None, raw_response: bool = False):
+    def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         List all exchanges that Polygon.io knows about.
         `Official Docs <https://polygon.io/docs/get_v3_reference_exchanges_anchor>`__
@@ -777,6 +797,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        asset_class, locale = self._change_enum(asset_class), self._change_enum(locale)
 
         _path = f'/v3/reference/exchanges'
 
@@ -850,9 +872,9 @@ class ReferenceClient:
 
     # ASYNC Operations' Methods
     async def async_get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,
-                                ticker_gte=None, symbol_type: str = '', market: str = '', exchange: str = '',
+                                ticker_gte=None, symbol_type='', market='', exchange: str = '',
                                 cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
-                                = None, search: str = None, active: bool = True, sort: str = 'ticker', order: str =
+                                = None, search: str = None, active: bool = True, sort='ticker', order: str =
                                 'asc', limit: int = 100, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
@@ -898,6 +920,9 @@ class ReferenceClient:
 
         if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
             date = date.strftime('%Y-%m-%d')
+
+        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
         _path = '/v3/reference/tickers'
 
@@ -966,6 +991,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(locale, str)
 
         _path = '/v3/reference/tickers/types'
 
@@ -1037,10 +1064,10 @@ class ReferenceClient:
         return _res.json()
 
     async def async_get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
-                                         contract_type: str = None,
+                                         contract_type=None,
                                          expiration_date= None,
                                          expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                                         expiration_date_gte=None, order: str = 'asc', sort: str = None,
+                                         expiration_date_gte=None, order='asc', sort=None,
                                          limit: int = 50,
                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
@@ -1079,6 +1106,9 @@ class ReferenceClient:
         if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
             expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
 
+        contract_type = self._change_enum(contract_type, str)
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+
         _path = f'/vX/reference/options/contracts'
 
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
@@ -1093,8 +1123,8 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_ticker_news(self, symbol: str = None, limit: int = 100, order: str = 'desc',
-                                    sort: str = 'published_utc',
+    async def async_get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc',
+                                    sort='published_utc',
                                     ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                                     published_utc=None, published_utc_lt=None, published_utc_lte=None,
                                     published_utc_gt=None, published_utc_gte=None,
@@ -1138,6 +1168,8 @@ class ReferenceClient:
 
         if isinstance(published_utc_gte, datetime.date) or isinstance(published_utc_gte, datetime.datetime):
             published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
         _path = '/v2/reference/news'
 
@@ -1201,7 +1233,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_stock_financials(self, symbol: str, limit: int = 100, report_type: str = None, sort: str = None,
+    async def async_get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historical financial data for a stock ticker. This API will be replaced by
@@ -1218,6 +1250,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        report_type, sort = self._change_enum(report_type, str), self._change_enum(sort)
 
         _path = f'/v2/reference/financials/{symbol.upper()}'
 
@@ -1238,8 +1272,8 @@ class ReferenceClient:
                                             filing_date_gte=None, period_of_report_date=None,
                                             period_of_report_date_lt=None, period_of_report_date_lte=None,
                                             period_of_report_date_gt=None, period_of_report_date_gte=None,
-                                            time_frame=None, include_sources: bool = False, order: str = 'asc',
-                                            limit: int = 50, sort: str = 'filing_date', raw_response: bool = False):
+                                            time_frame=None, include_sources: bool = False, order='asc',
+                                            limit: int = 50, sort='filing_date', raw_response: bool = False):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__ - Async method
@@ -1280,6 +1314,9 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        time_frame = self._change_enum(time_frame)
+        order, sort = self._change_enum(order), self._change_enum(sort)
 
         _path = f'/vX/reference/financials'
 
@@ -1362,7 +1399,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_condition_mappings(self, tick_type: str = 'trades',
+    async def async_get_condition_mappings(self, tick_type='trades',
                                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
@@ -1379,6 +1416,8 @@ class ReferenceClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
+        tick_type = self._change_enum(tick_type)
+
         _path = f'/v1/meta/conditions/{tick_type.lower()}'
 
         _res = await self._get_async_response(_path)
@@ -1388,8 +1427,8 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_conditions(self, asset_class: str = None, data_type: str = None, id=None, sip=None, order=None,
-                                   limit: int = 50, sort: str = 'name', raw_response: bool = False):
+    async def async_get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
+                                   limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses - Async method
         `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
@@ -1409,6 +1448,9 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+        asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
+        order, sort = self._change_enum(order), self._change_enum(sort)
+
         _path = f'/vX/reference/conditions'
 
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
@@ -1421,7 +1463,7 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_exchanges(self, asset_class: str = None, locale: str = None, raw_response: bool = False):
+    async def async_get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         List all exchanges that Polygon.io knows about - Async method
         `Official Docs <https://polygon.io/docs/get_v3_reference_exchanges_anchor>`__
@@ -1433,6 +1475,8 @@ class ReferenceClient:
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+
+        asset_class, locale = self._change_enum(asset_class), self._change_enum(locale)
 
         _path = f'/v3/reference/exchanges'
 
@@ -1502,6 +1546,17 @@ class ReferenceClient:
             return _res
 
         return _res.json()
+
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
 
 
 # ========================================================= #

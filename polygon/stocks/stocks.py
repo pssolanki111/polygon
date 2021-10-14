@@ -312,7 +312,7 @@ class StocksClient:
         return _res.json()
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort: str = 'asc', limit: int = 5000, multiplier: int = 1, timespan: str = 'day',
+                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
                            raw_response: bool = False) -> Union[Response, dict]:
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
@@ -343,6 +343,8 @@ class StocksClient:
 
         if isinstance(to_date, datetime.date) or isinstance(to_date, datetime.datetime):
             to_date = to_date.strftime('%Y-%m-%d')
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
@@ -473,7 +475,7 @@ class StocksClient:
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction: str = 'gainers', raw_response: bool = False) -> Union[Response, dict]:
+    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets.
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__
@@ -486,7 +488,7 @@ class StocksClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/{direction}'
+        _path = f'/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}'
 
         _res = self._get_response(_path)
 
@@ -648,11 +650,9 @@ class StocksClient:
 
         return _res.json()
 
-    async def async_get_aggregate_bars(self, symbol: str, from_date,
-                                       to_date, adjusted: bool = True,
-                                       sort: str = 'asc', limit: int = 5000, multiplier: int = 1,
-                                       timespan: str = 'day',
-                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def async_get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
+                                       sort='asc', limit: int = 5000, multiplier: int = 1,
+                                       timespan='day', raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned - Async
@@ -817,7 +817,7 @@ class StocksClient:
 
         return _res.json()
 
-    async def async_get_gainers_and_losers(self, direction: str = 'gainers',
+    async def async_get_gainers_and_losers(self, direction='gainers',
                                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets - Asnyc method
@@ -831,7 +831,7 @@ class StocksClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/{direction}'
+        _path = f'/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}'
 
         _res = await self._get_async_response(_path)
 
@@ -839,6 +839,17 @@ class StocksClient:
             return _res
 
         return _res.json()
+
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
 
 
 # ========================================================= #

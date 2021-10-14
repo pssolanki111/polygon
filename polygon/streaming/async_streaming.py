@@ -53,7 +53,7 @@ class AsyncStreamClient:
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
-    def __init__(self, api_key: str, cluster: str, host: str = HOST, ping_interval: int = 20,
+    def __init__(self, api_key: str, cluster, host=HOST, ping_interval: int = 20,
                  ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
                  read_limit: int = 65536, write_limit: int = 65536):
         """
@@ -85,11 +85,13 @@ class AsyncStreamClient:
                             low-water limit is a quarter of the high-water limit. The default value is ``64 KiB``,
                             equal to asyncio’s default. Don't change if you're unsure what it implies.
         """
-        self.KEY, self._market, self.WS, self._subs, self._re = api_key, cluster, None, [], 0
+        self.KEY, self._market, self._re = api_key, self._change_enum(cluster, str), None
+
+        self.WS, self._subs = None, []
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url, self._attempts = f'wss://{host}/{self._market}', 0
+        self._url, self._attempts = f'wss://{self._change_enum(host, str)}/{self._market}', 0
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -196,7 +198,10 @@ class AsyncStreamClient:
             _msg = await self._recv()
 
             for msg in _msg:
-                asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+                handler = self._handlers[self._apis[msg['ev']]](msg)
+
+                if inspect.isawaitable(handler):
+                    asyncio.create_task(handler)
 
             return
 
@@ -298,7 +303,7 @@ class AsyncStreamClient:
 
         :return: ``(True, message)`` if reconnection succeeds else ``(False, message)``
         """
-        get_logger().info('Attempting reconnection')
+        get_logger().error('Attempting reconnection')
 
         try:
             await self.login()
@@ -320,20 +325,15 @@ class AsyncStreamClient:
         """
 
         if update['ev'] == 'status':
+            print(update)
+
             if update['status'] in ['auth_success', 'connected']:
                 if update['status'] == 'auth_success':
                     self._attempts = 0
-                get_logger().info(update['message'])
+                # get_logger().info(update['message'])
                 return
-
-            elif update['status'] == 'error':
-                get_logger().error(f'Could Not subscribe to stream requested. Reason: {update["message"]}. This '
-                                   f'usually happens when you attempt to request streams which are not in your account '
-                                   f'subscriptions')
-                return
-
             else:
-                get_logger().error(update['message'])
+                # get_logger().error(update['message'])
                 return
 
         print(update)
@@ -375,7 +375,7 @@ class AsyncStreamClient:
         if _prefix in ['OT', 'OAM', 'OA']:
             _prefix = _prefix[1:]
 
-        elif symbols is None:
+        elif symbols in [None, [], 'all']:
             symbols = _prefix + '*'
             self._subs.append((symbols, action))
 
@@ -394,16 +394,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'T'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -425,16 +422,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'Q'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -456,16 +450,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'AM'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -487,16 +478,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'A'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -518,16 +506,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'LULD'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -549,16 +534,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'NOI'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -581,16 +563,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'OT'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -612,16 +591,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'OAM'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -643,16 +619,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'OA'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -675,16 +648,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of symbols to subscribe to. Defaults to ALL tickers.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'C'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -706,16 +676,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'CA'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -738,16 +705,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'XT'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -769,16 +733,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'XQ'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -800,16 +761,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'XA'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -831,16 +789,13 @@ class AsyncStreamClient:
 
         :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
         :param handler_function: The function which you'd want to call to process messages received from this
-                                 subscription. Defaults to None which uses the default process message function. The
-                                 function supplied MUST be a coroutine, a task, a future or an await-able.
+                                 subscription. Defaults to None which uses the default process message function.
         :return: None
         """
 
         _prefix = 'XL2'
 
-        if inspect.isawaitable(handler_function) or inspect.iscoroutinefunction(handler_function) or \
-                inspect.iscoroutine(handler_function):
-            self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[self._apis[_prefix]] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -857,7 +812,7 @@ class AsyncStreamClient:
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
     # Convenience Functions
-    async def change_handler(self, service_prefix: str, handler_function):
+    async def change_handler(self, service_prefix, handler_function):
         """
         Change your handler function for a service. Can be used to update handlers dynamically while stream is running.
 
@@ -869,9 +824,20 @@ class AsyncStreamClient:
 
         # TODO: see if we can assign sync handlers
         if self._market in ['options']:
-            service_prefix = f'O{service_prefix}'
+            service_prefix = f'O{self._change_enum(service_prefix, str)}'
 
-        self._handlers[self._apis[service_prefix]] = handler_function
+        self._handlers[self._apis[self._change_enum(service_prefix, str)]] = handler_function
+
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
 
 
 # ========================================================= #

@@ -255,6 +255,17 @@ class OptionsClient:
 
         return _res.json()
 
+    @staticmethod
+    def _change_enum(val, allowed_type=str):
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+        return val.value
+
 
 # ========================================================= #
 

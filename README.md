@@ -11,6 +11,7 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 -  Websocket streaming (both callback and async based)
 -  Market Info, News, Holidays, Schedules
 -  Async support for REST endpoints
+-  Built In stream reconnection functionality (only async stream, callback stream in progress)
 
 and more...
 
@@ -55,6 +56,7 @@ async def main():
     stocks_client = polygon.StocksClient(api_key, True)
     
     current_price = await stocks_client.async_get_current_price('AMD')
+    await stocks_client.async_close()  # Recommended to close the httpx session when it's not needed. 
     print(current_price)
 
 if __name__ == '__main__':
@@ -67,7 +69,7 @@ if __name__ == '__main__':
 import polygon
 from polygon.enums import StreamCluster
 
-def my_own_message_handler(msg):
+def my_own_message_handler(ws, msg):
     print(f'Look at me! I\'m the Handler now...: {msg}')
 
 def main():
@@ -103,6 +105,7 @@ if __name__ == '__main__':
     asyncio.run(main())
 
 ```
+This only scratched the surface of the library.
 
 **See the [Documentation](https://polygon.readthedocs.io/) to start using the library with its full functionalities.**
 

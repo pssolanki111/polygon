@@ -9,6 +9,7 @@ from httpx import Response as HttpxResponse
 # ========================================================= #
 
 # Test Runners
+cred.KEY = cred.OK
 
 # ========================================================= #
 
@@ -61,16 +62,12 @@ class TestOptions(unittest.TestCase):
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
 
-            self.assertEqual(data['resultsCount'], 1)
-            self.assertEqual(data2.json()['resultsCount'], 1)
-
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY)
         data = client.get_previous_close('O:TSLA210903C00700000')
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
-        self.assertEqual(data['resultsCount'], 1)
 
     @async_test
     async def test_async_get_last_trade(self):
@@ -107,16 +104,12 @@ class TestOptions(unittest.TestCase):
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
 
-            self.assertEqual(data['resultsCount'], 1)
-            self.assertEqual(data2.json()['resultsCount'], 1)
-
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, use_async=True)
         data = await client.async_get_previous_close('O:TSLA210903C00700000')
         await client.async_close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
-        self.assertEqual(data['resultsCount'], 1)
 
 
 # ========================================================= #

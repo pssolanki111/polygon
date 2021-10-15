@@ -71,13 +71,10 @@ All subscription methods have names in pattern ``subscribe_service_name`` and ``
 
 Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']`` is the correct way to specify symbols.
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
-Note that either of ``[]``, ``None`` or ``'all'`` as value of symbols would also results in ALL tickers.
+Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols would also results in ALL tickers.
 
 The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
 Note that a list of single ticker is accepted.
-
-You'd also notice that subscribe methods have an argument with name ``action`` which defaults to subscribe. You should never need to change/specify that parameter at all.
-To unsubscribe, use the relevant methods instead.
 
 Handling messages
 ~~~~~~~~~~~~~~~~~

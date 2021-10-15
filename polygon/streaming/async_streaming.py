@@ -245,7 +245,8 @@ class AsyncStreamClient:
 
                         # Right After reconnection to ensure we can actually communicate with the stream
                         except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-                            print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+                            print(f'Exception: {str(exc)} || Not attempting reconnection as login/access failed. '
+                                  f'Terminating...')
                             return
 
                         except (wss.ConnectionClosedError, Exception) as exc:
@@ -274,7 +275,7 @@ class AsyncStreamClient:
                     asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
 
             except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-                print(f'Exception: {str(exc)} || Not attempting reconnection. Terminating...')
+                print(f'Exception: {str(exc)} || Not attempting reconnection as login/access failed. Terminating...')
                 return
 
             except (wss.ConnectionClosedError, Exception) as exc:
@@ -372,8 +373,17 @@ class AsyncStreamClient:
             pass
 
         # options streamers. Need special handling as service prefix is same as stocks
-        if _prefix in ['OT', 'OAM', 'OA']:
+        if self._market in ['options']:
             _prefix = _prefix[1:]
+
+            if symbols in [None, [], 'all']:
+                symbols = _prefix + '*'
+            else:
+                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not \
+                                    symbol.startswith('O:') and symbol != '*' else f'{_prefix}{symbol.upper()}' for
+                                    symbol in symbols])
+
+            self._subs.append((symbols, action))
 
         elif symbols in [None, [], 'all']:
             symbols = _prefix + '*'

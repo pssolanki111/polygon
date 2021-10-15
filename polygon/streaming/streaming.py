@@ -5,6 +5,7 @@ import time
 from typing import Union
 import websocket as ws_client
 
+
 # ========================================================= # TODO: add auto reconnection
 
 
@@ -48,6 +49,7 @@ class StreamClient:
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
+
     def __init__(self, api_key: str, cluster, host=HOST, on_message=None, on_close=None,
                  on_error=None, enable_connection_logs: bool = False):
         """
@@ -74,9 +76,9 @@ class StreamClient:
         if enable_connection_logs:  # enable connection logs if requested.
             ws_client.enableTrace(True)
 
-        self._host, self.KEY = self._change_enum(host, str), api_key
+        self._host, self.KEY, self._cluster = self._change_enum(host, str), api_key, self._change_enum(cluster, str)
 
-        self._url = f'wss://{self._host}/{self._change_enum(cluster, str)}'
+        self._url = f'wss://{self._host}/{self._cluster}'
 
         self._ping_interval, self._ping_timeout, self._ping_payload = None, None, None
 
@@ -99,7 +101,7 @@ class StreamClient:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.WS.close()
-        return 
+        return
 
     def _start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
                       skip_utf8_validation: bool = True):
@@ -180,17 +182,17 @@ class StreamClient:
 
         self._auth.set()
 
-    # STOCKS Streams
-    def subscribe_stock_trades(self, symbols: list = None, action: str = 'subscribe'):
+    def _modify_sub(self, symbols=None, action='subscribe', _prefix='T.'):
         """
-        Stream real-time trades for given stock ticker symbol(s).
+        Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
+        corresponding methods to subscribe or unsubscribe to streams.
 
-        :param symbols: A list of tickers. Default is ``*`` which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :param symbols: The list of symbols to apply the actions to.
+        :param action: Defaults to subscribe which subscribes to requested stream. Change to unsubscribe to remove an
+                       existing subscription.
+        :param _prefix: prefix of the stream service. See :class:`polygon.enums.StreamServicePrefix` for choices.
         :return: None
         """
-
-        _prefix = 'T.'
 
         if symbols in [None, [], 'all']:
             symbols = _prefix + '*'
@@ -199,7 +201,11 @@ class StreamClient:
             pass
 
         else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+            if self._cluster in ['options']:
+                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not \
+                                    symbol.startswith('O:') else f'{_prefix}{symbol.upper()}' for symbol in symbols])
+            else:
+                symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
 
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
@@ -216,563 +222,300 @@ class StreamClient:
         except Exception:
             raise
 
+    # STOCKS Streams
+    def subscribe_stock_trades(self, symbols: list = None):
+        """
+        Stream real-time trades for given stock ticker symbol(s).
+
+        :param symbols: A list of tickers. Default is ``*`` which subscribes to ALL tickers in the market
+        :return: None
+        """
+
+        _prefix = 'T.'
+
+        self._modify_sub(symbols, 'subscribe', _prefix)
+
     def unsubscribe_stock_trades(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_trades(symbols, action='unsubscribe')
 
-    def subscribe_stock_quotes(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'T.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_stock_quotes(self, symbols: list = None):
         """
         Stream real-time Quotes for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'Q.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_stock_quotes(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_quotes(symbols, action='unsubscribe')
 
-    def subscribe_stock_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'Q.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_stock_minute_aggregates(self, symbols: list = None):
         """
         Stream real-time minute aggregates for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'AM.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_minute_aggregates(symbols, action='unsubscribe')
 
-    def subscribe_stock_second_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'AM.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_stock_second_aggregates(self, symbols: list = None):
         """
         Stream real-time second aggregates for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'A.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_second_aggregates(symbols, action='unsubscribe')
 
-    def subscribe_stock_limit_up_limit_down(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'A.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
         Stream real-time LULD events for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'LULD.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_limit_up_limit_down(symbols, action='unsubscribe')
 
-    def subscribe_stock_imbalances(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'LULD.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_stock_imbalances(self, symbols: list = None):
         """
         Stream real-time Imbalance Events for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'NOI.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_stock_imbalances(symbols, action='unsubscribe')
+
+        _prefix = 'NOI.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # OPTIONS Streams
-    def subscribe_option_trades(self, symbols: list = None, action: str = 'subscribe'):
+    def subscribe_option_trades(self, symbols: list = None):
         """
         Stream real-time Options Trades for given Options contract.
 
-        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
         :return: None
         """
 
         _prefix = 'T.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_option_trades(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_option_trades(symbols, action='unsubscribe')
 
-    def subscribe_option_minute_aggregates(self, tickers: list = None, action: str = 'subscribe'):
+        _prefix = 'T.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_option_minute_aggregates(self, symbols: list = None):
         """
         Stream real-time Options Minute Aggregates for given Options contract(s).
 
-        :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
         :return: None
         """
 
         _prefix = 'AM.'
 
-        if tickers in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(tickers, str):
-            pass
-
-        else:
-            tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), tickers)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_option_minute_aggregates(symbols, action='unsubscribe')
 
-    def subscribe_option_second_aggregates(self, tickers: list = None, action: str = 'subscribe'):
+        _prefix = 'AM.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_option_second_aggregates(self, symbols: list = None):
         """
         Stream real-time Options Second Aggregates for given Options contract(s).
 
-        :param tickers: A list of tickers. Default is * which subscribes to ALL tickers in the market
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
         :return: None
         """
 
         _prefix = 'A.'
 
-        if tickers in [None, [], 'all']:
-            symbols = _prefix + '*'
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
-        elif isinstance(tickers, str):
-            pass
-
-        else:
-            tickers = ','.join([_prefix + symbol.upper() for symbol in tickers])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), tickers)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
-        
     def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_option_second_aggregates(symbols, action='unsubscribe')
+
+        _prefix = 'A.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # FOREX Streams
-    def subscribe_forex_quotes(self, symbols: list = None, action: str = 'subscribe'):
+    def subscribe_forex_quotes(self, symbols: list = None):
         """
         Stream real-time forex quotes for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'C.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_forex_quotes(symbols, action='unsubscribe')
 
-    def subscribe_forex_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'C.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_forex_minute_aggregates(self, symbols: list = None):
         """
         Stream real-time forex Minute Aggregates for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'CA.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_forex_minute_aggregates(symbols, action='unsubscribe')
+
+        _prefix = 'CA.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # CRYPTO Streams
-    def subscribe_crypto_trades(self, symbols: list = None, action: str = 'subscribe'):
+    def subscribe_crypto_trades(self, symbols: list = None):
         """
         Stream real-time Trades for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'XT.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_crypto_trades(symbols, action='unsubscribe')
 
-    def subscribe_crypto_quotes(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'XT.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_crypto_quotes(self, symbols: list = None):
         """
         Stream real-time Quotes for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'XQ.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_crypto_quotes(symbols, action='unsubscribe')
 
-    def subscribe_crypto_minute_aggregates(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'XQ.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
         Stream real-time Minute Aggregates for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'XA.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_crypto_minute_aggregates(symbols, action='unsubscribe')
 
-    def subscribe_crypto_level2_book(self, symbols: list = None, action: str = 'subscribe'):
+        _prefix = 'XA.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
+    def subscribe_crypto_level2_book(self, symbols: list = None):
         """
         Stream real-time level 2 book data for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
-        :param action: Action to be taken. To be used internally. Defaults to subscribe. Options: unsubscribe.
         :return: None
         """
 
         _prefix = 'XL2.'
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-
-        elif isinstance(symbols, str):
-            pass
-
-        else:
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-
-        _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
-
-        try:
-            # Ensuring we are logged in and the socket is open to receive subscription messages
-            self._auth.wait()
-
-            self.WS.send(_payload)
-
-        except ws_client._exceptions.WebSocketConnectionClosedException:   
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
-            return
-
-        except Exception:
-            raise
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
-        self.subscribe_crypto_level2_book(symbols, action='unsubscribe')
+
+        _prefix = 'XL2.'
+
+        self._modify_sub(symbols, 'subscribe', _prefix)
 
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
@@ -833,11 +576,11 @@ class StreamClient:
 
         return val.value
 
+
 # ========================================================= #
 
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-
 
 # ========================================================= #

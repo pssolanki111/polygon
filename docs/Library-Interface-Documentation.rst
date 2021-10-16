@@ -22,11 +22,25 @@ Stocks Client
 
 Options Client
 --------------
+
+.. autofunction:: polygon.options.options.build_option_symbol
+
+.. autofunction:: polygon.options.options.parse_option_symbol
+
+.. autoclass:: polygon.options.options.OptionSymbol
+   :members:
+   :special-members: __init__
+   :undoc-members:
+   :private-members:
+   :member-order: bysource
+
 .. autoclass:: polygon.options.options.OptionsClient
    :members:
    :special-members: __init__
    :private-members:
    :member-order: bysource
+
+.. autofunction:: polygon.options.options.ensure_prefix
 
 .. _references_client_interface_header:
 

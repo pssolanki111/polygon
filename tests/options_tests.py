@@ -2,7 +2,7 @@
 import unittest
 import polygon
 from polygon import cred
-import datetime
+import datetime as dt
 from requests.models import Response
 import asyncio
 from httpx import Response as HttpxResponse
@@ -29,6 +29,62 @@ def async_test(coro):
 
 
 class TestOptions(unittest.TestCase):
+    def test_build_option_symbol(self):
+        bos = polygon.build_option_symbol('X', '211205', 'call', 134)
+        bos1 = polygon.build_option_symbol('AA', dt.date(2021, 12, 5), 'c', 134.4)
+        bos2 = polygon.build_option_symbol('AMD', '211205', 'p', 14.23, prefix_o=True)
+        bos3 = polygon.build_option_symbol('MSFT', dt.datetime(2021, 12, 5), 'put', 7.345)
+        bos4 = polygon.build_option_symbol('WPGGQ', '211205', 'CALL', 134.0)
+        bos5 = polygon.build_option_symbol('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345')
+
+        self.assertEqual(bos, 'X211205C00134000')
+        self.assertEqual(bos1, 'AA211205C00134400')
+        self.assertEqual(bos2, 'O:AMD211205P00014230')
+        self.assertEqual(bos3, 'MSFT211205P00007345')
+        self.assertEqual(bos4, 'WPGGQ211205C00134000')
+        self.assertEqual(bos5, 'PPPPPP211205P00134345')
+
+    def test_parse_option_symbol(self):
+        bos = polygon.parse_option_symbol('O:A211015C00090000')  # done
+        bos2 = polygon.parse_option_symbol('O:AA211015C00013000', expiry_format=str)  # done
+        bos3 = polygon.parse_option_symbol('AA211015P00015000', output_format=list)  # done
+        bos4 = polygon.parse_option_symbol('AMD211015P00037500', output_format=dict, expiry_format=str)
+        bos5 = polygon.parse_option_symbol('O:AMD211015P00040000')  # done
+        bos6 = polygon.parse_option_symbol('NVDA211015C00070000', output_format=list)  # done
+        bos7 = polygon.parse_option_symbol('O:NVDA211015C00072500', output_format=dict)
+        bos8 = polygon.parse_option_symbol('O:GOOGL211015C00780000', output_format=list)  # done
+        bos9 = polygon.parse_option_symbol('GOOGL211015P00780000', output_format=list)  # done
+        bos10 = polygon.parse_option_symbol('O:AMD1211015C00040000', output_format=list)  # done
+
+        self.assertIsInstance(bos, polygon.OptionSymbol)
+        self.assertIsInstance(bos2, polygon.OptionSymbol)
+        self.assertIsInstance(bos3, list)
+        self.assertIsInstance(bos4, dict)
+
+        _dt = int(dt.date.today().strftime('%Y')[:2] + '21')
+
+        self.assertTrue(bos.underlying_symbol == 'A' and bos.expiry == dt.date(_dt, 10, 15) and bos.call_or_put == 'C'
+                        and bos.strike_price == 90)
+        self.assertTrue(bos2.underlying_symbol == 'AA' and bos2.expiry == f'{_dt}-10-15' and bos2.call_or_put ==
+                        'C' and bos2.strike_price == 13)
+        self.assertTrue(bos5.underlying_symbol == 'AMD' and bos5.expiry == dt.date(_dt, 10, 15) and bos5.call_or_put ==
+                        'P' and bos5.strike_price == 40)
+
+        self.assertEqual(bos3, ['AA', dt.date(_dt, 10, 15), 'P', 15])
+        self.assertEqual(bos6, ['NVDA', dt.date(_dt, 10, 15), 'C', 70])
+        self.assertEqual(bos8, ['GOOGL', dt.date(_dt, 10, 15), 'C', 780])
+        self.assertEqual(bos9, ['GOOGL', dt.date(_dt, 10, 15), 'P', 780])
+        self.assertEqual(bos10, ['AMD', dt.date(_dt, 10, 15), 'C', 40])
+
+        self.assertEqual(bos4, {'underlying_symbol': 'AMD',
+                                'strike_price': 37.5,
+                                'expiry': f'{_dt}-10-15',
+                                'call_or_put': 'P'})
+        self.assertEqual(bos7, {'underlying_symbol': 'NVDA',
+                                'strike_price': 72.5,
+                                'expiry': dt.date(_dt, 10, 15),
+                                'call_or_put': 'C'})
+
     def test_get_last_trade(self):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_last_trade('O:TSLA210903C00700000')

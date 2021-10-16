@@ -8,6 +8,70 @@ from httpx import Response as HttpxResponse
 # ========================================================= #
 
 
+# Functions for option symbol parsing and creation
+
+def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price, prefix_o: bool = False):
+    """
+    Build the option symbol from the details provided.
+
+    :param underlying_symbol: The underlying stock ticker symbol.
+    :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
+                   ``datetime.date`` object. Or a string in format: ``YYMMDD``. Using datetime objects is recommended.
+    :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
+                        also supported.
+    :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
+                         ``15.003``, ``56``, ``129.02`` are all valid values.
+    :param prefix_o: Whether or not to prefix the symbol with 'O:'. It is needed by polygon endpoints. However all the
+                     library functions will automatically add this prefix if you pass in symbols without this prefix.
+    """
+
+    if isinstance(expiry, datetime.datetime) or isinstance(expiry, datetime.date):
+        expiry = expiry.strftime('%y%m%d')
+
+    elif isinstance(expiry, str) and len(expiry) != 6:
+        raise ValueError('Expiry string must have 6 characters. Format is: YYMMDD')
+
+    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+
+    if '.' in str(strike_price):
+        strike, strike_dec = str(strike_price).split('.')[0].rjust(5, '0'), str(
+            strike_price).split('.')[1].ljust(3, '0')[:3]
+    else:
+        strike, strike_dec = str(int(strike_price)).rjust(5, '0'), '000'
+
+    if prefix_o:
+        return f'O:{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+
+    return f'{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+
+
+def parse_option_symbol(option_symbol: str, output_format='object', expiry_format='date'):
+    """
+    Function to parse an option symbol.
+
+    :param option_symbol: the symbol you want to parse. Both ``TSLA211015P125000`` and ``O:TSLA211015P125000`` are valid
+    :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
+    :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
+                          param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+    """
+
+    _obj = OptionSymbol(option_symbol, output_format, expiry_format)
+
+    if output_format in ['list', list]:
+        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price]
+
+    elif output_format in ['dict', dict]:
+        _obj = {'underlying_symbol': _obj.underlying_symbol,
+                'strike_price': _obj.strike_price,
+                'expiry': _obj.expiry,
+                'call_or_put': _obj.call_or_put}
+
+    return _obj
+
+
+# ========================================================= #
+
+
 class OptionsClient:
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
@@ -172,7 +236,7 @@ class OptionsClient:
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ticker}'
+        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
 
         _res = self._get_response(_path)
 
@@ -196,7 +260,7 @@ class OptionsClient:
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ticker}/prev'
+        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
@@ -220,7 +284,7 @@ class OptionsClient:
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ticker}'
+        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
 
         _res = await self._get_async_response(_path)
 
@@ -244,7 +308,7 @@ class OptionsClient:
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ticker}/prev'
+        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
@@ -265,6 +329,62 @@ class OptionsClient:
             return val
 
         return val.value
+
+
+# ========================================================= #
+
+
+class OptionSymbol:
+    """
+    The custom object for parsed details from option symbols.
+    """
+    def __init__(self, option_symbol: str, output_format, expiry_format):
+        """
+        Parses the details from symbol and creates attributes for the object.
+
+        :param option_symbol: the symbol you want to parse. Both ``TSLA211015P125000`` and ``O:TSLA211015P125000`` are
+                              valid
+        :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
+                              param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+        """
+        if option_symbol.startswith('O:'):
+            option_symbol = option_symbol[2:]
+
+        self.underlying_symbol = option_symbol[:-15]
+
+        _len = len(self.underlying_symbol)
+
+        # optional filter for those Corrections Ian talked about
+        self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
+
+        self._expiry = option_symbol[_len:_len + 6]
+
+        self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
+                                    int(self._expiry[2:4]), int(self._expiry[4:6]))
+
+        self.call_or_put = option_symbol[_len + 6].upper()
+
+        self.strike_price = int(option_symbol[_len+7:]) / 1000
+
+        if expiry_format in ['string', 'str', str]:
+            self.expiry = self.expiry.strftime('%Y-%m-%d')
+
+    def __repr__(self):
+        return f'Underlying: {self.underlying_symbol} || expiry: {self.expiry} || type: {self.call_or_put} || ' \
+               f'strike_price: {self.strike_price}'
+
+
+def ensure_prefix(symbol: str):
+    """
+    Ensure that the option symbol has the prefix ``O:`` as needed by polygon endpoints. If it does, make no changes. If
+    it doesn't, add the prefix and return the new value.
+
+    :param symbol: the option symbol to check
+    """
+    if symbol.startswith('O:'):
+        return symbol
+
+    return f'O:{symbol}'
 
 
 # ========================================================= #

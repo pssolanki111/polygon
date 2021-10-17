@@ -1,6 +1,6 @@
 # `polygon`: A Polygon.io API Wrapper
 
-[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
 
 ## what is `polygon`
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 

@@ -767,10 +767,10 @@ class CryptoClient:
 
     @staticmethod
     def ensure_prefix(sym: str):
-        if sym.startswith('C:'):
+        if sym.startswith('X:'):
             return sym
 
-        return f'C:{sym}'
+        return f'X:{sym}'
 
 
 # ========================================================= #

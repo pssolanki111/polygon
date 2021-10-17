@@ -226,7 +226,8 @@ class ForexClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor>`__
 
-        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``
+        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix 
+                       ``C:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string 
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
@@ -253,7 +254,8 @@ class ForexClient:
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+                f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
                  'sort': sort,
@@ -353,14 +355,14 @@ class ForexClient:
         traded forex symbol.
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor>`__
 
-        :param symbol: Symbol of the forex pair
+        :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{symbol.upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{self.ensure_prefix(symbol).upper()}'
 
         _res = self._get_response(_path)
 
@@ -491,7 +493,8 @@ class ForexClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor>`__
 
-        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``
+        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix 
+                       ``C:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
@@ -518,7 +521,8 @@ class ForexClient:
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+                f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
                  'sort': sort,
@@ -620,14 +624,14 @@ class ForexClient:
         traded forex symbol - Async method
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor>`__
 
-        :param symbol: Symbol of the forex pair
+        :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{symbol.upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{self.ensure_prefix(symbol).upper()}'
 
         _res = await self._get_async_response(_path)
 
@@ -699,6 +703,13 @@ class ForexClient:
             return val
 
         return val.value
+
+    @staticmethod
+    def ensure_prefix(sym: str):
+        if sym.startswith('C:'):
+            return sym
+
+        return f'C:{sym}'
 
 
 # ========================================================= #

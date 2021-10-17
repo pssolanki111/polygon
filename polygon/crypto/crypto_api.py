@@ -272,7 +272,8 @@ class CryptoClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+                       ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
@@ -299,7 +300,8 @@ class CryptoClient:
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+                f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
                  'sort': sort,
@@ -346,7 +348,8 @@ class CryptoClient:
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
 
-        :param symbol: The ticker symbol of the currency pair.
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
+                       prefix ``X:``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -355,7 +358,7 @@ class CryptoClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/prev'
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
@@ -399,14 +402,14 @@ class CryptoClient:
         traded cryptocurrency symbol.
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor>`__
 
-        :param symbol: Symbol of the currency pair
+        :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}'
 
         _res = self._get_response(_path)
 
@@ -443,14 +446,14 @@ class CryptoClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor>`__
 
-        :param symbol: The cryptocurrency ticker.
+        :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:`
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}/book'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}/book'
 
         _res = self._get_response(_path)
 
@@ -559,7 +562,8 @@ class CryptoClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+                       ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
@@ -586,7 +590,8 @@ class CryptoClient:
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+                f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
                  'sort': sort,
@@ -634,7 +639,8 @@ class CryptoClient:
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
 
-        :param symbol: The ticker symbol of the currency pair.
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
+                       prefix ``X:``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -643,7 +649,7 @@ class CryptoClient:
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
+        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/prev'
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
@@ -687,14 +693,14 @@ class CryptoClient:
         traded cryptocurrency symbol - Async method
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor>`__
 
-        :param symbol: Symbol of the currency pair
+        :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}'
 
         _res = await self._get_async_response(_path)
 
@@ -732,14 +738,14 @@ class CryptoClient:
         `Official Docs
         <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor>`__
 
-        :param symbol: The cryptocurrency ticker.
+        :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:`.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{symbol.upper()}/book'
+        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}/book'
 
         _res = await self._get_async_response(_path)
 
@@ -758,6 +764,13 @@ class CryptoClient:
             return val
 
         return val.value
+
+    @staticmethod
+    def ensure_prefix(sym: str):
+        if sym.startswith('C:'):
+            return sym
+
+        return f'C:{sym}'
 
 
 # ========================================================= #

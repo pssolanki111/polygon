@@ -18,6 +18,12 @@ If you do not know how to create the client, first see :ref:`create_and_use_head
   crypto_client = polygon.CryptoClient('KEY')  # for usual sync client
   async_crypto_client = polygon.CryptoClient('KEY', True)  # for an async client
 
+Note that most endpoints require you to specify the currency pairs as separate symbols (a ``from_symbol`` and a ``to_symbol``).
+
+however a few endpoints require you to supply them as one combined symbol. An example would be the ``get_aggregates_bars`` method.
+In those methods, the symbol is expected to have a prefix ``X:`` before the currency symbol names. **but the library allows you to specify the symbol with or without the prefix**.
+See the relevant method's docs for more information on what the parameters expect.
+
 Get Historic Trades
 -------------------
 

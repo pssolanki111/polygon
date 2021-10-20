@@ -96,6 +96,23 @@ The data messages will have different ``ev`` value than the string 'status'. The
 
 You can specify your own handlers for other callbacks (``on_error``, ``on_close`` etc) too or leave those to defaults.
 
+**if you choose to override default handlers for** ``on_error`` **and** ``on_close``, **here is how they need to be written**
+
+``on_error`` handler must accept two arguments. You can ignore the first argument which is just the websocket instance itself. The second argument is going to be the actual error
+
+.. code-block:: python
+
+  def sample_error_handler(ws, error):
+      print(error)
+
+``on_close`` handler must accept three arguments. you can ignore the first arg which is just the websocket instance itself. The second arg is close code, and third would be the
+close message. note that this handler is only called when the stream is being closed.
+
+.. code-block:: python
+
+  def sample_close_handler(ws, close_code, close_msg):
+      print(f'Stream close with code: {close_code} || msg: {close_msg}')
+
 Closing Stream
 ~~~~~~~~~~~~~~
 

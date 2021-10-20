@@ -6,3 +6,6 @@ httpx
 # Only needed for documentation
 sphinx
 sphinx_rtd_theme
+
+# Only needed for tests
+asynctest

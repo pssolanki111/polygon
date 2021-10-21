@@ -20,9 +20,11 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
                         also supported.
     :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
-                         ``15.003``, ``56``, ``129.02`` are all valid values.
+                         ``15.003``, ``56``, ``129.02`` are all valid values. It shouldn't have more than three
+                         numbers after decimal point.
     :param prefix_o: Whether or not to prefix the symbol with 'O:'. It is needed by polygon endpoints. However all the
                      library functions will automatically add this prefix if you pass in symbols without this prefix.
+    :return: The option symbol in the format specified by polygon
     """
 
     if isinstance(expiry, datetime.datetime) or isinstance(expiry, datetime.date):
@@ -53,21 +55,71 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
     :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
     :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
                           param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+    :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
     _obj = OptionSymbol(option_symbol, output_format, expiry_format)
 
     if output_format in ['list', list]:
-        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price]
+        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
 
     elif output_format in ['dict', dict]:
         _obj = {'underlying_symbol': _obj.underlying_symbol,
                 'strike_price': _obj.strike_price,
                 'expiry': _obj.expiry,
-                'call_or_put': _obj.call_or_put}
+                'call_or_put': _obj.call_or_put,
+                'option_symbol': _obj.option_symbol}
 
     return _obj
 
+
+def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, strike_price):
+    """
+    Only use this function if you need to create option symbol for TD ameritrade API. This function is just a bonus.
+
+    :param underlying_symbol: The underlying stock ticker symbol.
+    :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
+                   ``datetime.date`` object. Or a string in format: ``MMDDYY``. Using datetime objects is recommended.
+    :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
+                        also supported.
+    :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
+                         ``15.003``, ``56``, ``129.02`` are all valid values. It shouldn't have more than three
+                         numbers after decimal point.
+    :return: The option symbol built in the format supported by TD Ameritrade.
+    """
+
+    if isinstance(expiry, datetime.date) or isinstance(expiry, datetime.datetime):
+        expiry = expiry.strftime('%m%d%y')
+
+    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+
+    return f'{underlying_symbol}_{expiry}{call_or_put}{strike_price}'
+
+
+def parse_option_symbol_from_tda(option_symbol: str, output_format='object', expiry_format='date'):
+    """
+    Function to parse an option symbol in format supported by TD Ameritrade.
+
+    :param option_symbol: the symbol you want to parse. Both ``TSLA211015P125000`` and ``O:TSLA211015P125000`` are valid
+    :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
+    :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
+                          param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+    :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
+    """
+
+    _obj = OptionSymbol(option_symbol, output_format, expiry_format, symbol_format='tda')
+
+    if output_format in ['list', list]:
+        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
+
+    elif output_format in ['dict', dict]:
+        _obj = {'underlying_symbol': _obj.underlying_symbol,
+                'strike_price': _obj.strike_price,
+                'expiry': _obj.expiry,
+                'call_or_put': _obj.call_or_put,
+                'option_symbol': _obj.option_symbol}
+
+    return _obj
 
 # ========================================================= #
 
@@ -338,7 +390,7 @@ class OptionSymbol:
     """
     The custom object for parsed details from option symbols.
     """
-    def __init__(self, option_symbol: str, output_format, expiry_format):
+    def __init__(self, option_symbol: str, output_format, expiry_format, symbol_format='polygon'):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -346,28 +398,52 @@ class OptionSymbol:
                               valid
         :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
                               param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+        :param symbol_format: Which formatting spec to use. Defaults to polygon. also supports ``tda`` which is the
+                              format supported by TD Ameritrade
         """
-        if option_symbol.startswith('O:'):
-            option_symbol = option_symbol[2:]
+        if symbol_format == 'polygon':
+            if option_symbol.startswith('O:'):
+                option_symbol = option_symbol[2:]
 
-        self.underlying_symbol = option_symbol[:-15]
+            self.underlying_symbol = option_symbol[:-15]
 
-        _len = len(self.underlying_symbol)
+            _len = len(self.underlying_symbol)
 
-        # optional filter for those Corrections Ian talked about
-        self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
+            # optional filter for those Corrections Ian talked about
+            self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
 
-        self._expiry = option_symbol[_len:_len + 6]
+            self._expiry = option_symbol[_len:_len + 6]
 
-        self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
-                                    int(self._expiry[2:4]), int(self._expiry[4:6]))
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
+                                        int(self._expiry[2:4]), int(self._expiry[4:6]))
 
-        self.call_or_put = option_symbol[_len + 6].upper()
+            self.call_or_put = option_symbol[_len + 6].upper()
 
-        self.strike_price = int(option_symbol[_len+7:]) / 1000
+            self.strike_price = int(option_symbol[_len + 7:]) / 1000
 
-        if expiry_format in ['string', 'str', str]:
-            self.expiry = self.expiry.strftime('%Y-%m-%d')
+            self.option_symbol = f'{self.underlying_symbol}{option_symbol[_len:]}'
+
+            if expiry_format in ['string', 'str', str]:
+                self.expiry = self.expiry.strftime('%Y-%m-%d')
+
+        elif symbol_format == 'tda':
+            _split = option_symbol.split('_')
+
+            self.underlying_symbol = _split[0]
+
+            self._expiry = _split[1][:6]
+
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[4:6]),
+                                        int(self._expiry[:2]), int(self._expiry[2:4]))
+
+            self.call_or_put = _split[1][6]
+
+            self.strike_price = float(_split[1][7:])
+
+            self.option_symbol = option_symbol
+
+            if expiry_format in ['string', 'str', str]:
+                self.expiry = self.expiry.strftime('%Y-%m-%d')
 
     def __repr__(self):
         return f'Underlying: {self.underlying_symbol} || expiry: {self.expiry} || type: {self.call_or_put} || ' \

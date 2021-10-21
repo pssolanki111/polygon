@@ -27,6 +27,10 @@ Options Client
 
 .. autofunction:: polygon.options.options.parse_option_symbol
 
+.. autofunction:: polygon.options.options.build_option_symbol_for_tda
+
+.. autofunction:: polygon.options.options.parse_option_symbol_from_tda
+
 .. autoclass:: polygon.options.options.OptionSymbol
    :members:
    :special-members: __init__

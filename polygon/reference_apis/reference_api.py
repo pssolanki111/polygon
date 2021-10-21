@@ -79,10 +79,20 @@ class ReferenceClient:
             await self.session.aclose()
 
     def close(self):
+        """
+        Closes the ``requests.Session`` and frees up resources. It is recommended to call this method in your
+        exit handlers
+        Note that this is meant for sync programming only. Use :meth:`async_close` for async.
+        """
         if not self._async:
             self.session.close()
 
     async def async_close(self):
+        """
+        Closes the ``httpx.AsyncClient`` and frees up resources. It is recommended to call this method in your
+        exit handlers. This method should be awaited as this is a coroutine.
+        Note that this is meant for async programming only. Use :meth:`close` for sync.
+        """
         if self._async:
             self.session: httpx.AsyncClient
             await self.session.aclose()

@@ -32,19 +32,29 @@ class ForexClient:
     data you receive as the actual data received through python lib is exactly the same as shown on their page when
     you click ``Run Query``.
     """
-    def __init__(self, api_key: str, use_async: bool = False):
+
+    def __init__(self, api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
         """
         Initiates a Client to be used to access all the endpoints.
 
         :param api_key: Your API Key. Visit your dashboard to get yours.
         :param use_async: Set to True to get an async client. Defaults to False which returns a non-async client.
+        :param connect_timeout: The connection timeout in seconds. Defaults to 10. basically the number of seconds to
+                                wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
+                                connect within specified time limit.
+        :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                             date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                             time limit.
         """
         self.KEY, self._async = api_key, use_async
         self.BASE = 'https://api.polygon.io'
 
         if self._async:
-            self.session = httpx.AsyncClient()
+            self.time_out_conf = httpx.Timeout(connect=connect_timeout, read=read_timeout, pool=10,
+                                               write=10)
+            self.session = httpx.AsyncClient(timeout=self.time_out_conf)
         else:
+            self.time_out_conf = (connect_timeout, read_timeout)
             self.session = requests.session()
 
         self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
@@ -90,7 +100,7 @@ class ForexClient:
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
-        _res = self.session.request('GET', self.BASE + path, params=params)
+        _res = self.session.request('GET', self.BASE + path, params=params, timeout=self.time_out_conf)
 
         if raw_response:
             return _res

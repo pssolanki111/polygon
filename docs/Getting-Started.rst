@@ -71,12 +71,32 @@ First up, you'd import the library. There are many ways to import names from a l
 
   import polygon
 
-Now creating a client is as simple as (using stocks client as an example here)
+Now creating a client is as simple as (using stocks and forex clients as examples here)
 
 1. Regular client: ``stocks_client = polygon.StocksClient('API_KEY')``
 #. Async client: ``forex_client = polygon.ForexClient('API_KEY', True)``
 
-Note that It is NOT recommended to hard code your API key or other credentials into your code unless you really have a use case. Instead preferably do one of the following:
+**You can also specify timeouts on requests. By default the timeout is set to 10 seconds** for both connection timeout and read timeout which
+should be fine for most people. You can specify both connect and read OR either one of them.
+If you're unsure of what this implies, it's just the max time limit to specify for a request. Don't change it unless you
+know you need to.
+
+.. code-block:: python
+
+  # client with a custom timeout. Default is 10 seconds
+  client = polygon.StocksClient('api_key', connect_timeout=15)
+
+  # another one
+  client = polygon.StocksClient('api_key', connect_timeout=5, read_timeout=5)
+
+  # An async one now
+  client = polygon.StocksClient('key', True, read_timeout=5)
+
+  # another async one
+  client = polygon.StocksClient('key', True, read_timeout=5, connect_timeout=15)
+
+Note that It is NOT recommended to hard code your API key or other credentials into your code unless you really have a use case.
+Instead preferably do one of the following:
 
 1. create a separate python file with credentials, import that file into main file and reference using variable names.
 #. Use environment variables.

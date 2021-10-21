@@ -19,6 +19,8 @@ and more...
 
 The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/)
 
+### Here is a quick setup guide with a few examples
+
 Before you do anything, you'll need to have a polygon account and get your API key. 
 Visit [your dashboard](https://polygon.io/dashboard/api-keys) to get your API key.
 

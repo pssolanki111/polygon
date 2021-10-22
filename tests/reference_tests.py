@@ -49,7 +49,7 @@ class TestReferences(unittest.TestCase):
         # Testing without context manager
         client = polygon.ReferenceClient(cred.KEY)
         data = client.get_tickers(search='GO', limit=30, market='stocks')
-        data1 = client.get_next_page_tickers(data)
+        data1 = client.get_next_page(data)
         client.close()
         self.assertIsInstance(data, dict)
         self.assertIsInstance(data1, dict)
@@ -148,7 +148,7 @@ class TestReferences(unittest.TestCase):
         # without context manager
         client = polygon.ReferenceClient(cred.KEY)
         data = client.get_ticker_news('AMD', limit=10)
-        data1 = client.get_next_page_news(data)
+        data1 = client.get_next_page(data)
         client.close()
         self.assertIsInstance(data, dict)
         self.assertIsInstance(data1, dict)
@@ -372,7 +372,7 @@ class TestReferences(unittest.TestCase):
         # Testing without context manager
         client = polygon.ReferenceClient(cred.KEY, True)
         data = await client.async_get_tickers(search='GO', limit=30, market='stocks')
-        data1 = await client.async_get_next_page_tickers(data)
+        data1 = await client.async_get_next_page(data)
         await client.async_close()
         self.assertIsInstance(data, dict)
         self.assertIsInstance(data1, dict)
@@ -476,7 +476,7 @@ class TestReferences(unittest.TestCase):
         # without context manager
         client = polygon.ReferenceClient(cred.KEY, True)
         data = await client.async_get_ticker_news('AMD', limit=10)
-        data1 = await client.async_get_next_page_news(data)
+        data1 = await client.async_get_next_page(data)
         await client.async_close()
         self.assertIsInstance(data, dict)
         self.assertIsInstance(data1, dict)

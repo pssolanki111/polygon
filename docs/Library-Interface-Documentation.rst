@@ -8,6 +8,18 @@ Library Interface Documentation
 
 Here is the Entire Library Interface reference.
 
+.. _base_client_interface_header:
+
+Base Client
+-----------
+
+.. autoclass:: polygon.base_client.BaseClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :undoc-members:
+   :member-order: bysource
+
 .. _stocks_client_interface_header:
 
 Stocks Client

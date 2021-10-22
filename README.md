@@ -21,6 +21,8 @@ and more...
 The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/) which has answers to 
 any question you might have with example uses included wherever needed. Docs is a must-read for most people.
 
+More examples will be added to this repository in a folder `examples` as they are ready. 
+
 ### Here is a quick setup guide with a few examples
 
 Before you do anything, you'll need to have a polygon account and get your API key. 
@@ -74,7 +76,7 @@ import polygon
 from polygon.enums import StreamCluster
 
 def my_own_message_handler(ws, msg):
-    print(f'Look at me! I\'m the Handler now...: {msg}')
+    print(f'msg received: {msg}')
 
 def main():
     api_key = 'YOUR_KEY'
@@ -94,7 +96,7 @@ import polygon
 from polygon.enums import StreamCluster
 
 async def stock_trades_handler(msg):   # it is possible to create one common message handler for different services.
-    print(f'Look at me! I am the new handler. {msg}')
+    print(f'msg received: {msg}')
     
 async def main():
     api_key = 'YOUR_KEY'

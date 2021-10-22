@@ -177,11 +177,12 @@ header.
 
 All REST clients have these functions and you will use the same function name for all endpoints. See examples below
 
-**first here is how the functions for pagination look like:** (click on names to see definition)
+**first here is how the functions for pagination look like:** (click on names to see definition - you won't have to import them with this name. They are avaiable
+with the client you create as shown in examples below)
 
-for usual client: :meth:`polygon.stocks.stocks.StocksClient.get_next_page` || :meth:`polygon.stocks.stocks.StocksClient.get_previous_page`
+for usual client: :meth:`polygon.base_client.BaseClient.get_next_page` || :meth:`polygon.base_client.BaseClient.get_previous_page`
 
-For async client: :meth:`polygon.stocks.stocks.StocksClient.async_get_next_page` || :meth:`polygon.stocks.stocks.StocksClient.async_get_previous_page`
+For async client: :meth:`polygon.base_client.BaseClient.async_get_next_page` || :meth:`polygon.base_client.BaseClient.async_get_previous_page`
 
 **Examples Use**
 

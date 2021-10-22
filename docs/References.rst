@@ -21,16 +21,9 @@ If you do not know how to create the client, first see :ref:`create_and_use_head
 Get Tickers
 -----------
 
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
 .. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_tickers
-   :noindex:
-
-Get Next Page of tickers
-------------------------
-
-A simple implementation of pagination on tickers endpoint. Simply pass in the last response you received and the method would parse the
-``next_url`` attribute and fetch the next page. If this returns ``False``, it means all pages were fetched.
-
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_next_page_tickers
    :noindex:
 
 Get Ticker Types
@@ -54,31 +47,17 @@ Get Ticker Details vX
 Get Option Contracts
 --------------------
 
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
 .. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_option_contracts
-   :noindex:
-
-Get next page of option contracts
----------------------------------
-
-A simple implementation of pagination on option contacts endpoint. Simply pass in the last response you received and the method would parse the
-``next_url`` attribute and fetch the next page. If this returns ``False``, it means all pages were fetched.
-
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_next_page_option_contracts
    :noindex:
 
 Get Ticker News
 ---------------
 
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
 .. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_ticker_news
-   :noindex:
-
-Get Next page of ticker news
-----------------------------
-
-A simple implementation of pagination on news endpoint. Simply pass in the last response you received and the method would parse the
-``next_url`` attribute and fetch the next page. If this returns ``False``, it means all pages were fetched.
-
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_next_page_news
    :noindex:
 
 Get Stock dividends

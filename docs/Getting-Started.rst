@@ -159,6 +159,62 @@ or process it the way you like.
 
 Every method's documentation contains a direct link to the corresponding official documentation page where you can see what the keys in the response mean.
 
+.. _pagination_header:
+
+Pagination Support
+------------------
+
+So quite a few endpoints implement pagination for large response and hence the library implements a simple mechanism to get next page of the response.
+(support for previous page is also available but not all endpoints will have previous page implementation. The documentation will mention which endpoint has which kinda pagination
+implementation so make sure you read that)
+
+`This blog by polygon <https://polygon.io/blog/api-pagination-patterns/>`__ explains a few concepts around pagination and other query extensions. A good read overall.
+
+The pagination function simply parses the ``next_url`` attribute (for next page) and ``previous_url`` attribute (for previous page) and send an authorized request using your key as
+header.
+
+**The functions will return** ``False`` **if there is no next/previous page remaining** or the endpoint doesn't support pagination.
+
+All REST clients have these functions and you will use the same function name for all endpoints. See examples below
+
+**first here is how the functions for pagination look like:** (click on names to see definition)
+
+for usual client: :meth:`polygon.stocks.stocks.StocksClient.get_next_page` || :meth:`polygon.stocks.stocks.StocksClient.get_previous_page`
+
+For async client: :meth:`polygon.stocks.stocks.StocksClient.async_get_next_page` || :meth:`polygon.stocks.stocks.StocksClient.async_get_previous_page`
+
+**Examples Use**
+
+.. code-block:: python
+
+  # assuming a client is created already
+  data = client.get_trades(<blah-blah>)
+
+  next_page_of_data = client.get_next_page(data)  # getting NEXT page
+  previous_page_of_data = client.get_previous_page(data)  # getting PREVIOUS page
+
+  # ASYNC example
+  await client.async_get_next_page(data)
+  await client.async_get_previous_page(data)
+
+  # It's wise to check if the value returned is not False.
+
+**In practice, to get all pages (either next or previous), you'll need a while loop** An example:
+
+.. code-block:: python
+
+  responses = []
+
+  response = client.get_trades(<blah-blah>)  # using get_trades as example. you can use it on all methods which support pagination
+  responses.append(response)  # using a list to store all the pages of response. You can use your own approach here.
+
+  while 'next_url' in response.keys():  # change to 'previous_url' for previous pages
+      response = client.get_next_page(response)  # similarly change to get_previous_page for previous pages.
+
+      responses.append(response)  # adding further responses to our list. you can use your own approach.
+
+  print('all pages received.')
+
 .. _async_support_header:
 
 Async Support for REST endpoints
@@ -211,7 +267,8 @@ Special Points
 * All the date parameters in any method/function in the library can be supplied as ``datetime.date`` or ``datetime.datetime``
   You may also pass in a string in format: ``YYYY-MM-DD``.
 * You would notice some parameters having ``lt``, ``lte``, ``gt`` and ``gte`` in their names. Those parameters are supposed to be filters for
-  ``less than``, ``less than or equal to``, ``greater than``, ``greater than or equal to`` respectively.
+  ``less than``, ``less than or equal to``, ``greater than``, ``greater than or equal to`` respectively. To know more see heading **Query Filter Extensions**
+  in `This blog post by polygon <https://polygon.io/blog/api-pagination-patterns/>`__
   To explain: imagine a parameter: ``fill_date_lt``. now the date you'll supply would be a filter for values less than the given value and hence you'd get results which have fill_date
   less than your specified value, which in this case is a date.
 * Some endpoints may not return a dictionary and instead return a ``list``. The number of such endpoints is very low. Similarly get current price returns a float/integer.

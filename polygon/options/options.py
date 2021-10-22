@@ -294,7 +294,152 @@ class OptionsClient:
 
         return _res.json()
 
+    def get_next_page(self, old_response: Union[Response, dict],
+                      raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the next page using the most recent old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages or the endpoint doesn't support pagination).
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    async def async_get_next_page(self, old_response: Union[HttpxResponse, dict],
+                                  raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+        """
+        Get the next page using the most recent old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages or the endpoint doesn't support
+        pagination) - Async method
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    def get_previous_page(self, old_response: Union[Response, dict],
+                          raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the previous page using the most recent old response. This function simply parses the previous_url attribute
+        from the  existing response and uses it to get the previous page. Returns False if there is no previous page
+        remaining (which implies that you have reached the start of all pages or the endpoint doesn't support
+        pagination).
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    async def async_get_previous_page(self, old_response: Union[HttpxResponse, dict],
+                                      raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+        """
+        Get the previous page using the most recent old response. This function simply parses the previous_url attribute
+        from the  existing response and uses it to get the previous page. Returns False if there is no previous page
+        remaining (which implies that you have reached the start of all pages or the endpoint doesn't support
+        pagination) - Async method
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
     # Endpoints
+    def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
+                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100, order='asc',
+                   raw_response: bool = False):
+        """
+        Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
+        correct format for this endpoint. You can use
+        :meth:`polygon.reference_apis.reference_api.ReferenceClient.get_option_contracts` to query option contracts
+        using many filter parameters such as underlying symbol etc.
+        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+
+        :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
+                              pass the symbol with or without the prefix ``O:``
+        :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
+                          UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
+        :param timestamp_lt: query results where timestamp is less than the supplied value
+        :param timestamp_lte: query results where timestamp is less than or equal to the supplied value
+        :param timestamp_gt: query results where timestamp is greater than the supplied value
+        :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
+        :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionTradesSort`
+                     for available choices.
+        :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
+        :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
+                      available choices.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+        """
+
+        _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
+                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     def get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the most recent trade for a given options contract.

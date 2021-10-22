@@ -178,6 +178,109 @@ class ReferenceClient:
 
         return _res.json()
 
+    def get_next_page(self, old_response: Union[Response, dict],
+                      raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the next page using the most recent old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages or the endpoint doesn't support pagination).
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    async def async_get_next_page(self, old_response: Union[HttpxResponse, dict],
+                                  raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+        """
+        Get the next page using the most recent old response. This function simply parses the next_url attribute
+        from the  existing response and uses it to get the next page. Returns False if there is no next page
+        remaining (which implies that you have reached the end of all pages or the endpoint doesn't support
+        pagination) - Async method
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    def get_previous_page(self, old_response: Union[Response, dict],
+                          raw_response: bool = False) -> Union[Response, dict, bool]:
+        """
+        Get the previous page using the most recent old response. This function simply parses the previous_url attribute
+        from the  existing response and uses it to get the previous page. Returns False if there is no previous page
+        remaining (which implies that you have reached the start of all pages or the endpoint doesn't support
+        pagination).
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
+    async def async_get_previous_page(self, old_response: Union[HttpxResponse, dict],
+                                      raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+        """
+        Get the previous page using the most recent old response. This function simply parses the previous_url attribute
+        from the  existing response and uses it to get the previous page. Returns False if there is no previous page
+        remaining (which implies that you have reached the start of all pages or the endpoint doesn't support
+        pagination) - Async method
+
+        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        try:
+            if not isinstance(old_response, dict):
+                old_response = old_response.json()
+
+            _next_url = old_response['next_url']
+
+            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
+
+        except KeyError:
+            return False
+
     # Endpoints
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                     symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
@@ -245,31 +348,6 @@ class ReferenceClient:
             return _res
 
         return _res.json()
-
-    def get_next_page_tickers(self, old_response: Union[Response, dict],
-                              raw_response: bool = False) -> Union[Response, dict, bool]:
-        """
-        Get the next page using the most recent old response. This function simply parses the next_url attribute
-        from the  existing response and uses it to get the next page. Returns False if there is no next page
-        remaining (which implies that you have reached the end of all pages).
-
-        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        try:
-            if not isinstance(old_response, dict):
-                old_response = old_response.json()
-
-            _next_url = old_response['next_url']
-
-            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
-
-        except KeyError:
-            return False
 
     @staticmethod
     def get_ticker_types(*args, **kwargs) -> None:
@@ -426,31 +504,6 @@ class ReferenceClient:
 
         return _res.json()
 
-    def get_next_page_option_contracts(self, old_response, raw_response: bool = False) -> Union[Response, dict, bool]:
-        """
-        Get the next page using the most recent yet old response. This function simply parses the ``next_url``
-        attribute from the  existing response and uses it to get the next page. Returns ``False`` if there is no
-        next page remaining (which implies that you have reached the end of all pages).
-
-        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response
-                 object
-        """
-
-        try:
-            if not isinstance(old_response, dict):
-                old_response = old_response.json()
-
-            _next_url = old_response['next_url']
-
-            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
-
-        except KeyError:
-            return False
-
     def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc', sort='published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
                         published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
@@ -511,31 +564,6 @@ class ReferenceClient:
             return _res
 
         return _res.json()
-
-    def get_next_page_news(self, old_response: Union[Response, dict],
-                           raw_response: bool = False) -> Union[Response, dict, bool]:
-        """
-        Get the next page using the most recent yet old response. This function simply parses the ``next_url`` attribute
-        from the existing response and uses it to get the next page. Returns ``False`` if there is no next page
-        remaining (which implies that you have reached the end of all pages).
-
-        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        try:
-            if not isinstance(old_response, dict):
-                old_response = old_response.json()
-
-            _next_url = old_response['next_url']
-
-            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
-
-        except KeyError:
-            return False
 
     def get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -941,31 +969,6 @@ class ReferenceClient:
 
         return _res.json()
 
-    async def async_get_next_page_tickers(self, old_response: Union[HttpxResponse, dict],
-                                          raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
-        """
-        Get the next page using the most recent old response. This function simply parses the next_url attribute
-        from the  existing response and uses it to get the next page. Returns False if there is no next page
-        remaining (which implies that you have reached the end of all pages) - Async method
-
-        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        try:
-            if not isinstance(old_response, dict):
-                old_response = old_response.json()
-
-            _next_url = old_response['next_url']
-
-            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
-
-        except KeyError:
-            return False
-
     @staticmethod
     async def async_get_ticker_types(*args, **kwargs) -> None:
         """
@@ -1188,31 +1191,6 @@ class ReferenceClient:
             return _res
 
         return _res.json()
-
-    async def async_get_next_page_news(self, old_response: Union[HttpxResponse, dict],
-                                       raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
-        """
-        Get the next page using the most recent yet old response. This function simply parses the ``next_url`` attribute
-        from the existing response and uses it to get the next page. Returns ``False`` if there is no next page
-        remaining (which implies that you have reached the end of all pages) - Async method
-
-        :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        try:
-            if not isinstance(old_response, dict):
-                old_response = old_response.json()
-
-            _next_url = old_response['next_url']
-
-            return await self.async_get_next_page_by_url(_next_url, raw_response=raw_response)
-
-        except KeyError:
-            return False
 
     async def async_get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """

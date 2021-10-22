@@ -235,7 +235,7 @@ class OptionsContractType(enum.Enum):
     OTHER = 'other'
 
 
-# Option contract Sort Key
+# Option contract Sort Key - Options
 class OptionsContractsSortType(enum.Enum):
     """
     Sort field used for ordering for method: ``ReferenceClient.get_options_contracts()``
@@ -244,6 +244,15 @@ class OptionsContractsSortType(enum.Enum):
     UNDERLYING_TICKER = 'underlying_ticker'
     EXPIRATION_DATE = 'expiration_date'
     STRIKE_PRICE = 'strike_price'
+
+
+# Option Trades Sort Type - Options
+class OptionTradesSort(enum.Enum):
+    """
+    Sort field used for ordering option trades. Used for method: ``OptionsClient.get_trades``
+    """
+
+    TIMESTAMP = 'timestamp'
 
 
 # Stream Host - Common Websockets

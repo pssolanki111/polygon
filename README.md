@@ -12,12 +12,14 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 -  Market Info, News, Holidays, Schedules
 -  Async support for REST endpoints
 -  Built In stream reconnection functionality (only async stream, callback stream in progress)
+-  Pagination support (next/previous pages)
 
 and more...
 
 ## How do I use `polygon`
 
-The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/)
+The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/) which has answers to 
+any question you might have with example uses included wherever needed. Docs is a must-read for most people.
 
 ### Here is a quick setup guide with a few examples
 
@@ -118,7 +120,7 @@ See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html)
 ## Quick Links for `Speed Runners`
 
 -  [Getting Started](https://polygon.readthedocs.io/en/latest/Getting-Started.html) - a must-read for almost everyone
--  [Async support for REST endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)
+-  [Async support for REST endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)  || [Pagination Support]()
 -  Documentation for all [Stocks APIs](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Options APIs](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
 -  Documentation for all [Forex APIs](https://polygon.readthedocs.io/en/latest/Forex.html) || [Crypto APIs](https://polygon.readthedocs.io/en/latest/Crypto.html)
 -  Documentation for [Callback Streaming](https://polygon.readthedocs.io/en/latest/Callback-Streaming.html) || [Async Streaming](https://polygon.readthedocs.io/en/latest/Async-Streaming.html)

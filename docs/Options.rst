@@ -153,6 +153,14 @@ Example use:
   # another one!
   parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)
 
+Get Trades
+----------
+
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
+.. automethod:: polygon.options.options.OptionsClient.get_trades
+   :noindex:
+
 Get Last Trade
 --------------
 

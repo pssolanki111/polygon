@@ -363,7 +363,6 @@ class AsyncStreamClient:
         if isinstance(symbols, str):
             pass
 
-        # options streamers. Need special handling as service prefix is same as stocks
         if self._market in ['options']:
             _prefix = _prefix[1:]
 
@@ -572,7 +571,8 @@ class AsyncStreamClient:
         """
         Get Real time options trades for provided ticker(s)
 
-        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker. You can specify with or without
+                        the prefix ``O:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -588,7 +588,8 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied option symbols.
 
-        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers. You can specify with or
+                        without the prefix ``O:``
         :return: None
         """
 
@@ -600,7 +601,8 @@ class AsyncStreamClient:
         """
         Get Real time options minute aggregates for given ticker(s)
 
-        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker. You can specify with or without
+                        the prefix ``O:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -616,7 +618,8 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied option symbols.
 
-        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers. You can specify with or
+                        without the prefix ``O:``
         :return: None
         """
 
@@ -628,7 +631,8 @@ class AsyncStreamClient:
         """
         Get Real time options second aggregates for given ticker(s)
 
-        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker. You can specify with or without
+                        the prefix ``O:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -644,7 +648,8 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied option symbols.
 
-        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers. You can specify with or
+                        without the prefix ``O:``
         :return: None
         """
 
@@ -657,7 +662,9 @@ class AsyncStreamClient:
         """
         Get Real time Forex Quotes for provided symbol(s)
 
-        :param symbols: A list of symbols to subscribe to. Defaults to ALL tickers.
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -673,7 +680,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied forex symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :return: None
         """
 
@@ -685,7 +694,9 @@ class AsyncStreamClient:
         """
         Get Real time Forex Minute Aggregates for provided symbol(s)
 
-        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -701,7 +712,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied forex symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :return: None
         """
 
@@ -714,7 +727,9 @@ class AsyncStreamClient:
         """
         Get Real time Crypto Trades for provided symbol(s)
 
-        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -730,7 +745,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied crypto symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -742,7 +759,9 @@ class AsyncStreamClient:
         """
         Get Real time Crypto Quotes for provided symbol(s)
 
-        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -758,7 +777,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied crypto symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -770,7 +791,9 @@ class AsyncStreamClient:
         """
         Get Real time Crypto Minute Aggregates for provided symbol(s)
 
-        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -786,7 +809,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied crypto symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -798,7 +823,9 @@ class AsyncStreamClient:
         """
         Get Real time Crypto Level 2 Book Data for provided symbol(s)
 
-        :param symbols: A list of pairs to subscribe to. Defaults to ALL ticker.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -814,7 +841,9 @@ class AsyncStreamClient:
         """
         Unsubscribe from the stream for the supplied crypto symbols.
 
-        :param symbols: A list of symbol pairs to unsubscribe from. Defaults to ALL tickers.
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -833,7 +862,6 @@ class AsyncStreamClient:
         :return: None
         """
 
-        # TODO: see if we can assign sync handlers
         if self._market in ['options']:
             service_prefix = f'O{self._change_enum(service_prefix, str)}'
 

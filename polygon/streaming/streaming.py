@@ -662,7 +662,7 @@ def ensure_prefix(symbol: str, _prefix: str = 'O:'):
     :return: capitalized prefixed symbol.
     """
 
-    if symbol.upper().startswith(_prefix):
+    if symbol.upper().startswith(_prefix) or symbol == '*':
         return symbol.upper()
 
     return f'{_prefix}{symbol.upper()}'

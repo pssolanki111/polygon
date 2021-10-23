@@ -369,21 +369,31 @@ class AsyncStreamClient:
 
             if symbols in [None, [], 'all']:
                 symbols = _prefix + '*'
-            else:
-                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not
-                                    symbol.startswith('O:') and symbol != '*' else f'{_prefix}{symbol.upper()}' for
-                                    symbol in symbols])
 
-            self._subs.append((symbols, action))
+            elif isinstance(symbols, list):
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
+
+        elif self._market in ['forex']:
+            if symbols in [None, [], 'all']:
+                symbols = _prefix + '*'
+
+            elif isinstance(symbols, list):
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "C:")}' for symbol in symbols])
+
+        elif self._market in ['crypto']:
+            if symbols in [None, [], 'all']:
+                symbols = _prefix + '*'
+
+            elif isinstance(symbols, list):
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "X:")}' for symbol in symbols])
 
         elif symbols in [None, [], 'all']:
             symbols = _prefix + '*'
-            self._subs.append((symbols, action))
 
         elif isinstance(symbols, list):
             symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
-            self._subs.append((symbols, action))
 
+        self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
 
         await self.WS.send(str(_payload))
@@ -853,7 +863,7 @@ def ensure_prefix(symbol: str, _prefix: str = 'O:'):
     :return: capitalized prefixed symbol.
     """
 
-    if symbol.upper().startswith(_prefix):
+    if symbol.upper().startswith(_prefix) or symbol == '*':
         return symbol.upper()
 
     return f'{_prefix}{symbol.upper()}'

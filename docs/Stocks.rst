@@ -19,76 +19,85 @@ If you do not know how to create the client, first see :ref:`create_and_use_head
   stocks_client = polygon.StocksClient('KEY')  # for usual sync client
   async_stock_client = polygon.StocksClient('KEY', True)  # for an async client
 
+here is how the client initializer looks like:
+
+.. autofunction:: polygon.stocks.stocks.StocksClient
+
+**Endpoints**
+
+To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
+you'd call the methods as ``client.get_trades`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
+
 Get Trades
 ----------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_trades
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades
    :noindex:
 
 Get Quotes
 ----------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_quotes
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes
    :noindex:
 
 Get Last Trade
 --------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_last_trade
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_last_trade
    :noindex:
 
 Get last Quote
 --------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_last_quote
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_last_quote
    :noindex:
 
 Get Daily Open Close
 --------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_daily_open_close
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_daily_open_close
    :noindex:
 
 Get Aggregate Bars (Candles)
 ----------------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_aggregate_bars
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_aggregate_bars
    :noindex:
 
 Get Grouped daily Bars (Candles)
 --------------------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_grouped_daily_bars
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_grouped_daily_bars
    :noindex:
 
 Get Previous Close
 ------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_previous_close
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_previous_close
    :noindex:
 
 Get Snapshot
 ------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_snapshot
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_snapshot
    :noindex:
 
 Get Snapshot (All)
 ------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_snapshot_all
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_snapshot_all
    :noindex:
 
 Get Current Price
 -----------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_current_price
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_current_price
    :noindex:
 
 Get Gainers & Losers
 --------------------
 
-.. automethod:: polygon.stocks.stocks.StocksClient.get_gainers_and_losers
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_gainers_and_losers
    :noindex:
 
 

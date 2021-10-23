@@ -97,6 +97,9 @@ Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols
 The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
 Note that a list of single ticker is accepted.
 
+**Options, Forex and Crypto stream endpoints expect prefixes ``O:, C:, X:`` respectively in front of every ticker. The library handles this for you**
+so you can pass symbols with or without those prefixes.
+
 The Second argument on all unsubscribe methods is the ``handler_function`` which represents the handler function you'd like the library to call when a message from that service is
 received. You can have one handler for multiple services. Not supplying a handler results in the library using the default message handler.
 
@@ -144,6 +147,8 @@ Closing the Stream
 
 To turn off the streamer and shut down the websockets connection gracefully, it is advised to ``await stream_client.close_stream()``
 when closing the application. Not an absolute necessity but a good software practice.
+
+**Streams**
 
 Stock Streams
 -------------

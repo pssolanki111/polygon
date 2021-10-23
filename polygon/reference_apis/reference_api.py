@@ -4,36 +4,44 @@ from typing import Union
 import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
+
 # ========================================================= #
 
 
-class ReferenceClient(base_client.BaseClient):
+def ReferenceClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
+    """
+    Initiates a Client to be used to access all REST References endpoints.
+
+    :param api_key: Your API Key. Visit your dashboard to get yours.
+    :param use_async: Set it to ``True`` to get async client. Defaults to usual non-async client.
+    :param connect_timeout: The connection timeout in seconds. Defaults to 10. basically the number of seconds to
+                            wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
+                            connect within specified time limit.
+    :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                         date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                         time limit.
+    """
+
+    if not use_async:
+        return SyncReferenceClient(api_key, connect_timeout, read_timeout)
+
+    return AsyncReferenceClient(api_key, connect_timeout, read_timeout)
+
+
+# ========================================================= #
+
+
+class SyncReferenceClient(base_client.BaseClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
 
     This class implements all the References REST endpoints. Note that you should always import names from top level.
     eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
-
-    Creating the client is as simple as: ``client = ReferenceClient('MY_API_KEY')``
-    Once you have the client, you can call its methods to get data from the APIs. All methods have sane default
-    values and almost everything can be customized.
-
-    Any method starting with ``async_`` in its name is meant to be for async programming. All methods have their sync
-    and async counterparts. Any async method must be awaited while non-async (or sync) methods should be called
-    directly.
-
-    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
-    parameters to avoid supplying error prone values.
-
-    It is also a very good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. I
-    highly recommend using the UI there to play with the endpoints a bit. Observe the
-    data you receive as the actual data received through python lib is exactly the same as shown on their page when
-    you click ``Run Query``.
     """
 
-    def __init__(self, api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, use_async, connect_timeout, read_timeout)
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
@@ -655,15 +663,30 @@ class ReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    # ASYNC Operations' Methods
-    async def async_get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,
-                                ticker_gte=None, symbol_type='', market='', exchange: str = '',
-                                cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
-                                = None, search: str = None, active: bool = True, sort='ticker', order: str =
-                                'asc', limit: int = 100, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+
+# ========================================================= #
+
+class AsyncReferenceClient(base_client.BaseAsyncClient):
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    This class implements all the References REST endpoints. Note that you should always import names from top level.
+    eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
+    """
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
+
+    # Endpoints
+    async def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,
+                          ticker_gte=None, symbol_type='', market='', exchange: str = '',
+                          cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
+                          = None, search: str = None, active: bool = True, sort='ticker', order: str =
+                          'asc', limit: int = 100, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
-        and Forex - Assync method
+        and Forex - Async method
         `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_anchor>`__
 
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
@@ -716,7 +739,7 @@ class ReferenceClient(base_client.BaseClient):
                  'cusip': cusip, 'cik': cik, 'date': date, 'search': search, 'active': active, 'sort': sort,
                  'order': order, 'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -724,9 +747,9 @@ class ReferenceClient(base_client.BaseClient):
         return _res.json()
 
     @staticmethod
-    async def async_get_ticker_types(*args, **kwargs) -> None:
+    async def get_ticker_types(*args, **kwargs) -> None:
         """
-        DEPRECATED! Replaced by :meth:`async_get_ticker_types_v3`. This method
+        DEPRECATED! Replaced by :meth:`get_ticker_types_v3`. This method
         will be removed in a future version from the library.
 
         Get a mapping of ticker types to their descriptive names.
@@ -734,12 +757,12 @@ class ReferenceClient(base_client.BaseClient):
 
         """
 
-        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (async_get_ticker_types_v3). Please '
+        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (get_ticker_types_v3). Please '
               f'Use  the new endpoint.')
         return
 
-    async def async_get_ticker_types_v3(self, asset_class=None, locale=None,
-                                        raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_ticker_types_v3(self, asset_class=None, locale=None,
+                                  raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a mapping of ticker types to their descriptive names - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
@@ -759,19 +782,19 @@ class ReferenceClient(base_client.BaseClient):
         _data = {'asset_class': asset_class,
                  'locale': locale}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
         information such as name, sector, exchange, logo and similar companies - Async method
 
-        This endpoint will be replaced by :meth:`async_get_ticker_details_vx` in future.
+        This endpoint will be replaced by :meth:`get_ticker_details_vx` in future.
         `Official Docs <https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
@@ -783,17 +806,17 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = f'/v1/meta/symbols/{symbol.upper()}/company'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_ticker_details_vx(self, symbol: str, date=None,
-                                          raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_ticker_details_vx(self, symbol: str, date=None,
+                                    raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
-        This API is Experimental and will replace :meth:`async_get_ticker_details` in future - Async method
+        This API is Experimental and will replace :meth:`get_ticker_details` in future - Async method
 
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -816,20 +839,18 @@ class ReferenceClient(base_client.BaseClient):
 
         _data = {'date': date}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
-                                         contract_type=None,
-                                         expiration_date= None,
-                                         expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                                         expiration_date_gte=None, order='asc', sort=None,
-                                         limit: int = 50,
-                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
+                                   contract_type=None, expiration_date=None,
+                                   expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
+                                   expiration_date_gte=None, order='asc', sort=None, limit: int = 50,
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         List currently active options contracts - Async method
         `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
@@ -876,19 +897,18 @@ class ReferenceClient(base_client.BaseClient):
                  'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
                  'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc',
-                                    sort='published_utc',
-                                    ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                                    published_utc=None, published_utc_lt=None, published_utc_lte=None,
-                                    published_utc_gt=None, published_utc_gte=None,
-                                    raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc',
+                              sort='published_utc', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
+                              published_utc=None, published_utc_lt=None, published_utc_lte=None,
+                              published_utc_gt=None, published_utc_gte=None,
+                              raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - Async method
@@ -939,14 +959,14 @@ class ReferenceClient(base_client.BaseClient):
                  'published_utc.lte': published_utc_lte, 'published_utc.gt': published_utc_gt,
                  'published_utc.gte': published_utc_gte}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend -
         Async method
@@ -961,18 +981,18 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = f'/v2/reference/dividends/{symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
-                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historical financial data for a stock ticker. This API will be replaced by
-        :meth:`async_get_stock_financials_vx` in future - Async method
+        :meth:`get_stock_financials_vx` in future - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
@@ -994,27 +1014,27 @@ class ReferenceClient(base_client.BaseClient):
                  'type': report_type,
                  'sort': sort}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
-                                            company_name_search: str = None, sic: str = None, filing_date=None,
-                                            filing_date_lt=None, filing_date_lte=None, filing_date_gt=None,
-                                            filing_date_gte=None, period_of_report_date=None,
-                                            period_of_report_date_lt=None, period_of_report_date_lte=None,
-                                            period_of_report_date_gt=None, period_of_report_date_gte=None,
-                                            time_frame=None, include_sources: bool = False, order='asc',
-                                            limit: int = 50, sort='filing_date', raw_response: bool = False):
+    async def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
+                                      company_name_search: str = None, sic: str = None, filing_date=None,
+                                      filing_date_lt=None, filing_date_lte=None, filing_date_gt=None,
+                                      filing_date_gte=None, period_of_report_date=None,
+                                      period_of_report_date_lt=None, period_of_report_date_lte=None,
+                                      period_of_report_date_gt=None, period_of_report_date_gte=None,
+                                      time_frame=None, include_sources: bool = False, order='asc',
+                                      limit: int = 50, sort='filing_date', raw_response: bool = False):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__ - Async method
         `Official Docs <https://polygon.io/docs/get_vX_reference_financials_anchor>`__
 
-        This API is experimental and will replace :meth:`async_get_stock_financials` in future.
+        This API is experimental and will replace :meth:`get_stock_financials` in future.
 
         :param ticker: Filter query by company ticker.
         :param cik: filter the Query by ``central index key (CIK)`` Number
@@ -1065,14 +1085,14 @@ class ReferenceClient(base_client.BaseClient):
                  'period_of_report_date_gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
                  'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
         stock split, and the split ratio - Async method
@@ -1087,14 +1107,14 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = f'/v2/reference/splits/{symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_market_holidays(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_market_holidays(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get upcoming market holidays and their open/close times - Async method
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor>`__
@@ -1107,14 +1127,14 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = '/v1/marketstatus/upcoming'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_market_status(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_market_status(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current trading status of the exchanges and overall financial markets - Async method
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_now_anchor>`__
@@ -1127,15 +1147,15 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = '/v1/marketstatus/now'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_condition_mappings(self, tick_type='trades',
-                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_condition_mappings(self, tick_type='trades',
+                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
         codes to identify conditions, so the same condition may have a different code depending on the originator of
@@ -1155,15 +1175,15 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = f'/v1/meta/conditions/{tick_type.lower()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
-                                   limit: int = 50, sort='name', raw_response: bool = False):
+    async def get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
+                             limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses - Async method
         `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
@@ -1191,14 +1211,14 @@ class ReferenceClient(base_client.BaseClient):
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
+    async def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         List all exchanges that Polygon.io knows about - Async method
         `Official Docs <https://polygon.io/docs/get_v3_reference_exchanges_anchor>`__
@@ -1217,7 +1237,7 @@ class ReferenceClient(base_client.BaseClient):
 
         _data = {'asset_class': asset_class, 'locale': locale}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -1225,24 +1245,24 @@ class ReferenceClient(base_client.BaseClient):
         return _res.json()
 
     @staticmethod
-    async def async_get_stock_exchanges(**kwargs):
+    async def get_stock_exchanges(**kwargs):
         """
-        DEPRECATED! Replaced by :meth:`async_get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
 
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
 
     @staticmethod
-    async def async_get_crypto_exchanges(**kwargs):
+    async def get_crypto_exchanges(**kwargs):
         """
-        DEPRECATED! Replaced by :meth:`async_get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
 
         """
         print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
         return
 
-    async def async_get_locales(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_locales(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of locales currently supported by Polygon.io - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_locales_anchor>`__
@@ -1255,14 +1275,14 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = '/v2/reference/locales'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_markets(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_markets(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a list of markets that are currently supported by Polygon.io - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_markets_anchor>`__
@@ -1275,23 +1295,12 @@ class ReferenceClient(base_client.BaseClient):
 
         _path = '/v2/reference/markets'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
-
-    @staticmethod
-    def _change_enum(val, allowed_type=str):
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
-
-        return val.value
 
 
 # ========================================================= #
@@ -1299,6 +1308,5 @@ class ReferenceClient(base_client.BaseClient):
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-
 
 # ========================================================= #

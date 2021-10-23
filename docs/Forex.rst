@@ -24,44 +24,53 @@ however a few endpoints require you to supply them as one combined symbol. An ex
 In those methods, the symbol is expected to have a prefix ``C:`` before the currency symbol names. **but the library allows you to specify the symbol with or without the prefix**.
 See the relevant method's docs for more information on what the parameters expect.
 
+here is how the client initializer looks like:
+
+.. autofunction:: polygon.forex.forex_api.ForexClient
+
+**Endpoints**
+
+To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
+you'd call the methods as ``client.get_historic_forex_ticks`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
+
 Get Historic forex ticks
 ------------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_historic_forex_ticks
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_historic_forex_ticks
    :noindex:
 
 Get Last Quote
 --------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_last_quote
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_last_quote
    :noindex:
 
 Get Aggregate Bars (Candles)
 ----------------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_aggregate_bars
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_aggregate_bars
    :noindex:
 
 Get Grouped Daily Bars (Candles)
 --------------------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_grouped_daily_bars
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_grouped_daily_bars
    :noindex:
 
 Get Previous Close
 ------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_previous_close
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_previous_close
    :noindex:
 
 Get Gainers & Losers
 --------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.get_gainers_and_losers
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_gainers_and_losers
    :noindex:
 
 Real Time currency conversion
 -----------------------------
 
-.. automethod:: polygon.forex.forex_api.ForexClient.real_time_currency_conversion
+.. automethod:: polygon.forex.forex_api.SyncForexClient.real_time_currency_conversion
    :noindex:

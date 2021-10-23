@@ -18,6 +18,10 @@ If you do not know how to create the client, first see :ref:`create_and_use_head
   options_client = polygon.OptionsClient('KEY')  # for usual sync client
   async_options_client = polygon.OptionsClient('KEY', True)  # for an async client
 
+here is how the client initializer looks like:
+
+.. autofunction:: polygon.options.options.OptionsClient
+
 
 Creating Option Symbols
 -----------------------
@@ -31,6 +35,9 @@ Polygon.io tends to use `This Format <https://www.optionstaxguy.com/option-symbo
 Fortunately for you, the library comes with a few functions to help ya out with it. **first function in that list is creating an option symbol**
 
 The library also has two bonus functions which allow you to create and parse option symbols using the format supported by TD Ameritrade. See below for more info on how to use them.
+
+Building polygon formatted option symbols
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Note that polygon has a rest endpoint in reference API to get all active contracts which you can filter based on many values.
 
@@ -55,9 +62,10 @@ Example use:
   symbol = build_option_symbol('NVDA', '211205', 'call', 124.56)
   # you can use these variable as you like on polygon's endpoints
 
-**Bonus Function to create option symbols in TD Ameritrade formatting:**
+Building TDA formatted option symbols
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-don't use this formatting on polygon endpoints. only on tda. this is just a bonus function.
+don't use this formatting on polygon endpoints. only on td ameritrade. this is just a bonus function.
 
 .. autofunction:: polygon.options.options.build_option_symbol_for_tda
    :noindex:
@@ -81,6 +89,9 @@ So the above function was to build an option symbol from details. This function 
 This function parses the symbol based on
 `This spec <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__. Note that
 you can pass the value with or without the ``O:`` prefix. The lib would handle that like it does everywhere else.
+
+parsing Polygon formatted option symbols
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Important** So it appears that some option symbols as returned by polygon endpoints happen to have a **correction number** within the symbol. The additional number is always
 between the underlying symbol and expiry. **The lib handles that for you** and hence returns the corrected parsed symbol.
@@ -132,9 +143,12 @@ Example use:
   # another one!
   parsed_details = parse_option_symbol('AMD211205C00156000', dict, expiry_format=str)
 
-**bonus function to parse symbols in TD ameritrade format**
+parsing TDA formatted option symbols
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The output_format and expiry_format are both exactly the same as above. Only difference is in the formatting.
+don't use this function on polygon endpoints. this is a bonus function meant for td ameritrade formatting.
+
+The output_format and expiry_format have the same behavior as above. Only difference is in the formatting.
 
 .. autofunction:: polygon.options.options.parse_option_symbol
    :noindex:
@@ -153,22 +167,27 @@ Example use:
   # another one!
   parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)
 
+**Endpoints**
+
+To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
+you'd call the methods as ``client.get_trades`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
+
 Get Trades
 ----------
 
 This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
 
-.. automethod:: polygon.options.options.OptionsClient.get_trades
+.. automethod:: polygon.options.options.SyncOptionsClient.get_trades
    :noindex:
 
 Get Last Trade
 --------------
 
-.. automethod:: polygon.options.options.OptionsClient.get_last_trade
+.. automethod:: polygon.options.options.SyncOptionsClient.get_last_trade
    :noindex:
 
 Get Previous Close
 ------------------
 
-.. automethod:: polygon.options.options.OptionsClient.get_previous_close
+.. automethod:: polygon.options.options.SyncOptionsClient.get_previous_close
    :noindex:

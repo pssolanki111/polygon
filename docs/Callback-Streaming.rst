@@ -76,6 +76,9 @@ Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols
 The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
 Note that a list of single ticker is accepted.
 
+**Options, Forex and Crypto stream endpoints expect prefixes ``O:, C:, X:`` respectively in front of every ticker. The library handles this for you**
+so you can pass symbols with or without those prefixes.
+
 Handling messages
 ~~~~~~~~~~~~~~~~~
 
@@ -118,6 +121,8 @@ Closing Stream
 
 To turn off the streamer and shut down the websockets connection gracefully, it is advised to call ``stream_client.close_stream()`` method
 when closing the application. Not an absolute necessity but a good software practice.
+
+**Streams**
 
 Stocks Streams
 --------------

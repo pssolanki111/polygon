@@ -18,30 +18,39 @@ If you do not know how to create the client, first see :ref:`create_and_use_head
   reference_client = polygon.ReferenceClient('KEY')  # for usual sync client
   async_reference_client = polygon.ReferenceClient('KEY', True)  # for an async client
 
+here is how the client initializer looks like:
+
+.. autofunction:: polygon.reference_apis.reference_api.ReferenceClient
+
+**Endpoints**
+
+To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
+you'd call the methods as ``client.get_tickers`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
+
 Get Tickers
 -----------
 
 This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_tickers
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_tickers
    :noindex:
 
 Get Ticker Types
 ----------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_ticker_types_v3
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_types_v3
    :noindex:
 
 Get Ticker Details
 ------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_ticker_details
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details
    :noindex:
 
 Get Ticker Details vX
 ---------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_ticker_details_vx
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details_vx
    :noindex:
 
 Get Option Contracts
@@ -49,7 +58,7 @@ Get Option Contracts
 
 This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_option_contracts
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_option_contracts
    :noindex:
 
 Get Ticker News
@@ -57,72 +66,72 @@ Get Ticker News
 
 This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_ticker_news
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_news
    :noindex:
 
 Get Stock dividends
 -------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_stock_dividends
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_dividends
    :noindex:
 
 Get Stock Financials
 --------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_stock_financials
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_financials
    :noindex:
 
 Get Stock financials vX
 -----------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_stock_financials_vx
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_financials_vx
    :noindex:
 
 Get Stock Splits
 ----------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_stock_splits
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_splits
    :noindex:
 
 Get Market Holidays
 -------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_market_holidays
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_market_holidays
    :noindex:
 
 Get Market Status
 -----------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_market_status
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_market_status
    :noindex:
 
 Get Condition Mappings
 ----------------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_condition_mappings
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_condition_mappings
    :noindex:
 
 Get Conditions
 --------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_conditions
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_conditions
    :noindex:
 
 Get Exchanges
 -------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_exchanges
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_exchanges
    :noindex:
 
 Get Locales
 -----------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_locales
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_locales
    :noindex:
 
 Get Markets
 -------------
 
-.. automethod:: polygon.reference_apis.reference_api.ReferenceClient.get_markets
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_markets
    :noindex:
 

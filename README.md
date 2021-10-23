@@ -61,8 +61,8 @@ async def main():
     
     stocks_client = polygon.StocksClient(api_key, True)
     
-    current_price = await stocks_client.async_get_current_price('AMD')
-    await stocks_client.async_close()  # Recommended to close the httpx session when it's not needed. 
+    current_price = await stocks_client.get_current_price('AMD')
+    await stocks_client.close()  # Recommended to close the httpx session when it's not needed. 
     print(current_price)
 
 if __name__ == '__main__':

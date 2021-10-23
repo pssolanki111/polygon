@@ -71,6 +71,12 @@ First up, you'd import the library. There are many ways to import names from a l
 
   import polygon
 
+  # OR import the name you need
+  from polygon import StocksClient
+
+  # OR import the names you need
+  from polygon import (StocksClient, ForexClient, StreamClient, build_option_symbol)
+
 Now creating a client is as simple as (using stocks and forex clients as examples here)
 
 1. Regular client: ``stocks_client = polygon.StocksClient('API_KEY')``
@@ -119,13 +125,18 @@ All the clients in the lib support context managers
       last_quote = client.get_last_quote('AMD)
       print(f'Last quote for AMD: {last_quote}')
 
+  # OR for async
+  async with polygon.StocksClient('key', True) as client:
+      last_quote = await client.get_last_quote('AMD')
+      print(last_quote)
+
 
 Using context managers ensures that the connections opened up to make requests are closed properly.
 
 You can manually close the connections if you're not using context managers:
 
 1. for regular non-async: ``client.close()``
-#. for async: ``await client.async_close()``
+#. for async: ``await client.close()``
 
 This is not an absolute necessity but rather a good software practice to close out resources when you don't need them.
 
@@ -134,6 +145,9 @@ Calling the methods/functions
 
 Most methods and functions have sane default values which can be customized as needed. Required parameters need to be
 supplied as positional arguments (which just means that the order of arguments matter when passing more than one).
+
+Some options, crypto and forex endpoints expect you to append prefixes ``O:, C:, X:`` respectively in front of tickers (on options symbols,
+forex pairs and crypto pairs). **the library handles this for you** so you can pass in those with or without the prefix.
 
 **Parameters which have special values are supplied as python enums**. You can however always pass in your own values
 but it is recommended to use enums as they mitigate the possibilities of an error.
@@ -177,12 +191,12 @@ header.
 
 All REST clients have these functions and you will use the same function name for all endpoints. See examples below
 
-**first here is how the functions for pagination look like:** (click on names to see definition - you won't have to import them with this name. They are avaiable
+**first here is how the functions for pagination look like:** (click on names to see definition - **you won't have to import them with this name**. They are available
 with the client you create as shown in examples below)
 
-for usual client: :meth:`polygon.base_client.BaseClient.get_next_page` || :meth:`polygon.base_client.BaseClient.get_previous_page`
+for usual client: :meth:`polygon.base_client.BaseClient.get_next_page` and :meth:`polygon.base_client.BaseClient.get_previous_page`
 
-For async client: :meth:`polygon.base_client.BaseClient.async_get_next_page` || :meth:`polygon.base_client.BaseClient.async_get_previous_page`
+For async client: :meth:`polygon.base_client.BaseAsyncClient.get_next_page` and :meth:`polygon.base_client.BaseAsyncClient.get_previous_page`
 
 **Examples Use**
 
@@ -194,9 +208,9 @@ For async client: :meth:`polygon.base_client.BaseClient.async_get_next_page` || 
   next_page_of_data = client.get_next_page(data)  # getting NEXT page
   previous_page_of_data = client.get_previous_page(data)  # getting PREVIOUS page
 
-  # ASYNC example
-  await client.async_get_next_page(data)
-  await client.async_get_previous_page(data)
+  # ASYNC examples
+  await client.get_next_page(data)
+  await client.get_previous_page(data)
 
   # It's wise to check if the value returned is not False.
 
@@ -235,12 +249,12 @@ so instead of something like: ``StocksClient('API_KEY')``, you'd do
 
   client = StocksClient('KEY', True)   # or use_async=True for second parameter
 
-This gives you an async client. Similar to sync, you can have all 5 different clients together.
+This gives you an async client. Similar to sync, you can have all 5 different clients together. You can also pass in your timeout values like you
+did above here too.
 
-**ALL the methods you'd use for async client have** ``async_`` **in front of their sync counterpart names.**
-so ``async_get_trades``, ``async_get_snapshot`` and so on...
+**ALL the methods you'd use for async client have the same names as their sync counterpart names.**
 
-So if a method is named ``get_trades()`` in usual client, in async client you'd have it as ``async_get_trades()``
+So if a method is named ``get_trades()`` in usual client, in async client you'd have it as ``get_trades()`` as well
 and this behavior is true for all methods
 
 Here is how you can use it grab the current price of a symbol
@@ -252,15 +266,13 @@ Here is how you can use it grab the current price of a symbol
   async def main():
       stocks_client = polygon.StocksClient('API_KEY', True)
 
-      current_price = await stocks_client.async_get_current_price('AMD')
+      current_price = await stocks_client.get_current_price('AMD')
       print(current_price)
 
   if __name__ == '__main__':
       import asyncio
       asyncio.run(main())
 
-
-Note that I'm working towards avoiding this name difference across sync and async clients. Feedback is appreciated.
 
 Special Points
 --------------

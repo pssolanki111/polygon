@@ -4,36 +4,44 @@ from typing import Union
 import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
+
 # ========================================================= #
 
 
-class CryptoClient(base_client.BaseClient):
+def CryptoClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
+    """
+    Initiates a Client to be used to access all REST crypto endpoints.
+
+    :param api_key: Your API Key. Visit your dashboard to get yours.
+    :param use_async: Set it to ``True`` to get async client. Defaults to usual non-async client.
+    :param connect_timeout: The connection timeout in seconds. Defaults to 10. basically the number of seconds to
+                            wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
+                            connect within specified time limit.
+    :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                         date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                         time limit.
+    """
+
+    if not use_async:
+        return SyncCryptoClient(api_key, connect_timeout, read_timeout)
+
+    return AsyncCryptoClient(api_key, connect_timeout, read_timeout)
+
+
+# ========================================================= #
+
+
+class SyncCryptoClient(base_client.BaseClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
 
     This class implements all the crypto REST endpoints. Note that you should always import names from top level.
     eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
-
-    Creating the client is as simple as: ``client = CryptoClient('MY_API_KEY')``
-    Once you have the client, you can call its methods to get data from the APIs. All methods have sane default
-    values and almost everything can be customized.
-
-    Any method starting with ``async_`` in its name is meant to be for async programming. All methods have their sync
-    and async counterparts. Any async method must be awaited while non-async (or sync) methods should be called
-    directly.
-
-    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
-    parameters to avoid supplying error prone values.
-
-    It is also a very good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. I
-    highly recommend using the UI there to play with the endpoints a bit. Observe the
-    data you receive as the actual data received through python lib is exactly the same as shown on their page when
-    you click ``Run Query``.
     """
 
-    def __init__(self, api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, use_async, connect_timeout, read_timeout)
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
     def get_historic_trades(self, from_symbol: str, to_symbol: str, date, offset: Union[str, int] = None,
@@ -323,10 +331,32 @@ class CryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    # ASYNC Operations' Methods
-    async def async_get_historic_trades(self, from_symbol: str, to_symbol: str,
-                                        date, offset: Union[str, int] = None, limit: int = 500,
-                                        raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    @staticmethod
+    def ensure_prefix(sym: str):
+        if sym.upper().startswith('X:'):
+            return sym.upper()
+
+        return f'X:{sym.upper()}'
+
+
+# ========================================================= #
+
+class AsyncCryptoClient(base_client.BaseAsyncClient):
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    This class implements all the crypto REST endpoints. Note that you should always import names from top level.
+    eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
+    """
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
+
+    # Endpoints
+    async def get_historic_trades(self, from_symbol: str, to_symbol: str,
+                                  date, offset: Union[str, int] = None, limit: int = 500,
+                                  raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get historic trade ticks for a cryptocurrency pair - Async method.
         `Official Docs
@@ -355,15 +385,15 @@ class CryptoClient(base_client.BaseClient):
         _data = {'offset': offset,
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_last_trade(self, from_symbol: str, to_symbol: str,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_last_trade(self, from_symbol: str, to_symbol: str,
+                             raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the last trade tick for a cryptocurrency pair - Async method
         `Official Docs
@@ -379,15 +409,15 @@ class CryptoClient(base_client.BaseClient):
 
         _path = f'/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - Async method
         `Official Docs: <https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor>`__
@@ -407,16 +437,16 @@ class CryptoClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1,
-                                       timespan='day', adjusted: bool = True, sort='asc',
-                                       limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1,
+                                 timespan='day', adjusted: bool = True, sort='asc',
+                                 limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         et aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned - Async method
@@ -458,15 +488,15 @@ class CryptoClient(base_client.BaseClient):
                  'sort': sort,
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_grouped_daily_bars(self, date, adjusted: bool = True,
-                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_grouped_daily_bars(self, date, adjusted: bool = True,
+                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor>`__
@@ -487,15 +517,15 @@ class CryptoClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_previous_close(self, symbol: str, adjusted: bool = True,
-                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_previous_close(self, symbol: str, adjusted: bool = True,
+                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
@@ -514,14 +544,14 @@ class CryptoClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols - Async method
@@ -541,14 +571,14 @@ class CryptoClient(base_client.BaseClient):
 
         _data = {'tickers': ','.join([x.upper() for x in symbols])}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded cryptocurrency symbol - Async method
@@ -563,15 +593,15 @@ class CryptoClient(base_client.BaseClient):
 
         _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_gainers_and_losers(self, direction='gainers',
-                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_gainers_and_losers(self, direction='gainers',
+                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
@@ -586,14 +616,14 @@ class CryptoClient(base_client.BaseClient):
 
         _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_level2_book(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_level2_book(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current level 2 book of a single ticker. combined book from all of the exchanges - Async method
         `Official Docs
@@ -608,7 +638,7 @@ class CryptoClient(base_client.BaseClient):
 
         _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{self.ensure_prefix(symbol).upper()}/book'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
@@ -616,22 +646,11 @@ class CryptoClient(base_client.BaseClient):
         return _res.json()
 
     @staticmethod
-    def _change_enum(val, allowed_type=str):
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
-
-        return val.value
-
-    @staticmethod
     def ensure_prefix(sym: str):
         if sym.upper().startswith('X:'):
-            return sym
+            return sym.upper()
 
-        return f'X:{sym}'
+        return f'X:{sym.upper()}'
 
 
 # ========================================================= #
@@ -639,6 +658,5 @@ class CryptoClient(base_client.BaseClient):
 
 if __name__ == '__main__':
     print('Don\'t You Dare Running Lib Files Directly')
-
 
 # ========================================================= #

@@ -4,36 +4,44 @@ from typing import Union
 import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
+
 # ========================================================= #
 
 
-class StocksClient(base_client.BaseClient):
+def StocksClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
+    """
+    Initiates a Client to be used to access all REST Stocks endpoints.
+
+    :param api_key: Your API Key. Visit your dashboard to get yours.
+    :param use_async: Set it to ``True`` to get async client. Defaults to usual non-async client.
+    :param connect_timeout: The connection timeout in seconds. Defaults to 10. basically the number of seconds to
+                            wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
+                            connect within specified time limit.
+    :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                         date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                         time limit.
+    """
+
+    if not use_async:
+        return SyncStocksClient(api_key, connect_timeout, read_timeout)
+
+    return AsyncStocksClient(api_key, connect_timeout, read_timeout)
+
+
+# ========================================================= #
+
+
+class SyncStocksClient(base_client.BaseClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
 
     This class implements all the Stocks REST endpoints. Note that you should always import names from top level.
     eg: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
-
-    Creating the client is as simple as: ``client = StocksClient('MY_API_KEY')``
-    Once you have the client, you can call its methods to get data from the APIs. All methods have sane default
-    values and almost everything can be customized.
-
-    Any method starting with ``async_`` in its name is meant to be for async programming. All methods have their
-    sync
-    and async counterparts. Any async method must be awaited while non-async (or sync) methods should be called
-    directly.
-
-    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
-    parameters to avoid supplying error prone values.
-
-    It is also a very good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. I
-    highly recommend using the UI there to play with the endpoints a bit. Observe the
-    data you receive as the actual data received through python lib is exactly the same as shown on their page when
-    you click ``Run Query``.
     """
-    def __init__(self, api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, use_async, connect_timeout, read_timeout)
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
     def get_trades(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
@@ -372,10 +380,26 @@ class StocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    # ASYNC Operations' Methods
-    async def async_get_trades(self, symbol: str, date,
-                               timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                               limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+
+# ========================================================= #
+
+
+class AsyncStocksClient(base_client.BaseAsyncClient):
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    This class implements all the Stocks REST endpoints. Note that you should always import names from top level.
+    eg: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
+    """
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
+
+    # Endpoints
+    async def get_trades(self, symbol: str, date,
+                         timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
+                         limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -406,16 +430,16 @@ class StocksClient(base_client.BaseClient):
                  'reverse': 'true' if reverse else 'false',
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None,
-                               reverse: bool = True, limit: int = 5000,
-                               raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None,
+                         reverse: bool = True, limit: int = 5000,
+                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -445,14 +469,14 @@ class StocksClient(base_client.BaseClient):
                  'reverse': 'true' if reverse else 'false',
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent trade for a given stock - Async method
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
@@ -466,14 +490,14 @@ class StocksClient(base_client.BaseClient):
 
         _path = f'/v2/last/trade/{symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent NBBO (Quote) tick for a given stock - Async method
         `Official Docs <https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor>`__
@@ -487,15 +511,15 @@ class StocksClient(base_client.BaseClient):
 
         _path = f'/v2/last/nbbo/{symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date - Async method
         `Official Docs <https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor>`__
@@ -518,16 +542,16 @@ class StocksClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                                       sort='asc', limit: int = 5000, multiplier: int = 1,
-                                       timespan='day', raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
+                                 sort='asc', limit: int = 5000, multiplier: int = 1,
+                                 timespan='day', raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned - Async
@@ -565,16 +589,16 @@ class StocksClient(base_client.BaseClient):
                  'sort': sort,
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_grouped_daily_bars(self, date,
-                                           adjusted: bool = True,
-                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_grouped_daily_bars(self, date,
+                                     adjusted: bool = True,
+                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the daily OCHLV for the entire stocks/equities markets - Async method
         `Official docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor>`__
@@ -594,15 +618,15 @@ class StocksClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_previous_close(self, symbol: str, adjusted: bool = True,
-                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_previous_close(self, symbol: str, adjusted: bool = True,
+                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the previous day's OCHLV for the specified stock ticker - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor>`__
@@ -620,14 +644,14 @@ class StocksClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker - Async method
@@ -643,29 +667,29 @@ class StocksClient(base_client.BaseClient):
 
         _path = f'/v2/snapshot/locale/us/markets/stocks/tickers/{symbol.upper()}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_current_price(self, symbol: str) -> float:
+    async def get_current_price(self, symbol: str) -> float:
         """
         get current market price for the ticker symbol specified - Async method
 
-        Uses :meth:`async_get_last_trade` under the hood
+        Uses :meth:`get_last_trade` under the hood
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :return: The current price. A ``KeyError`` indicates the request wasn't successful.
         """
 
-        _res = await self.async_get_last_trade(symbol)
+        _res = await self.get_last_trade(symbol)
 
         return _res['results']['p']
 
-    async def async_get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols - Async method
@@ -685,17 +709,17 @@ class StocksClient(base_client.BaseClient):
 
         _data = {'tickers': ','.join([x.upper() for x in symbols])}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_gainers_and_losers(self, direction='gainers',
-                                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_gainers_and_losers(self, direction='gainers',
+                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
-        Get the current top 20 gainers or losers of the day in stocks/equities markets - Asnyc method
+        Get the current top 20 gainers or losers of the day in stocks/equities markets - Async method
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__
 
         :param direction: The direction of results. Defaults to gainers. See :class:`polygon.enums.SnapshotDirection`
@@ -708,23 +732,12 @@ class StocksClient(base_client.BaseClient):
 
         _path = f'/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
-
-    @staticmethod
-    def _change_enum(val, allowed_type=str):
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
-
-        return val.value
 
 
 # ========================================================= #
@@ -732,6 +745,5 @@ class StocksClient(base_client.BaseClient):
 
 if __name__ == '__main__':  # Tests
     print('Don\'t You Dare Running Lib Files Directly')
-
 
 # ========================================================= #

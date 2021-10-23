@@ -10,8 +10,11 @@ Here is the Entire Library Interface reference.
 
 .. _base_client_interface_header:
 
-Base Client
------------
+Base Clients
+------------
+
+Base Sync Client
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: polygon.base_client.BaseClient
    :members:
@@ -20,11 +23,34 @@ Base Client
    :undoc-members:
    :member-order: bysource
 
+Base Async Client
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.base_client.BaseAsyncClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :undoc-members:
+   :member-order: bysource
+
 .. _stocks_client_interface_header:
 
-Stocks Client
--------------
-.. autoclass:: polygon.stocks.stocks.StocksClient
+Stocks Clients
+--------------
+
+Stocks Sync Client
+~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.stocks.stocks.SyncStocksClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :member-order: bysource
+
+Stocks Async Client
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.stocks.stocks.AsyncStocksClient
    :members:
    :special-members: __init__
    :private-members:
@@ -32,8 +58,11 @@ Stocks Client
 
 .. _options_client_interface_header:
 
-Options Client
---------------
+Options Clients
+---------------
+
+Option Symbol Helper Functions & Objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: polygon.options.options.build_option_symbol
 
@@ -43,26 +72,51 @@ Options Client
 
 .. autofunction:: polygon.options.options.parse_option_symbol_from_tda
 
+.. autofunction:: polygon.options.options.ensure_prefix
+
 .. autoclass:: polygon.options.options.OptionSymbol
    :members:
-   :special-members: __init__
+   :special-members: __init__, __repr__
    :undoc-members:
    :private-members:
    :member-order: bysource
 
-.. autoclass:: polygon.options.options.OptionsClient
+Options Sync Client
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.options.options.SyncOptionsClient
    :members:
    :special-members: __init__
    :private-members:
    :member-order: bysource
 
-.. autofunction:: polygon.options.options.ensure_prefix
+Options Async Client
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.options.options.AsyncOptionsClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :member-order: bysource
 
 .. _references_client_interface_header:
 
-References Client
------------------
-.. autoclass:: polygon.reference_apis.reference_api.ReferenceClient
+References Clients
+------------------
+
+Reference Sync Client
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.reference_apis.reference_api.SyncReferenceClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :member-order: bysource
+
+Reference Async Client
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.reference_apis.reference_api.AsyncReferenceClient
    :members:
    :special-members: __init__
    :private-members:
@@ -70,9 +124,22 @@ References Client
 
 .. _forex_client_interface_header:
 
-Forex Client
-------------
-.. autoclass:: polygon.forex.forex_api.ForexClient
+Forex Clients
+-------------
+
+Forex Sync Client
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.forex.forex_api.SyncForexClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :member-order: bysource
+
+Forex Async Client
+~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.forex.forex_api.AsyncForexClient
    :members:
    :special-members: __init__
    :private-members:
@@ -80,9 +147,22 @@ Forex Client
 
 .. _crypto_client_interface_header:
 
-Crypto Client
--------------
-.. autoclass:: polygon.crypto.crypto_api.CryptoClient
+Crypto Clients
+--------------
+
+Crypto Sync Client
+~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.crypto.crypto_api.SyncCryptoClient
+   :members:
+   :special-members: __init__
+   :private-members:
+   :member-order: bysource
+
+Crypto Async Client
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: polygon.crypto.crypto_api.AsyncCryptoClient
    :members:
    :special-members: __init__
    :private-members:

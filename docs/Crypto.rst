@@ -24,57 +24,66 @@ however a few endpoints require you to supply them as one combined symbol. An ex
 In those methods, the symbol is expected to have a prefix ``X:`` before the currency symbol names. **but the library allows you to specify the symbol with or without the prefix**.
 See the relevant method's docs for more information on what the parameters expect.
 
+here is how the client initializer looks like:
+
+.. autofunction:: polygon.crypto.crypto_api.CryptoClient
+
+**Endpoints**
+
+To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
+you'd call the methods as ``client.get_historic_trades`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
+
 Get Historic Trades
 -------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_historic_trades
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_historic_trades
    :noindex:
 
 Get Last Trade
 -------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_last_trade
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_last_trade
    :noindex:
 
 Get Daily Open Close
 --------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_daily_open_close
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_daily_open_close
    :noindex:
 
 Get Aggregate Bars (Candles)
 ----------------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_aggregate_bars
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_aggregate_bars
    :noindex:
 
 Get Grouped Daily Bars (Candles)
 --------------------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_grouped_daily_bars
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_grouped_daily_bars
    :noindex:
 
 Get Previous Close
 -------------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_previous_close
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_previous_close
    :noindex:
 
 Get Snapshot All
 ----------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_snapshot_all
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_snapshot_all
    :noindex:
 
 Get Snapshot
 ------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_snapshot
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_snapshot
    :noindex:
 
 Get Level 2 Book
 ----------------
 
-.. automethod:: polygon.crypto.crypto_api.CryptoClient.get_level2_book
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_level2_book
    :noindex:
 

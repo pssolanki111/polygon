@@ -4,6 +4,7 @@ from typing import Union
 import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
+
 # ========================================================= #
 
 
@@ -57,7 +58,7 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    _obj = OptionSymbol(option_symbol, output_format, expiry_format)
+    _obj = OptionSymbol(option_symbol, expiry_format)
 
     if output_format in ['list', list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
@@ -106,7 +107,7 @@ def parse_option_symbol_from_tda(option_symbol: str, output_format='object', exp
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    _obj = OptionSymbol(option_symbol, output_format, expiry_format, symbol_format='tda')
+    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='tda')
 
     if output_format in ['list', list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
@@ -120,36 +121,44 @@ def parse_option_symbol_from_tda(option_symbol: str, output_format='object', exp
 
     return _obj
 
+
 # ========================================================= #
 
 
-class OptionsClient(base_client.BaseClient):
+def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
+    """
+    Initiates a Client to be used to access all REST options endpoints.
+
+    :param api_key: Your API Key. Visit your dashboard to get yours.
+    :param use_async: Set it to ``True`` to get async client. Defaults to usual non-async client.
+    :param connect_timeout: The connection timeout in seconds. Defaults to 10. basically the number of seconds to
+                            wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
+                            connect within specified time limit.
+    :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                         date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                         time limit.
+    """
+
+    if not use_async:
+        return SyncOptionsClient(api_key, connect_timeout, read_timeout)
+
+    return AsyncOptionsClient(api_key, connect_timeout, read_timeout)
+
+
+# ========================================================= #
+
+
+class SyncOptionsClient(base_client.BaseClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
 
     This class implements all the Options REST endpoints. Note that you should always import names from top level.
     eg: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names easily)
-
-    Creating the client is as simple as: ``client = OptionsClient('MY_API_KEY')``
-    Once you have the client, you can call its methods to get data from the APIs. All methods have sane default
-    values and almost everything can be customized.
-
-    Any method starting with ``async_`` in its name is meant to be for async programming. All methods have their
-    sync
-    and async counterparts. Any async method must be awaited while non-async (or sync) methods should be called
-    directly.
-
-    Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
-    parameters to avoid supplying error prone values.
-
-    It is also a very good idea to visit the `official documentation <https://polygon.io/docs/getting-started>`__. I
-    highly recommend using the UI there to play with the endpoints a bit. Observe the
-    data you receive as the actual data received through python lib is exactly the same as shown on their page when
-    you click ``Run Query``.
     """
-    def __init__(self, api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, use_async, connect_timeout, read_timeout)
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
     def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
@@ -157,8 +166,7 @@ class OptionsClient(base_client.BaseClient):
                    raw_response: bool = False):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
-        correct format for this endpoint. You can use
-        :meth:`polygon.reference_apis.reference_api.ReferenceClient.get_option_contracts` to query option contracts
+        correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
 
@@ -241,14 +249,30 @@ class OptionsClient(base_client.BaseClient):
 
         return _res.json()
 
-    # ASYNC Methods
-    async def async_get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                               timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100, order='asc',
-                               raw_response: bool = False):
+
+# ========================================================= #
+
+
+class AsyncOptionsClient(base_client.BaseAsyncClient):
+    """
+    These docs are not meant for general users. These are library API references. The actual docs will be
+    available on the index page when they are prepared.
+
+    This class implements all the Options REST endpoints for async uses. Note that you should always import names from
+    top level. eg: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names
+    easily)
+    """
+
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout)
+
+    # Endpoints
+    async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
+                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100,
+                         order='asc', raw_response: bool = False):
         """
-        Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
-        correct format for this endpoint. You can use
-        :meth:`polygon.reference_apis.reference_api.ReferenceClient.async_get_option_contracts` to query option
+        Get trades for an options ticker symbol in a given time range. Note that you need to have an option
+        symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
         contracts using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
 
@@ -260,12 +284,14 @@ class OptionsClient(base_client.BaseClient):
         :param timestamp_lte: query results where timestamp is less than or equal to the supplied value
         :param timestamp_gt: query results where timestamp is greater than the supplied value
         :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
-        :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionTradesSort`
+        :param sort: Sort field used for ordering. Defaults to timestamp. See
+        :class:`polygon.enums.OptionTradesSort`
                      for available choices.
         :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
         :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
                       available choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
+        check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -277,20 +303,21 @@ class OptionsClient(base_client.BaseClient):
                  'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent trade for a given options contract - Async
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
+        check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -298,15 +325,15 @@ class OptionsClient(base_client.BaseClient):
 
         _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
 
-        _res = await self._get_async_response(_path)
+        _res = await self._get_response(_path)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def async_get_previous_close(self, ticker: str, adjusted: bool = True,
-                                       raw_response: bool = False) -> Union[Response, dict]:
+    async def get_previous_close(self, ticker: str, adjusted: bool = True,
+                                 raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor>`__
@@ -314,7 +341,8 @@ class OptionsClient(base_client.BaseClient):
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
                          Set this to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
+        check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -324,23 +352,12 @@ class OptionsClient(base_client.BaseClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _res = await self._get_async_response(_path, params=_data)
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
-
-    @staticmethod
-    def _change_enum(val, allowed_type=str):
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
-
-        return val.value
 
 
 # ========================================================= #
@@ -350,7 +367,8 @@ class OptionSymbol:
     """
     The custom object for parsed details from option symbols.
     """
-    def __init__(self, option_symbol: str, output_format, expiry_format, symbol_format='polygon'):
+
+    def __init__(self, option_symbol: str, expiry_format, symbol_format='polygon'):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -418,9 +436,9 @@ def ensure_prefix(symbol: str):
     :param symbol: the option symbol to check
     """
     if symbol.upper().startswith('O:'):
-        return symbol
+        return symbol.upper()
 
-    return f'O:{symbol}'
+    return f'O:{symbol.upper()}'
 
 
 # ========================================================= #
@@ -428,6 +446,5 @@ def ensure_prefix(symbol: str):
 
 if __name__ == '__main__':  # Tests
     print('Don\'t You Dare Running Lib Files Directly')
-
 
 # ========================================================= #

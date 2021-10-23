@@ -435,6 +435,10 @@ def ensure_prefix(symbol: str):
 
     :param symbol: the option symbol to check
     """
+    if len(symbol) < 15:
+        raise ValueError('Option symbol length must at least be 15 letters. See documentation on option symbols for '
+                         'more info')
+
     if symbol.upper().startswith('O:'):
         return symbol.upper()
 

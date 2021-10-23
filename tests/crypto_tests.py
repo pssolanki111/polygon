@@ -28,6 +28,26 @@ def async_test(coro):
 # ========================================================= #
 
 
+class TestCryptoPrefix(unittest.TestCase):
+    def test_crypto_prefix(self):
+        func = polygon.crypto.crypto_api.ensure_prefix
+
+        data = func('X:BTCUSD')
+        data2 = func('btcUSD')
+        data3 = func('X:btcusd')
+        data4 = func('bTcUsd')
+        data5 = func('X:BtcUSD')
+
+        self.assertEqual(data, 'X:BTCUSD')
+        self.assertEqual(data2, 'X:BTCUSD')
+        self.assertEqual(data3, 'X:BTCUSD')
+        self.assertEqual(data4, 'X:BTCUSD')
+        self.assertEqual(data5, 'X:BTCUSD')
+
+
+# ========================================================= #
+
+
 class TestCrypto(unittest.TestCase):
     def test_get_historic_crypto_ticks(self):
         with polygon.CryptoClient(cred.KEY) as client:
@@ -221,8 +241,8 @@ class TestCrypto(unittest.TestCase):
     @async_test
     async def test_async_get_historic_forex_ticks(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_historic_trades('BTC', 'USD', '2021-10-15', limit=5)
-            data2 = await client.async_get_historic_trades('BTC', 'USD', datetime.date(2021, 10, 15), limit=5,
+            data = await client.get_historic_trades('BTC', 'USD', '2021-10-15', limit=5)
+            data2 = await client.get_historic_trades('BTC', 'USD', datetime.date(2021, 10, 15), limit=5,
                                                            raw_response=True)
 
             self.assertIsInstance(data, dict)
@@ -234,16 +254,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_historic_trades('BTC', 'USD', '2021-10-15', limit=5)
-        await client.async_close()
+        data = await client.get_historic_trades('BTC', 'USD', '2021-10-15', limit=5)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 
     @async_test
     async def test_async_get_last_trade(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_last_trade('BTC', 'USD')
-            data2 = await client.async_get_last_trade('BTC', 'USD', raw_response=True)
+            data = await client.get_last_trade('BTC', 'USD')
+            data2 = await client.get_last_trade('BTC', 'USD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -254,16 +274,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_last_trade('BTC', 'USD')
-        await client.async_close()
+        data = await client.get_last_trade('BTC', 'USD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 
     @async_test
     async def test_async_get_daily_open_close(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_daily_open_close('BTC', 'USD', '2021-10-15')
-            data2 = await client.async_get_daily_open_close('BTC', 'USD', date=datetime.date(2021, 10, 15),
+            data = await client.get_daily_open_close('BTC', 'USD', '2021-10-15')
+            data2 = await client.get_daily_open_close('BTC', 'USD', date=datetime.date(2021, 10, 15),
                                                             raw_response=True)
 
             self.assertIsInstance(data, dict)
@@ -272,15 +292,15 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_daily_open_close('BTC', 'USD', '2021-10-15')
-        await client.async_close()
+        data = await client.get_daily_open_close('BTC', 'USD', '2021-10-15')
+        await client.close()
         self.assertIsInstance(data, dict)
 
     @async_test
     async def test_async__get_aggregate_bars(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
-            data2 = await client.async_get_aggregate_bars('X:BTCUSD', datetime.date(2021, 9, 10), '2021-10-01',
+            data = await client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
+            data2 = await client.get_aggregate_bars('X:BTCUSD', datetime.date(2021, 9, 10), '2021-10-01',
                                                           limit=30, raw_response=True)
 
             self.assertIsInstance(data, dict)
@@ -292,16 +312,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
-        await client.async_close()
+        data = await client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_grouped_daily_bars(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_grouped_daily_bars('2021-10-15')
-            data2 = await client.async_get_grouped_daily_bars(datetime.datetime(2021, 10, 15), raw_response=True)
+            data = await client.get_grouped_daily_bars('2021-10-15')
+            data2 = await client.get_grouped_daily_bars(datetime.datetime(2021, 10, 15), raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -312,16 +332,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_grouped_daily_bars('2021-10-15')
-        await client.async_close()
+        data = await client.get_grouped_daily_bars('2021-10-15')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_previous_close(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_previous_close('X:BTCUSD')
-            data2 = await client.async_get_previous_close('X:BTCUSD', raw_response=True)
+            data = await client.get_previous_close('X:BTCUSD')
+            data2 = await client.get_previous_close('X:BTCUSD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -332,16 +352,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_previous_close('X:BTCUSD')
-        await client.async_close()
+        data = await client.get_previous_close('X:BTCUSD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_snapshot_all(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot_all(['X:BTCUSD'])
-            data2 = await client.async_get_snapshot_all(['X:BTCUSD'], raw_response=True)
+            data = await client.get_snapshot_all(['X:BTCUSD'])
+            data2 = await client.get_snapshot_all(['X:BTCUSD'], raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -352,16 +372,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_snapshot_all(['X:BTCUSD'])
-        await client.async_close()
+        data = await client.get_snapshot_all(['X:BTCUSD'])
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_snapshot(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot('X:BTCUSD')
-            data2 = await client.async_get_snapshot('X:BTCUSD', raw_response=True)
+            data = await client.get_snapshot('X:BTCUSD')
+            data2 = await client.get_snapshot('X:BTCUSD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -372,16 +392,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_snapshot('X:BTCUSD')
-        await client.async_close()
+        data = await client.get_snapshot('X:BTCUSD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async__get_gainers_and_losers(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_gainers_and_losers('gainers')
-            data2 = await client.async_get_gainers_and_losers('losers', raw_response=True)
+            data = await client.get_gainers_and_losers('gainers')
+            data2 = await client.get_gainers_and_losers('losers', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -392,16 +412,16 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_gainers_and_losers('gainers')
-        await client.async_close()
+        data = await client.get_gainers_and_losers('gainers')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async__get_level2_book(self):
         async with polygon.CryptoClient(cred.KEY, True) as client:
-            data = await client.async_get_level2_book('X:BTCUSD')
-            data2 = await client.async_get_level2_book('X:BTCUSD', raw_response=True)
+            data = await client.get_level2_book('X:BTCUSD')
+            data2 = await client.get_level2_book('X:BTCUSD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -412,8 +432,8 @@ class TestCrypto(unittest.TestCase):
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)
-        data = await client.async_get_level2_book('X:BTCUSD')
-        await client.async_close()
+        data = await client.get_level2_book('X:BTCUSD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 

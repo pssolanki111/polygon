@@ -139,7 +139,7 @@ class SyncForexClient(base_client.BaseClient):
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
                 f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
@@ -247,7 +247,7 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{self.ensure_prefix(symbol).upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{ensure_prefix(symbol).upper()}'
 
         _res = self._get_response(_path)
 
@@ -306,13 +306,6 @@ class SyncForexClient(base_client.BaseClient):
             return _res
 
         return _res.json()
-
-    @staticmethod
-    def ensure_prefix(sym: str):
-        if sym.upper().startswith('C:'):
-            return sym.upper()
-
-        return f'C:{sym.upper()}'
 
 
 # ========================================================= #
@@ -428,7 +421,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _path = f'/v2/aggs/ticker/{self.ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
+        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
                 f'{to_date}'
 
         _data = {'adjusted': 'true' if adjusted else 'false',
@@ -537,7 +530,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{self.ensure_prefix(symbol).upper()}'
+        _path = f'/v2/snapshot/locale/global/markets/forex/tickers/{ensure_prefix(symbol).upper()}'
 
         _res = await self._get_response(_path)
 
@@ -599,12 +592,15 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    @staticmethod
-    def ensure_prefix(sym: str):
-        if sym.upper().startswith('C:'):
-            return sym.upper()
 
-        return f'C:{sym.upper()}'
+# ========================================================= #
+
+
+def ensure_prefix(sym: str):
+    if sym.upper().startswith('C:'):
+        return sym.upper()
+
+    return f'C:{sym.upper()}'
 
 
 # ========================================================= #

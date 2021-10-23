@@ -6,6 +6,7 @@ import datetime
 from requests.models import Response
 import asyncio
 from httpx import Response as HttpxResponse
+
 # ========================================================= #
 
 # Test Runners
@@ -21,7 +22,37 @@ def async_test(coro):
             return loop.run_until_complete(coro(*args, **kwargs))
         finally:
             loop.close()
+
     return wrapper
+
+
+# ========================================================= #
+
+
+class TestChangeEnums(unittest.TestCase):
+    def test_change_enum_sync_base(self):
+        from polygon import enums
+        base_client = polygon.BaseClient('LoL')
+
+        test1 = base_client._change_enum(enums.StreamCluster.STOCKS, str)
+        test2 = base_client._change_enum('stocks', str)
+        test3 = base_client._change_enum(enums.StreamCluster.OPTIONS, [str, int])
+        test4 = base_client._change_enum('options', [str, int])
+        test5 = base_client._change_enum(enums.TickerType.CS)
+        test6 = base_client._change_enum('CS')
+        test7 = base_client._change_enum(enums.StockReportType.TRAILING_TWELVE_MONTHS_ANNUALIZED, [str, int])
+        test8 = base_client._change_enum(5, int)
+        test9 = base_client._change_enum(68.6, [int, str, float])
+
+        self.assertEqual(test1, 'stocks')
+        self.assertEqual(test2, 'stocks')
+        self.assertEqual(test3, 'options')
+        self.assertEqual(test4, 'options')
+        self.assertEqual(test5, 'CS')
+        self.assertEqual(test6, 'CS')
+        self.assertEqual(test7, 'TA')
+        self.assertEqual(test8, 5)
+        self.assertEqual(test9, 68.6)
 
 
 # ========================================================= #
@@ -330,11 +361,11 @@ class TestStocks(unittest.TestCase):
     @async_test
     async def test_async_get_trades(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_trades('AMD', date='2021-06-28', limit=10)
-            data1 = await client.async_get_trades('AMD', date=datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = await client.async_get_trades('AMD', date=datetime.datetime(2021, 6, 28), limit=10,
-                                                  raw_response=True)
-            data3 = await client.async_get_trades('AMD', date='2021-06-28', limit=10, reverse=False)
+            data = await client.get_trades('AMD', date='2021-06-28', limit=10)
+            data1 = await client.get_trades('AMD', date=datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = await client.get_trades('AMD', date=datetime.datetime(2021, 6, 28), limit=10,
+                                            raw_response=True)
+            data3 = await client.get_trades('AMD', date='2021-06-28', limit=10, reverse=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -354,19 +385,19 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_trades('AMD', date='2021-06-28', limit=10)
-        await client.async_close()
+        data = await client.get_trades('AMD', date='2021-06-28', limit=10)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
 
     @async_test
     async def test_async_get_quotes(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_quotes('AMD', date='2021-06-28', limit=10)
-            data1 = await client.async_get_quotes('AMD', date=datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = await client.async_get_quotes('AMD', date=datetime.datetime(2021, 6, 28), limit=10,
-                                                  raw_response=True)
-            data3 = await client.async_get_quotes('AMD', date='2021-06-28', limit=10, reverse=False)
+            data = await client.get_quotes('AMD', date='2021-06-28', limit=10)
+            data1 = await client.get_quotes('AMD', date=datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = await client.get_quotes('AMD', date=datetime.datetime(2021, 6, 28), limit=10,
+                                            raw_response=True)
+            data3 = await client.get_quotes('AMD', date='2021-06-28', limit=10, reverse=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -386,17 +417,17 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_quotes('AMD', date='2021-06-28', limit=10)
-        await client.async_close()
+        data = await client.get_quotes('AMD', date='2021-06-28', limit=10)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
 
     @async_test
     async def test_async_get_last_trade(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_last_trade('AMD')
-            data1 = await client.async_get_last_trade('AMD', raw_response=True)
-            data2 = await client.async_get_last_trade('AMD', raw_response=True)
+            data = await client.get_last_trade('AMD')
+            data1 = await client.get_last_trade('AMD', raw_response=True)
+            data2 = await client.get_last_trade('AMD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -411,17 +442,17 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_last_trade('AMD')
-        await client.async_close()
+        data = await client.get_last_trade('AMD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_last_quote(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_last_quote('AMD')
-            data1 = await client.async_get_last_quote('AMD', raw_response=True)
-            data2 = await client.async_get_last_quote('AMD', raw_response=True)
+            data = await client.get_last_quote('AMD')
+            data1 = await client.get_last_quote('AMD', raw_response=True)
+            data2 = await client.get_last_quote('AMD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -436,18 +467,18 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_last_quote('AMD')
-        await client.async_close()
+        data = await client.get_last_quote('AMD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_daily_open_close(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_daily_open_close('AMD', '2021-06-28')
-            data1 = await client.async_get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True)
-            data2 = await client.async_get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True,
-                                                            adjusted=False)
+            data = await client.get_daily_open_close('AMD', '2021-06-28')
+            data1 = await client.get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True)
+            data2 = await client.get_daily_open_close('AMD', datetime.datetime(2021, 6, 28), raw_response=True,
+                                                      adjusted=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -464,21 +495,21 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_daily_open_close('AMD', '2021-06-28')
-        await client.async_close()
+        data = await client.get_daily_open_close('AMD', '2021-06-28')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
-    async def test_get_aggregate_bars(self):
+    async def test_async_get_aggregate_bars(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_aggregate_bars('NVDA', '2020-06-28', '2021-06-28', limit=10)
-            data1 = await client.async_get_aggregate_bars('NVDA', '2020-06-28', datetime.date(2021, 6, 28), limit=10,
-                                                          raw_response=True)
-            data2 = await client.async_get_aggregate_bars('NVDA', '2020-06-28', datetime.date(2021, 6, 28), limit=10,
-                                                          raw_response=True, timespan='minute', multiplier=5)
-            data3 = await client.async_get_aggregate_bars('NVDA', datetime.date(2020, 6, 28), '2021-06-28', limit=10,
-                                                          raw_response=False, timespan='minute', multiplier=1)
+            data = await client.get_aggregate_bars('NVDA', '2020-06-28', '2021-06-28', limit=10)
+            data1 = await client.get_aggregate_bars('NVDA', '2020-06-28', datetime.date(2021, 6, 28), limit=10,
+                                                    raw_response=True)
+            data2 = await client.get_aggregate_bars('NVDA', '2020-06-28', datetime.date(2021, 6, 28), limit=10,
+                                                    raw_response=True, timespan='minute', multiplier=5)
+            data3 = await client.get_aggregate_bars('NVDA', datetime.date(2020, 6, 28), '2021-06-28', limit=10,
+                                                    raw_response=False, timespan='minute', multiplier=1)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data3, dict)
@@ -495,17 +526,17 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_aggregate_bars('NVDA', '2020-06-28', '2021-06-28', limit=10)
-        await client.async_close()
+        data = await client.get_aggregate_bars('NVDA', '2020-06-28', '2021-06-28', limit=10)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertLessEqual(len(data['results']), 10)
 
     @async_test
     async def test_async_get_grouped_daily_bars(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_grouped_daily_bars('2020-06-28')
-            data1 = await client.async_get_grouped_daily_bars('2020-06-28', adjusted=False)
-            data2 = await client.async_get_grouped_daily_bars('2020-06-28', raw_response=True)
+            data = await client.get_grouped_daily_bars('2020-06-28')
+            data1 = await client.get_grouped_daily_bars('2020-06-28', adjusted=False)
+            data2 = await client.get_grouped_daily_bars('2020-06-28', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, dict)
@@ -527,8 +558,8 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, use_async=True)
-        data = await client.async_get_grouped_daily_bars('2020-06-28')
-        await client.async_close()
+        data = await client.get_grouped_daily_bars('2020-06-28')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
         self.assertEqual(data['resultsCount'], 0)
@@ -536,9 +567,9 @@ class TestStocks(unittest.TestCase):
     @async_test
     async def test_async_get_previous_close(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_previous_close('AMD')
-            data1 = await client.async_get_previous_close('AMD', adjusted=False)
-            data2 = await client.async_get_previous_close('AMD', raw_response=True)
+            data = await client.get_previous_close('AMD')
+            data1 = await client.get_previous_close('AMD', adjusted=False)
+            data2 = await client.get_previous_close('AMD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, dict)
@@ -558,16 +589,16 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_previous_close('AMD')
-        await client.async_close()
+        data = await client.get_previous_close('AMD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_snapshot(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot('AMD')
-            data1 = await client.async_get_snapshot('AMD', raw_response=True)
+            data = await client.get_snapshot('AMD')
+            data1 = await client.get_snapshot('AMD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -579,31 +610,31 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_snapshot('AMD')
-        await client.async_close()
+        data = await client.get_snapshot('AMD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertTrue(data['status'] in ['OK', 'NotFound'])
 
     @async_test
     async def test_async_get_current_price(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_current_price('AMD')
+            data = await client.get_current_price('AMD')
 
             self.assertTrue(isinstance(data, int) or isinstance(data, float))
             self.assertGreater(data, 0)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_current_price('AMD')
-        await client.async_close()
+        data = await client.get_current_price('AMD')
+        await client.close()
         self.assertTrue(isinstance(data, int) or isinstance(data, float))
         self.assertGreater(data, 0)
 
     @async_test
     async def test_async_get_snapshot_all(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot_all(['AMD', 'NVDA'])
-            data1 = await client.async_get_snapshot_all(['AMD', 'NVDA'], raw_response=True)
+            data = await client.get_snapshot_all(['AMD', 'NVDA'])
+            data1 = await client.get_snapshot_all(['AMD', 'NVDA'], raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -615,16 +646,16 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_snapshot_all(['AMD', 'NVDA'])
-        await client.async_close()
+        data = await client.get_snapshot_all(['AMD', 'NVDA'])
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertTrue(data['status'] in ['OK', 'NotFound'])
 
     @async_test
-    async def test_get_gainers_and_losers(self):
+    async def test_async_get_gainers_and_losers(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.async_get_gainers_and_losers()
-            data1 = await client.async_get_gainers_and_losers('losers', raw_response=True)
+            data = await client.get_gainers_and_losers()
+            data1 = await client.get_gainers_and_losers('losers', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -636,8 +667,8 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.async_get_gainers_and_losers()
-        await client.async_close()
+        data = await client.get_gainers_and_losers()
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
@@ -647,6 +678,5 @@ class TestStocks(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
 
 # ========================================================= #

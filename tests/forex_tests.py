@@ -28,6 +28,26 @@ def async_test(coro):
 # ========================================================= #
 
 
+class TestForexPrefix(unittest.TestCase):
+    def test_forex_prefix(self):
+        func = polygon.forex.forex_api.ensure_prefix
+
+        data = func('C:EURUSD')
+        data2 = func('EURUSD')
+        data3 = func('C:eurusd')
+        data4 = func('eurusd')
+        data5 = func('EuRuSD')
+
+        self.assertEqual(data, 'C:EURUSD')
+        self.assertEqual(data2, 'C:EURUSD')
+        self.assertEqual(data3, 'C:EURUSD')
+        self.assertEqual(data4, 'C:EURUSD')
+        self.assertEqual(data5, 'C:EURUSD')
+
+
+# ========================================================= #
+
+
 class TestForex(unittest.TestCase):
     def test_get_historic_forex_ticks(self):
         with polygon.ForexClient(cred.KEY) as client:
@@ -206,8 +226,8 @@ class TestForex(unittest.TestCase):
     @async_test
     async def test_async_get_historic_forex_ticks(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_historic_forex_ticks('AUD', 'USD', '2021-10-15', limit=5)
-            data2 = await client.async_get_historic_forex_ticks('AUD', 'USD', datetime.date(2021, 10, 15), limit=5,
+            data = await client.get_historic_forex_ticks('AUD', 'USD', '2021-10-15', limit=5)
+            data2 = await client.get_historic_forex_ticks('AUD', 'USD', datetime.date(2021, 10, 15), limit=5,
                                                                 raw_response=True)
 
             self.assertIsInstance(data, dict)
@@ -219,16 +239,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_historic_forex_ticks('AUD', 'USD', '2021-10-15', limit=5)
-        await client.async_close()
+        data = await client.get_historic_forex_ticks('AUD', 'USD', '2021-10-15', limit=5)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 
     @async_test
     async def test_async_get_last_quote(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_last_quote('AUD', 'USD')
-            data2 = await client.async_get_last_quote('AUD', 'USD', raw_response=True)
+            data = await client.get_last_quote('AUD', 'USD')
+            data2 = await client.get_last_quote('AUD', 'USD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -239,16 +259,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_last_quote('AUD', 'USD')
-        await client.async_close()
+        data = await client.get_last_quote('AUD', 'USD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 
     @async_test
     async def test_async__get_aggregate_bars(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_aggregate_bars('C:EURUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
-            data2 = await client.async_get_aggregate_bars('C:EURUSD', datetime.date(2021, 9, 10), '2021-10-01',
+            data = await client.get_aggregate_bars('C:EURUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
+            data2 = await client.get_aggregate_bars('C:EURUSD', datetime.date(2021, 9, 10), '2021-10-01',
                                                           limit=30, raw_response=True)
 
             self.assertIsInstance(data, dict)
@@ -260,16 +280,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_aggregate_bars('C:EURUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
-        await client.async_close()
+        data = await client.get_aggregate_bars('C:EURUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_grouped_daily_bars(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_grouped_daily_bars('2021-10-15')
-            data2 = await client.async_get_grouped_daily_bars(datetime.datetime(2021, 10, 15), raw_response=True)
+            data = await client.get_grouped_daily_bars('2021-10-15')
+            data2 = await client.get_grouped_daily_bars(datetime.datetime(2021, 10, 15), raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -280,16 +300,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_grouped_daily_bars('2021-10-15')
-        await client.async_close()
+        data = await client.get_grouped_daily_bars('2021-10-15')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_previous_close(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_previous_close('C:EURUSD')
-            data2 = await client.async_get_previous_close('C:EURUSD', raw_response=True)
+            data = await client.get_previous_close('C:EURUSD')
+            data2 = await client.get_previous_close('C:EURUSD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -300,16 +320,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_previous_close('C:EURUSD')
-        await client.async_close()
+        data = await client.get_previous_close('C:EURUSD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async__get_snapshot_all(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot_all(['C:EURUSD'])
-            data2 = await client.async_get_snapshot_all(['C:EURUSD'], raw_response=True)
+            data = await client.get_snapshot_all(['C:EURUSD'])
+            data2 = await client.get_snapshot_all(['C:EURUSD'], raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -320,16 +340,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_snapshot_all(['C:EURUSD'])
-        await client.async_close()
+        data = await client.get_snapshot_all(['C:EURUSD'])
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_snapshot(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_snapshot('C:EURUSD')
-            data2 = await client.async_get_snapshot('C:EURUSD', raw_response=True)
+            data = await client.get_snapshot('C:EURUSD')
+            data2 = await client.get_snapshot('C:EURUSD', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -340,16 +360,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_snapshot('C:EURUSD')
-        await client.async_close()
+        data = await client.get_snapshot('C:EURUSD')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async__get_gainers_and_losers(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_get_gainers_and_losers('gainers')
-            data2 = await client.async_get_gainers_and_losers('losers', raw_response=True)
+            data = await client.get_gainers_and_losers('gainers')
+            data2 = await client.get_gainers_and_losers('losers', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -360,16 +380,16 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_get_gainers_and_losers('gainers')
-        await client.async_close()
+        data = await client.get_gainers_and_losers('gainers')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_real_time_currency_conversion(self):
         async with polygon.ForexClient(cred.KEY, True) as client:
-            data = await client.async_real_time_currency_conversion('AUD', 'USD', amount=10)
-            data2 = await client.async_real_time_currency_conversion('USD', 'AUD',  amount=10, raw_response=True)
+            data = await client.real_time_currency_conversion('AUD', 'USD', amount=10)
+            data2 = await client.real_time_currency_conversion('USD', 'AUD',  amount=10, raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -380,8 +400,8 @@ class TestForex(unittest.TestCase):
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)
-        data = await client.async_real_time_currency_conversion('AUD', 'USD', amount=10)
-        await client.async_close()
+        data = await client.real_time_currency_conversion('AUD', 'USD', amount=10)
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 

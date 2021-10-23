@@ -4,7 +4,7 @@ import threading
 import time
 from typing import Union
 import websocket as ws_client
-
+from enum import Enum
 
 # ========================================================= # TODO: add auto reconnection
 
@@ -639,16 +639,26 @@ class StreamClient:
         self._authenticate()
 
     @staticmethod
-    def _change_enum(val, allowed_type=str):
+    def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
+        if isinstance(val, Enum):
+            try:
+                return val.value
+
+            except AttributeError:
+                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                                 f'Please consider using the  specified enum in the docs for this function or recheck '
+                                 f'the value supplied.')
+
         if isinstance(allowed_type, list):
             if type(val) in allowed_type:
                 return val
 
+            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                             f'Please consider using the  specified enum in the docs for this function or recheck '
+                             f'the value supplied.')
+
         if isinstance(val, allowed_type) or val is None:
             return val
-
-        return val.value
-
 
 # ========================================================= #
 

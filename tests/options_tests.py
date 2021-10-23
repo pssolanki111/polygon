@@ -28,6 +28,26 @@ def async_test(coro):
 # ========================================================= #
 
 
+class TestOptionsPrefix(unittest.TestCase):
+    def test_option_prefix(self):
+        func = polygon.options.options.ensure_prefix
+
+        data = func('O:TSLA120110C00123000')
+        data2 = func('TSLA120110c00123000')
+        data3 = func('O:tsla120110C00123000')
+        data4 = func('O:tSLa120110P00123000')
+        data5 = func('TsLa120110p00123000')
+
+        self.assertEqual(data, 'O:TSLA120110C00123000')
+        self.assertEqual(data2, 'O:TSLA120110C00123000')
+        self.assertEqual(data3, 'O:TSLA120110C00123000')
+        self.assertEqual(data4, 'O:TSLA120110P00123000')
+        self.assertEqual(data5, 'O:TSLA120110P00123000')
+
+
+# ========================================================= #
+
+
 class TestOptions(unittest.TestCase):
     def test_build_option_symbol(self):
         bos = polygon.build_option_symbol('X', '211205', 'call', 134)
@@ -173,8 +193,8 @@ class TestOptions(unittest.TestCase):
     @async_test
     async def test_async_get_last_trade(self):
         async with polygon.OptionsClient(cred.KEY, use_async=True) as client:
-            data = await client.async_get_last_trade('O:TSLA210903C00700000')
-            data2 = await client.async_get_last_trade('O:TSLA210903C00700000', raw_response=True)
+            data = await client.get_last_trade('O:TSLA210903C00700000')
+            data2 = await client.get_last_trade('O:TSLA210903C00700000', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -186,16 +206,16 @@ class TestOptions(unittest.TestCase):
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, use_async=True)
-        data = await client.async_get_last_trade('O:TSLA210903C00700000')
-        await client.async_close()
+        data = await client.get_last_trade('O:TSLA210903C00700000')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_previous_close(self):
         async with polygon.OptionsClient(cred.KEY, use_async=True) as client:
-            data = await client.async_get_previous_close('O:TSLA210903C00700000')
-            data2 = await client.async_get_previous_close('O:TSLA210903C00700000', adjusted=True, raw_response=True)
+            data = await client.get_previous_close('O:TSLA210903C00700000')
+            data2 = await client.get_previous_close('O:TSLA210903C00700000', adjusted=True, raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -207,8 +227,8 @@ class TestOptions(unittest.TestCase):
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, use_async=True)
-        data = await client.async_get_previous_close('O:TSLA210903C00700000')
-        await client.async_close()
+        data = await client.get_previous_close('O:TSLA210903C00700000')
+        await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 

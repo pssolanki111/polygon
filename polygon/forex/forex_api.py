@@ -583,7 +583,7 @@ class ForexClient(base_client.BaseClient):
 
     @staticmethod
     def ensure_prefix(sym: str):
-        if sym.startswith('C:'):
+        if sym.upper().startswith('C:'):
             return sym
 
         return f'C:{sym}'

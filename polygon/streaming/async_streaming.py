@@ -1,15 +1,12 @@
 # ========================================================= #
-import signal
 import asyncio
 import inspect
-import websockets as wss
-import logging
 import json
-from typing import Union
-from enum import Enum
-import platform
+import logging
 import sys
-import os
+from typing import Union
+import websockets as wss
+
 # ========================================================= #
 
 
@@ -218,12 +215,6 @@ class AsyncStreamClient:
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
 
-        if platform.system() in ['Linux', 'Darwin']:  # making signal handlers OS specific
-            loop = asyncio.get_running_loop()
-
-            loop.add_signal_handler(signal.SIGINT, lambda *args: _terminate(self.WS))
-            loop.add_signal_handler(signal.SIGTERM, lambda *args: _terminate(self.WS))
-
         # TODO: Check availability of handlers on OSX or perhaps just remove them completely.
 
         while 1:
@@ -379,7 +370,7 @@ class AsyncStreamClient:
             if symbols in [None, [], 'all']:
                 symbols = _prefix + '*'
             else:
-                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not \
+                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not
                                     symbol.startswith('O:') and symbol != '*' else f'{_prefix}{symbol.upper()}' for
                                     symbol in symbols])
 
@@ -853,10 +844,19 @@ class AsyncStreamClient:
 # ========================================================= #
 
 
-def _terminate(_ws):
-    get_logger().info('Stop Signal Received, Terminating & Exiting... This may take up to a few seconds to close all '
-                      'handlers and exit safely...')
-    sys.exit(0)
+def ensure_prefix(symbol: str, _prefix: str = 'O:'):
+    """
+    ensuring prefixes in symbol names. to be used internally by forex, crypto and options
+
+    :param symbol: the symbol to check
+    :param _prefix: which prefix to check for. defaults to ``O:`` which is for options
+    :return: capitalized prefixed symbol.
+    """
+
+    if symbol.upper().startswith(_prefix):
+        return symbol.upper()
+
+    return f'{_prefix}{symbol.upper()}'
 
 
 # ========================================================= #

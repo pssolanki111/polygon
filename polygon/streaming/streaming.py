@@ -202,8 +202,14 @@ class StreamClient:
 
         else:
             if self._cluster in ['options']:
-                symbols = ','.join([f'{_prefix}O:{symbol.upper()}' if not \
-                                    symbol.startswith('O:') else f'{_prefix}{symbol.upper()}' for symbol in symbols])
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
+
+            elif self._cluster in ['forex']:
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "C:")}' for symbol in symbols])
+
+            elif self._cluster in ['crypto']:
+                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "X:")}' for symbol in symbols])
+
             else:
                 symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
 
@@ -342,7 +348,8 @@ class StreamClient:
         """
         Stream real-time Options Trades for given Options contract.
 
-        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
         :return: None
         """
 
@@ -351,7 +358,13 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_option_trades(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time Options Trades for given Options contract.
+
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
+        :return: None
+        """
 
         _prefix = 'T.'
 
@@ -361,7 +374,8 @@ class StreamClient:
         """
         Stream real-time Options Minute Aggregates for given Options contract(s).
 
-        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
+        :param symbols: A list of symbols. Default is * which subscribes to ALL tickers in the market. you can pass
+                        **with or without** the prefix ``O:``
         :return: None
         """
 
@@ -370,7 +384,13 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_option_minute_aggregates(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time Options Minute aggregates for given Options contract.
+
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
+        :return: None
+        """
 
         _prefix = 'AM.'
 
@@ -380,7 +400,8 @@ class StreamClient:
         """
         Stream real-time Options Second Aggregates for given Options contract(s).
 
-        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market
+        :param symbols: A list of symbols. Default is * which subscribes to ALL tickers in the market. you can pass
+                        **with or without** the prefix ``O:``
         :return: None
         """
 
@@ -389,7 +410,13 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_option_second_aggregates(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time Options Second Aggregates for given Options contract.
+
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
+        :return: None
+        """
 
         _prefix = 'A.'
 
@@ -401,7 +428,8 @@ class StreamClient:
         Stream real-time forex quotes for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :return: None
         """
 
@@ -410,7 +438,13 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe from the stream service for the symbols specified. Defaults to all symbols.
+
+        :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
+        """
 
         _prefix = 'C.'
 
@@ -421,7 +455,8 @@ class StreamClient:
         Stream real-time forex Minute Aggregates for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
         :return: None
         """
 
@@ -430,7 +465,13 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe from the stream service for the symbols specified. Defaults to all symbols.
+
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
+                        without** the prefix ``C:``
+        """
 
         _prefix = 'CA.'
 
@@ -442,7 +483,8 @@ class StreamClient:
         Stream real-time Trades for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -451,7 +493,14 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time trades for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :return: None
+        """
 
         _prefix = 'XT.'
 
@@ -462,7 +511,8 @@ class StreamClient:
         Stream real-time Quotes for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -471,7 +521,14 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time quotes for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :return: None
+        """
 
         _prefix = 'XQ.'
 
@@ -482,7 +539,8 @@ class StreamClient:
         Stream real-time Minute Aggregates for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -491,7 +549,14 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time minute aggregates for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :return: None
+        """
 
         _prefix = 'XA.'
 
@@ -502,7 +567,8 @@ class StreamClient:
         Stream real-time level 2 book data for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
         :return: None
         """
 
@@ -511,7 +577,14 @@ class StreamClient:
         self._modify_sub(symbols, 'subscribe', _prefix)
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
-        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+        """
+        Unsubscribe real-time level 2 book data for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :return: None
+        """
 
         _prefix = 'XL2.'
 
@@ -575,6 +648,24 @@ class StreamClient:
             return val
 
         return val.value
+
+
+# ========================================================= #
+
+
+def ensure_prefix(symbol: str, _prefix: str = 'O:'):
+    """
+    ensuring prefixes in symbol names. to be used internally by forex, crypto and options
+
+    :param symbol: the symbol to check
+    :param _prefix: which prefix to check for. defaults to ``O:`` which is for options
+    :return: capitalized prefixed symbol.
+    """
+
+    if symbol.upper().startswith(_prefix):
+        return symbol.upper()
+
+    return f'{_prefix}{symbol.upper()}'
 
 
 # ========================================================= #

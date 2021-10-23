@@ -375,7 +375,7 @@ def ensure_prefix(symbol: str):
 
     :param symbol: the option symbol to check
     """
-    if symbol.startswith('O:'):
+    if symbol.upper().startswith('O:'):
         return symbol
 
     return f'O:{symbol}'

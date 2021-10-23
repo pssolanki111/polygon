@@ -242,6 +242,48 @@ class OptionsClient(base_client.BaseClient):
         return _res.json()
 
     # ASYNC Methods
+    async def async_get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
+                               timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100, order='asc',
+                               raw_response: bool = False):
+        """
+        Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
+        correct format for this endpoint. You can use
+        :meth:`polygon.reference_apis.reference_api.ReferenceClient.async_get_option_contracts` to query option
+        contracts using many filter parameters such as underlying symbol etc.
+        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+
+        :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
+                              pass the symbol with or without the prefix ``O:``
+        :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
+                          UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
+        :param timestamp_lt: query results where timestamp is less than the supplied value
+        :param timestamp_lte: query results where timestamp is less than or equal to the supplied value
+        :param timestamp_gt: query results where timestamp is greater than the supplied value
+        :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
+        :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionTradesSort`
+                     for available choices.
+        :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
+        :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
+                      available choices.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+        """
+
+        _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
+                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = await self._get_async_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     async def async_get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the most recent trade for a given options contract - Async

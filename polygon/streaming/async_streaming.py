@@ -11,10 +11,6 @@ from enum import Enum
 # ========================================================= #
 
 
-STOCKS = 'stocks'
-OPTIONS = 'options'
-CRYPTO = 'crypto'
-FOREX = 'forex'
 HOST = 'socket.polygon.io'
 DELAYED_HOST = 'delayed.polygon.io'
 
@@ -196,7 +192,7 @@ class AsyncStreamClient:
             _msg = await self._recv()
 
             for msg in _msg:
-                handler = self._handlers[self._apis[msg['ev']]](msg)
+                handler = self._handlers[msg['ev']](msg)
 
                 if inspect.isawaitable(handler):
                     asyncio.create_task(handler)
@@ -231,7 +227,10 @@ class AsyncStreamClient:
                             _msg = await self._recv()
 
                             for msg in _msg:
-                                asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+                                handler = self._handlers[msg['ev']](msg)
+
+                                if inspect.isawaitable(handler):
+                                    asyncio.create_task(handler)
 
                             self._re = False
 
@@ -264,7 +263,10 @@ class AsyncStreamClient:
                 _msg = await self._recv()
 
                 for msg in _msg:  # Processing messages. Using a dict to manage handlers to avoid using if-else :D
-                    asyncio.create_task(self._handlers[self._apis[msg['ev']]](msg))
+                    handler = self._handlers[msg['ev']](msg)
+
+                    if inspect.isawaitable(handler):
+                        asyncio.create_task(handler)
 
             except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
                 print(f'Exception: {str(exc)} || Not attempting reconnection as login/access failed. Terminating...')
@@ -336,12 +338,12 @@ class AsyncStreamClient:
         """Assign default handler value to all stream setups. ONLY meant for internal use"""
         _handlers = {}
 
-        _apis = {'T': 'stock_trades', 'Q': 'stock_quotes', 'AM': 'stock_agg_min', 'A': 'stock_agg_sec',
+        _apis = {'T': 'trades', 'Q': 'quotes', 'AM': 'agg_min', 'A': 'agg_sec',
                  'LULD': 'stock_luld', 'NOI': 'stock_imbalances', 'C': 'forex_quotes', 'CA': 'forex_agg_min',
                  'XT': 'crypto_trades', 'XQ': 'crypto_quotes', 'XL2': 'crypto_l2', 'XA': 'crypto_agg_min',
-                 'status': 'status', 'OT': 'options_trades', 'OAM': 'options_agg_min', 'OA': 'options_agg_sec'}
+                 'status': 'status'}
 
-        for name in _apis.values():
+        for name in _apis.keys():
             _handlers[name] = self._default_process_message
 
         return _apis, _handlers
@@ -365,27 +367,11 @@ class AsyncStreamClient:
             pass
 
         if self._market in ['options']:
-            _prefix = _prefix[1:]
-
             if symbols in [None, [], 'all']:
                 symbols = _prefix + '*'
 
             elif isinstance(symbols, list):
                 symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
-
-        elif self._market in ['forex']:
-            if symbols in [None, [], 'all']:
-                symbols = _prefix + '*'
-
-            elif isinstance(symbols, list):
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "C:")}' for symbol in symbols])
-
-        elif self._market in ['crypto']:
-            if symbols in [None, [], 'all']:
-                symbols = _prefix + '*'
-
-            elif isinstance(symbols, list):
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "X:")}' for symbol in symbols])
 
         elif symbols in [None, [], 'all']:
             symbols = _prefix + '*'
@@ -411,7 +397,7 @@ class AsyncStreamClient:
 
         _prefix = 'T'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -439,7 +425,7 @@ class AsyncStreamClient:
 
         _prefix = 'Q'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -467,7 +453,7 @@ class AsyncStreamClient:
 
         _prefix = 'AM'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -495,7 +481,7 @@ class AsyncStreamClient:
 
         _prefix = 'A'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -523,7 +509,7 @@ class AsyncStreamClient:
 
         _prefix = 'LULD'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -551,7 +537,7 @@ class AsyncStreamClient:
 
         _prefix = 'NOI'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -579,9 +565,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OT'
+        _prefix = 'T'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -594,7 +580,7 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OT'
+        _prefix = 'T'
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
@@ -609,9 +595,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OAM'
+        _prefix = 'AM'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -624,7 +610,7 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OAM'
+        _prefix = 'AM'
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
@@ -639,9 +625,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OA'
+        _prefix = 'A'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -654,7 +640,7 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'OA'
+        _prefix = 'A'
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
@@ -664,8 +650,7 @@ class AsyncStreamClient:
         Get Real time Forex Quotes for provided symbol(s)
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -673,7 +658,7 @@ class AsyncStreamClient:
 
         _prefix = 'C'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -682,8 +667,7 @@ class AsyncStreamClient:
         Unsubscribe from the stream for the supplied forex symbols.
 
         :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         :return: None
         """
 
@@ -696,8 +680,7 @@ class AsyncStreamClient:
         Get Real time Forex Minute Aggregates for provided symbol(s)
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``
         :param handler_function: The function which you'd want to call to process messages received from this
                                  subscription. Defaults to None which uses the default process message function.
         :return: None
@@ -705,7 +688,7 @@ class AsyncStreamClient:
 
         _prefix = 'CA'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -714,8 +697,7 @@ class AsyncStreamClient:
         Unsubscribe from the stream for the supplied forex symbols.
 
         :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         :return: None
         """
 
@@ -738,7 +720,7 @@ class AsyncStreamClient:
 
         _prefix = 'XT'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -770,7 +752,7 @@ class AsyncStreamClient:
 
         _prefix = 'XQ'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -802,7 +784,7 @@ class AsyncStreamClient:
 
         _prefix = 'XA'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -834,7 +816,7 @@ class AsyncStreamClient:
 
         _prefix = 'XL2'
 
-        self._handlers[self._apis[_prefix]] = handler_function
+        self._handlers[_prefix] = handler_function
 
         await self._modify_sub(symbols, _prefix=f'{_prefix}.')
 
@@ -862,9 +844,9 @@ class AsyncStreamClient:
         :param handler_function: The new handler function to assign for this service
         :return: None
         """
-
-        if self._market in ['options']:
-            service_prefix = f'O{self._change_enum(service_prefix, str)}'
+        if self._change_enum(service_prefix, str) == 'status':
+            self._handlers[self._apis[self._change_enum(service_prefix, str)]] = handler_function
+            return
 
         self._handlers[self._apis[self._change_enum(service_prefix, str)]] = handler_function
 

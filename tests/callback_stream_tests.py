@@ -9,6 +9,51 @@ import json
 
 # Test Runners
 cred.KEY = cred.KEY
+func = polygon.streaming.streaming.ensure_prefix
+
+# ========================================================= #
+
+
+class TestCallbackStreamPrefix(unittest.TestCase):
+    def test_forex_stream_prefix(self):
+        data = func('C:EUR/USD', _prefix='C:')
+        data2 = func('EUR/USD', _prefix='C:')
+        data3 = func('C:eur/usd', _prefix='C:')
+        data4 = func('eur/usd', _prefix='C:')
+        data5 = func('EuR/uSD', _prefix='C:')
+
+        self.assertEqual(data, 'C:EUR/USD')
+        self.assertEqual(data2, 'C:EUR/USD')
+        self.assertEqual(data3, 'C:EUR/USD')
+        self.assertEqual(data4, 'C:EUR/USD')
+        self.assertEqual(data5, 'C:EUR/USD')
+
+    def test_option_stream_prefix(self):
+        data = func('O:TSLA120110c00123000')
+        data2 = func('TSLA120110c00123000')
+        data3 = func('O:tsla120110C00123000')
+        data4 = func('O:tSLa120110P00123000')
+        data5 = func('TsLa120110p00123000')
+
+        self.assertEqual(data, 'O:TSLA120110C00123000')
+        self.assertEqual(data2, 'O:TSLA120110C00123000')
+        self.assertEqual(data3, 'O:TSLA120110C00123000')
+        self.assertEqual(data4, 'O:TSLA120110P00123000')
+        self.assertEqual(data5, 'O:TSLA120110P00123000')
+
+    def test_crypto_stream_prefix(self):
+        data = func('X:BTC-USD', _prefix='X:')
+        data2 = func('btc-USD', _prefix='X:')
+        data3 = func('X:btc-usd', _prefix='X:')
+        data4 = func('bTc-Usd', _prefix='X:')
+        data5 = func('X:Btc-USD', _prefix='X:')
+
+        self.assertEqual(data, 'X:BTC-USD')
+        self.assertEqual(data2, 'X:BTC-USD')
+        self.assertEqual(data3, 'X:BTC-USD')
+        self.assertEqual(data4, 'X:BTC-USD')
+        self.assertEqual(data5, 'X:BTC-USD')
+
 
 # ========================================================= #
 

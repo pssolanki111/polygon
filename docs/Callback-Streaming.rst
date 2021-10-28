@@ -76,7 +76,7 @@ Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols
 The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
 Note that a list of single ticker is accepted.
 
-**Options, Forex and Crypto stream endpoints expect prefixes ``O:, C:, X:`` respectively in front of every ticker. The library handles this for you**
+**Options and Crypto stream endpoints expect prefixes ``O:, X:`` respectively in front of every ticker. The library handles this for you**
 so you can pass symbols with or without those prefixes.
 
 Handling messages
@@ -84,10 +84,18 @@ Handling messages
 
 Your handler function should accept two arguments. You can ignore the first argument which is going to be the websocket instance itself. The second argument is the actual message.
 
+In callback streaming, **the library can't do the json decoding for you internally, and you will always receive a raw string** as received from the websocket server.
+messages). **You will have to do** ``json decoding`` **yourself**.
+
 .. code-block:: python
 
   def sample_handler(ws, msg):
-      print(msg)
+      print(msg)  # here msg is the raw string which contains the msg. to convert it to a list/dict, it needs to be decoded.
+
+      # DECODING the msg from string to list/dict
+      # ensure you have 'import json' at the top of file in imports
+
+      msg = json.loads(msg)  # now msg is a python object which you can use easily to access data from.
 
 Once you have the message in your callback handler function, you can process it the way you want. print it out, write it to a file, push it to a redis queue, write to a database,
 offload to a multi-threaded queue. Just whatever.

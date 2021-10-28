@@ -204,12 +204,6 @@ class StreamClient:
             if self._cluster in ['options']:
                 symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
 
-            elif self._cluster in ['forex']:
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "C:")}' for symbol in symbols])
-
-            elif self._cluster in ['crypto']:
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol, "X:")}' for symbol in symbols])
-
             else:
                 symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
 
@@ -428,8 +422,7 @@ class StreamClient:
         Stream real-time forex quotes for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         :return: None
         """
 
@@ -442,8 +435,7 @@ class StreamClient:
         Unsubscribe from the stream service for the symbols specified. Defaults to all symbols.
 
         :param symbols: A list of forex tickers. Default is * which unsubscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         """
 
         _prefix = 'C.'
@@ -455,8 +447,7 @@ class StreamClient:
         Stream real-time forex Minute Aggregates for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         :return: None
         """
 
@@ -469,8 +460,7 @@ class StreamClient:
         Unsubscribe from the stream service for the symbols specified. Defaults to all symbols.
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
-                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``. you can pass **with or
-                        without** the prefix ``C:``
+                        each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         """
 
         _prefix = 'CA.'
@@ -676,7 +666,6 @@ def ensure_prefix(symbol: str, _prefix: str = 'O:'):
         return symbol.upper()
 
     return f'{_prefix}{symbol.upper()}'
-
 
 # ========================================================= #
 

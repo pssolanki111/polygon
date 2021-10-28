@@ -111,7 +111,7 @@ if __name__ == '__main__':
     asyncio.run(main())
 
 ```
-This only scratched the surface of the library.
+This only scratches the surface of the library.
 
 **See the [Documentation](https://polygon.readthedocs.io/) to start using the library with its full functionalities.**
 

@@ -117,7 +117,7 @@ This only scratches the surface of the library.
 
 ## what if I need help?
 
-See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html)
+See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) or [start a quick discussion](https://github.com/pssolanki111/polygon/discussions)
 
 ## Quick Links for `Speed Runners`
 

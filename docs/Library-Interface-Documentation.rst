@@ -72,6 +72,10 @@ Option Symbol Helper Functions & Objects
 
 .. autofunction:: polygon.options.options.parse_option_symbol_from_tda
 
+.. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
+
+.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
+
 .. autofunction:: polygon.options.options.ensure_prefix
 
 .. autoclass:: polygon.options.options.OptionSymbol

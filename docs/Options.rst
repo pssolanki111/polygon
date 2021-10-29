@@ -167,6 +167,31 @@ Example use:
   # another one!
   parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)
 
+Converting option symbol formats
+--------------------------------
+
+As a bonus function in the library, you can use the below functions to convert from polygon.io option symbol format to the
+TD Ameritrade option symbol format and vice versa.
+
+**this is useful for people who use TDA API for brokerage and polygon as their data source**
+**If you need a python package to work with TDA API, check out** `tda-api <https://github.com/alexgolec/tda-api>`__ by Alex Golec.
+
+Converting from polygon to TDA format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**you might wanna use this when you want to place a trade on TDA for example using data from polygon.**
+
+.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
+   :noindex:
+
+Converting from TDA to polygon format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Checking order statuses
+
+.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
+   :noindex:
+
 **Endpoints**
 
 To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,

@@ -119,7 +119,7 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos1, 'AA_120521C134.4')
         self.assertEqual(bos2, 'AMD_120521P14.23')
         self.assertEqual(bos3, 'MSFT_120521P7.345')
-        self.assertEqual(bos4, 'WPGGQ_120521C134.0')
+        self.assertEqual(bos4, 'WPGGQ_120521C134')
         self.assertEqual(bos5, 'PPPPPP_120521P134.345')
 
     def test_parse_option_symbol_from_tda(self):
@@ -149,6 +149,36 @@ class TestOptions(unittest.TestCase):
                                 'expiry': f'{_dt}-10-15',
                                 'call_or_put': 'P',
                                 'option_symbol': 'AMD_101521P14.23'})
+
+    def test_convert_from_tda_to_polygon_format(self):
+        bos1 = polygon.convert_from_tda_to_polygon_format('X_101521C134')
+        bos2 = polygon.convert_from_tda_to_polygon_format('AA_101521C134.4', True)
+        bos3 = polygon.convert_from_tda_to_polygon_format('AMD_101521P14.23')
+        bos4 = polygon.convert_from_tda_to_polygon_format('MSFT_101521P7.345')
+        bos5 = polygon.convert_from_tda_to_polygon_format('WPGGQ_101521C134.0')
+        bos6 = polygon.convert_from_tda_to_polygon_format('PPPPPP_101521P134.345')
+
+        self.assertEqual(bos1, 'X211015C00134000')
+        self.assertEqual(bos2, 'O:AA211015C00134400')
+        self.assertEqual(bos3, 'AMD211015P00014230')
+        self.assertEqual(bos4, 'MSFT211015P00007345')
+        self.assertEqual(bos5, 'WPGGQ211015C00134000')
+        self.assertEqual(bos6, 'PPPPPP211015P00134345')
+
+    def test_convert_from_polygon_to_tda_format(self):
+        bos1 = polygon.convert_from_polygon_to_tda_format('X211015C00134000')
+        bos2 = polygon.convert_from_polygon_to_tda_format('O:AA211015C00134400')
+        bos3 = polygon.convert_from_polygon_to_tda_format('AMD211015P00014230')
+        bos4 = polygon.convert_from_polygon_to_tda_format('MSFT211015P00007345')
+        bos5 = polygon.convert_from_polygon_to_tda_format('WPGGQ211015C00134000')
+        bos6 = polygon.convert_from_polygon_to_tda_format('PPPPPP211015P00134345')
+
+        self.assertEqual(bos1, 'X_101521C134')
+        self.assertEqual(bos2, 'AA_101521C134.4')
+        self.assertEqual(bos3, 'AMD_101521P14.23')
+        self.assertEqual(bos4, 'MSFT_101521P7.345')
+        self.assertEqual(bos5, 'WPGGQ_101521C134')
+        self.assertEqual(bos6, 'PPPPPP_101521P134.345')
 
     def test_get_last_trade(self):
         with polygon.OptionsClient(cred.KEY) as client:

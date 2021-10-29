@@ -5,6 +5,7 @@ import datetime
 from requests.models import Response
 from httpx import Response as HttpxResponse
 
+
 # ========================================================= #
 
 
@@ -93,6 +94,8 @@ def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, str
 
     call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
 
+    strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
+
     return f'{underlying_symbol}_{expiry}{call_or_put}{strike_price}'
 
 
@@ -120,6 +123,36 @@ def parse_option_symbol_from_tda(option_symbol: str, output_format='object', exp
                 'option_symbol': _obj.option_symbol}
 
     return _obj
+
+
+def convert_from_tda_to_polygon_format(option_symbol: str, prefix_o: bool = False):
+    """
+    Helper function to convert from TD Ameritrade symbol format to polygon format. Useful for writing applications
+    which make use of both the APIs
+
+    :param option_symbol: The option symbol. This must be in the format supported by TD Ameritrade
+    :param prefix_o: Whether or not to add the prefix O: in front of created symbol
+    :return: The formatted symbol converted to polygon's symbol format.
+    """
+
+    _temp = OptionSymbol(option_symbol, symbol_format='tda')
+
+    return build_option_symbol(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
+                               prefix_o=prefix_o)
+
+
+def convert_from_polygon_to_tda_format(option_symbol: str):
+    """
+    Helper function to convert from polygon.io symbol format to TD Ameritrade symbol format. Useful for writing
+    applications which make use of both the APIs
+
+    :param option_symbol: The option symbol. This must be in the format supported by polygon.io
+    :return: The formatted symbol converted to TDA symbol format.
+    """
+
+    _temp = OptionSymbol(option_symbol)
+
+    return build_option_symbol_for_tda(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price)
 
 
 # ========================================================= #
@@ -368,7 +401,7 @@ class OptionSymbol:
     The custom object for parsed details from option symbols.
     """
 
-    def __init__(self, option_symbol: str, expiry_format, symbol_format='polygon'):
+    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon'):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -416,7 +449,8 @@ class OptionSymbol:
 
             self.call_or_put = _split[1][6]
 
-            self.strike_price = float(_split[1][7:])
+            self.strike_price = int(float(_split[1][7:])) if float(_split[1][7:]) == int(float(_split[1][7:])) else \
+                float(_split[1][7:])
 
             self.option_symbol = option_symbol
 

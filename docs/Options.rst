@@ -173,7 +173,7 @@ Converting option symbol formats
 As a bonus function in the library, you can use the below functions to convert from polygon.io option symbol format to the
 TD Ameritrade option symbol format and vice versa.
 
-**this is useful for people who use TDA API for brokerage and polygon as their data source**
+**this is useful for people who use TDA API for brokerage and polygon as their data source**.
 **If you need a python package to work with TDA API, check out** `tda-api <https://github.com/alexgolec/tda-api>`__ by Alex Golec.
 
 Converting from polygon to TDA format
@@ -189,7 +189,7 @@ Converting from TDA to polygon format
 
 Checking order statuses
 
-.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
+.. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
    :noindex:
 
 **Endpoints**

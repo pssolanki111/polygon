@@ -12,7 +12,7 @@ setup(
     license='MIT',
     author='P S Solanki',
     author_email='google_was_my_idea@gmail.com',
-    description='A Complete Python Wrapper for Polygon.io APIs. First Public Alpha Release',
+    description='A Complete Python Wrapper for Polygon.io APIs. Public Alpha Release',
     long_description=long_description,
     long_description_content_type="text/markdown",
     project_urls={

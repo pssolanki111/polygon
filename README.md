@@ -1,6 +1,6 @@
 # `polygon`: A Polygon.io API Wrapper
 
-[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
+[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
 
 ## what is `polygon`
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 
@@ -18,7 +18,7 @@ and more...
 
 ## How do I use `polygon`
 
-The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/) which has answers to 
+The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) which has answers to 
 any question you might have with example uses included wherever needed. Docs is a must-read for most people.
 
 More examples will be added to this repository in a folder `examples` as they are ready. 

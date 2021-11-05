@@ -8,6 +8,9 @@ Welcome to ``polygon``. Read this page to quickly install and configure this lib
 
 **It is highly recommended to read this page to the full as it has important information**
 
+You can see some examples on the `github repository <https://github.com/pssolanki111/polygon/tree/main/EXAMPLES>`__ after you have done
+the initial steps
+
 What you need to have
 ---------------------
 
@@ -59,7 +62,7 @@ Be sure to check out our special section :ref:`enums_header` for info on ``enums
 
 **A detailed description of how to use the streaming endpoints is provided in the streamer docs linked above.**
 
-Need examples? The `github repository <https://github.com/pssolanki111/polygon>`__ has a few you could use.
+Need examples? The `github repository <https://github.com/pssolanki111/polygon/tree/main/EXAMPLES>`__ has a few you could use.
 
 Creating and Using REST HTTP clients
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

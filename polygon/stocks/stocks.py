@@ -331,13 +331,13 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.get_last_trade(symbol)['results']['p']
 
-    def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot_all(self, symbols: list = None, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols.
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers_anchor>`__
 
-        :param symbols: A comma separated list of tickers to get snapshots for.
+        :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -689,13 +689,13 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res['results']['p']
 
-    async def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list = None, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols - Async method
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers_anchor>`__
 
-        :param symbols: A comma separated list of tickers to get snapshots for.
+        :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.

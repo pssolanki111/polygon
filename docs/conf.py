@@ -23,7 +23,7 @@ copyright = '2021, P S Solanki'
 author = 'P S Solanki'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.1'
+release = '0.9.2'
 
 
 # -- General configuration ---------------------------------------------------

@@ -344,12 +344,12 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
-
         _path = f'/v2/snapshot/locale/us/markets/stocks/tickers'
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        if symbols is not None:
+            _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        else:
+            _data = {'tickers': None}
 
         _res = self._get_response(_path, params=_data)
 
@@ -702,12 +702,12 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
-
         _path = f'/v2/snapshot/locale/us/markets/stocks/tickers'
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        if symbols is not None:
+            _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        else:
+            _data = {'tickers': None}
 
         _res = await self._get_response(_path, params=_data)
 

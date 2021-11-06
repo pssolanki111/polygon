@@ -7,6 +7,11 @@
    :height: 70
    :target: https://github.com/pssolanki111/polygon
 
+.. image:: _static/discord_logo.png
+   :width: 100
+   :height: 70
+   :target: https://discord.gg/jPkARduU6N
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents:

@@ -1,6 +1,6 @@
 # `polygon`: A Polygon.io API Wrapper
 
-[![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
+[![Discord](https://img.shields.io/discord/903351697995337820)](https://discord.gg/jPkARduU6N) [![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
 
 ## what is `polygon`
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 
@@ -117,7 +117,10 @@ This only scratches the surface of the library.
 
 ## what if I need help?
 
-See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) or [start a quick discussion](https://github.com/pssolanki111/polygon/discussions)
+We have a [Discord Server](https://discord.gg/jPkARduU6N). Join in to ask a question, share your ideas or observations or to just chat with
+interesting people, maybe just for lurking :eyes:
+
+See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) or you can also [start a quick discussion](https://github.com/pssolanki111/polygon/discussions)
 
 ## Quick Links for `Speed Runners`
 

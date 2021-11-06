@@ -64,6 +64,8 @@ Be sure to check out our special section :ref:`enums_header` for info on ``enums
 
 Need examples? The `github repository <https://github.com/pssolanki111/polygon/tree/main/EXAMPLES>`__ has a few you could use.
 
+**also feel free to join in our** `Discord Server <https://discord.gg/jPkARduU6N>`__ **to ask a question or just chat with interesting people**
+
 Creating and Using REST HTTP clients
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This section aims to outline the general procedure to create and use the http clients in both regular and async programming methods.

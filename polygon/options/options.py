@@ -318,15 +318,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param timestamp_gt: query results where timestamp is greater than the supplied value
         :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
         :param sort: Sort field used for ordering. Defaults to timestamp. See
-        :class:`polygon.enums.OptionTradesSort`
-                     for available choices.
+                     :class:`polygon.enums.OptionTradesSort` for available choices.
         :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
         :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
                       available choices.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
-        check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
+                             check the status code or inspect the headers. Defaults to False which returns the json
+                             decoded ictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
@@ -350,9 +348,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
-        check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
+                             check the status code or inspect the headers. Defaults to False which returns the json
+                             decoded dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
@@ -375,9 +372,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
                          Set this to false to get results that are NOT adjusted for splits.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
-        check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
+                             check the status code or inspect the headers. Defaults to False which returns the json
+                             decoded dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 

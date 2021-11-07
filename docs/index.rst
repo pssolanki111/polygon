@@ -7,6 +7,11 @@
    :height: 70
    :target: https://github.com/pssolanki111/polygon
 
+.. image:: _static/patreon_logo.jpeg
+   :width: 100
+   :height: 70
+   :target: https://www.patreon.com/pssolanki
+
 .. image:: _static/discord_logo.png
    :width: 100
    :height: 70

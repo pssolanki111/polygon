@@ -39,6 +39,14 @@ Get Historic Trades
 .. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_historic_trades
    :noindex:
 
+Get Trades
+----------
+
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_trades
+   :noindex:
+
 Get Last Trade
 -------------------
 

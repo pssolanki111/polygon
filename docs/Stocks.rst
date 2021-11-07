@@ -34,10 +34,26 @@ Get Trades
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades
    :noindex:
 
+Get Trades vX
+-------------
+
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades_vx
+   :noindex:
+
 Get Quotes
 ----------
 
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes
+   :noindex:
+
+Get Quotes vX
+-------------
+
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes_vx
    :noindex:
 
 Get Last Trade

@@ -38,7 +38,7 @@ This endpoint supports pagination. The library has support for pagination. See :
 Get Ticker Types
 ----------------
 
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_types_v3
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_types
    :noindex:
 
 Get Ticker Details
@@ -73,12 +73,6 @@ Get Stock dividends
 -------------------
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_dividends
-   :noindex:
-
-Get Stock Financials
---------------------
-
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_financials
    :noindex:
 
 Get Stock financials vX
@@ -121,17 +115,5 @@ Get Exchanges
 -------------
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_exchanges
-   :noindex:
-
-Get Locales
------------
-
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_locales
-   :noindex:
-
-Get Markets
--------------
-
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_markets
    :noindex:
 

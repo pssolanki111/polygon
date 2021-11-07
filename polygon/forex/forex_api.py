@@ -80,6 +80,61 @@ class SyncForexClient(base_client.BaseClient):
 
         return _res.json()
 
+    def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+                   timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                   raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get NBBO Quotes for a forex ticker symbol in a given time range.
+        `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
+
+        :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
+        :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
+                          nanosecond timestamp
+        :param order: sort order. see :class:`polygon.enums.SortOrder` for available choices. defaults to None
+        :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.ForexQuotesSort` for
+                     choices
+        :param limit: Limit the size of the response, max 50000 and default 5000.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string.
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string.
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(timestamp, datetime.date) or isinstance(timestamp, datetime.datetime):
+            timestamp = timestamp.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_lt, datetime.date) or isinstance(timestamp_lt, datetime.datetime):
+            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_lte, datetime.date) or isinstance(timestamp_lte, datetime.datetime):
+            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_gt, datetime.date) or isinstance(timestamp_gt, datetime.datetime):
+            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_gte, datetime.date) or isinstance(timestamp_gte, datetime.datetime):
+            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+
+        _path = f'/vX/quotes/{ensure_prefix(symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
+                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     def get_last_quote(self, from_symbol: str, to_symbol: str, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the last trade tick for a forex currency pair.
@@ -353,6 +408,61 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _data = {'offset': offset,
                  'limit': limit}
+
+        _res = await self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+                         timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                         raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get NBBO Quotes for a forex ticker symbol in a given time range.
+        `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
+
+        :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
+        :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
+                          nanosecond timestamp
+        :param order: sort order. see :class:`polygon.enums.SortOrder` for available choices. defaults to None
+        :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.ForexQuotesSort` for
+                     choices
+        :param limit: Limit the size of the response, max 50000 and default 5000.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string.
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string.
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(timestamp, datetime.date) or isinstance(timestamp, datetime.datetime):
+            timestamp = timestamp.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_lt, datetime.date) or isinstance(timestamp_lt, datetime.datetime):
+            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_lte, datetime.date) or isinstance(timestamp_lte, datetime.datetime):
+            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_gt, datetime.date) or isinstance(timestamp_gt, datetime.datetime):
+            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+
+        if isinstance(timestamp_gte, datetime.date) or isinstance(timestamp_gte, datetime.datetime):
+            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+
+        _path = f'/vX/quotes/{ensure_prefix(symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
+                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
         _res = await self._get_response(_path, params=_data)
 

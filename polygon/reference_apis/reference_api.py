@@ -111,21 +111,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    @staticmethod
-    def get_ticker_types(*args, **kwargs) -> None:
-        """
-        DEPRECATED! Replaced by :meth:`get_ticker_types_v3`. This method
-        will be removed in a future version from the library.
-
-        Get a mapping of ticker types to their descriptive names.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
-        """
-
-        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (get_ticker_types_v3). Please Use '
-              f'the new endpoint.')
-        return
-
-    def get_ticker_types_v3(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
+    def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get a mapping of ticker types to their descriptive names.
         `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
@@ -342,39 +328,6 @@ class SyncReferenceClient(base_client.BaseClient):
         _path = f'/v2/reference/dividends/{symbol.upper()}'
 
         _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    def get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
-                             raw_response: bool = False) -> Union[Response, dict]:
-        """
-        Get historical financial data for a stock ticker. This API will be replaced by
-        :meth:`get_stock_financials_vx` in future.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor>`__
-
-        :param symbol: The ticker symbol of the stock/equity.
-        :param limit: Limit the number of results. Defaults to 100
-        :param report_type: Specify a type of report to return. see :class:`polygon.enums.StockReportType` for
-                            choices. Defaults to ``None``
-        :param sort: The key for sorting the results. see :class:`polygon.enums.StockFinancialsSortType` for choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        report_type, sort = self._change_enum(report_type, str), self._change_enum(sort)
-
-        _path = f'/v2/reference/financials/{symbol.upper()}'
-
-        _data = {'limit': limit,
-                 'type': report_type,
-                 'sort': sort}
-
-        _res = self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -605,63 +558,24 @@ class SyncReferenceClient(base_client.BaseClient):
         return _res.json()
 
     @staticmethod
-    def get_stock_exchanges(*args, **kwargs):
+    def get_locales(*args, **kwargs):
         """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
-        return
-
-    @staticmethod
-    def get_crypto_exchanges(*args, **kwargs):
-        """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
         will be removed in a future version from the library
 
         """
-        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
-        return
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
-    def get_locales(self, raw_response: bool = False) -> Union[Response, dict]:
+    @staticmethod
+    def get_markets(*args, **kwargs):
         """
-        Get a list of locales currently supported by Polygon.io.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_locales_anchor>`__
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
+        will be removed in a future version from the library
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-
-        _path = '/v2/reference/locales'
-
-        _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    def get_markets(self, raw_response: bool = False) -> Union[Response, dict]:
-        """
-        Get a list of markets that are currently supported by Polygon.io.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_markets_anchor>`__
-
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        _path = '/v2/reference/markets'
-
-        _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
 
 # ========================================================= #
@@ -746,23 +660,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    @staticmethod
-    async def get_ticker_types(*args, **kwargs) -> None:
-        """
-        DEPRECATED! Replaced by :meth:`get_ticker_types_v3`. This method
-        will be removed in a future version from the library.
-
-        Get a mapping of ticker types to their descriptive names.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
-
-        """
-
-        print(f'This endpoint has been deprecated and Replaced by New Ticker Types (get_ticker_types_v3). Please '
-              f'Use  the new endpoint.')
-        return
-
-    async def get_ticker_types_v3(self, asset_class=None, locale=None,
-                                  raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_ticker_types(self, asset_class=None, locale=None,
+                               raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a mapping of ticker types to their descriptive names - Async method
         `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
@@ -982,39 +881,6 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _path = f'/v2/reference/dividends/{symbol.upper()}'
 
         _res = await self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    async def get_stock_financials(self, symbol: str, limit: int = 100, report_type=None, sort=None,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
-        """
-        Get historical financial data for a stock ticker. This API will be replaced by
-        :meth:`get_stock_financials_vx` in future - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_financials__stocksTicker__anchor>`__
-
-        :param symbol: The ticker symbol of the stock/equity.
-        :param limit: Limit the number of results. Defaults to 100
-        :param report_type: Specify a type of report to return. see :class:`polygon.enums.StockReportType` for
-                            choices. Defaults to ``None``
-        :param sort: The key for sorting the results. see :class:`polygon.enums.StockFinancialsSortType` for choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        report_type, sort = self._change_enum(report_type, str), self._change_enum(sort)
-
-        _path = f'/v2/reference/financials/{symbol.upper()}'
-
-        _data = {'limit': limit,
-                 'type': report_type,
-                 'sort': sort}
-
-        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -1245,62 +1111,24 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         return _res.json()
 
     @staticmethod
-    async def get_stock_exchanges(**kwargs):
+    async def get_locales(*args, **kwargs):
         """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
+        will be removed in a future version from the library
 
         """
-        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
-        return
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
     @staticmethod
-    async def get_crypto_exchanges(**kwargs):
+    async def get_markets(*args, **kwargs):
         """
-        DEPRECATED! Replaced by :meth:`get_exchanges`. This method will be removed in a future version from the library
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
+        will be removed in a future version from the library
 
         """
-        print(f'This endpoint has been deprecated and replaced by new Exchanges endpoint. Please use get_exchanges().')
-        return
-
-    async def get_locales(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
-        """
-        Get a list of locales currently supported by Polygon.io - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_locales_anchor>`__
-
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        _path = '/v2/reference/locales'
-
-        _res = await self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    async def get_markets(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
-        """
-        Get a list of markets that are currently supported by Polygon.io - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_markets_anchor>`__
-
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        _path = '/v2/reference/markets'
-
-        _res = await self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
 
 # ========================================================= #

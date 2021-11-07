@@ -69,6 +69,25 @@ class TestForex(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
 
+    def test_get_quotes(self):
+        with polygon.ForexClient(cred.KEY) as client:
+            data = client.get_quotes('C:EUR-USD')
+            data2 = client.get_quotes('EUR-USD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ForexClient(cred.KEY)
+        data = client.get_quotes('C:EUR-USD')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
     def test_get_last_quote(self):
         with polygon.ForexClient(cred.KEY) as client:
             data = client.get_last_quote('AUD', 'USD')
@@ -243,6 +262,26 @@ class TestForex(unittest.TestCase):
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'success')
+
+    @async_test
+    async def test_async_get_quotes(self):
+        async with polygon.ForexClient(cred.KEY, True) as client:
+            data = await client.get_quotes('C:EUR-USD')
+            data2 = await client.get_quotes('EUR-USD', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ForexClient(cred.KEY, True)
+        data = await client.get_quotes('C:EUR-USD')
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
 
     @async_test
     async def test_async_get_last_quote(self):

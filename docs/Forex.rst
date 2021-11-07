@@ -39,6 +39,14 @@ Get Historic forex ticks
 .. automethod:: polygon.forex.forex_api.SyncForexClient.get_historic_forex_ticks
    :noindex:
 
+Get Quotes (NBBO)
+-----------------
+
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
+.. automethod:: polygon.forex.forex_api.SyncForexClient.get_quotes
+   :noindex:
+
 Get Last Quote
 --------------
 

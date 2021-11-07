@@ -255,6 +255,42 @@ class OptionTradesSort(enum.Enum):
     TIMESTAMP = 'timestamp'
 
 
+# Stocks Trades Sort Type - Stocks
+class StocksTradesSort(enum.Enum):
+    """
+    Sort field used for ordering Stocks trades. Used for method: ``StocksClient.get_trades``
+    """
+
+    TIMESTAMP = 'timestamp'
+
+
+# Stocks Quotes Sort Type - Stocks
+class StocksQuotesSort(enum.Enum):
+    """
+    Sort field used for ordering Stocks quotes. Used for method: ``StocksClient.get_quotes``
+    """
+
+    TIMESTAMP = 'timestamp'
+
+
+# Forex Quotes Sort Type - Forex
+class ForexQuotesSort(enum.Enum):
+    """
+    Sort field used for ordering Forex quotes. Used for method: ``ForexClient.get_quotes``
+    """
+
+    TIMESTAMP = 'timestamp'
+
+
+# Crypto Trades Sort Type - Crypto
+class CryptoTradesSort(enum.Enum):
+    """
+    Sort field used for ordering crypto trades. Used for method: ``CryptoClient.get_trades``
+    """
+
+    TIMESTAMP = 'timestamp'
+
+
 # Stream Host - Common Websockets
 class StreamHost(enum.Enum):
     """

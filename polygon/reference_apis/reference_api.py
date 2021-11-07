@@ -114,7 +114,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get a mapping of ticker types to their descriptive names.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices
@@ -664,7 +664,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get a mapping of ticker types to their descriptive names - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_types_anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices

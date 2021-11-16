@@ -22,6 +22,7 @@ here is how the client initializer looks like:
 
 .. autofunction:: polygon.options.options.OptionsClient
 
+.. _option_symbols_header:
 
 Creating Option Symbols
 -----------------------
@@ -211,8 +212,26 @@ Get Last Trade
 .. automethod:: polygon.options.options.SyncOptionsClient.get_last_trade
    :noindex:
 
+Get Daily Open Close
+--------------------
+
+.. automethod:: polygon.options.options.SyncOptionsClient.get_daily_open_close
+   :noindex:
+
+Get Aggregate Bars
+------------------
+
+.. automethod:: polygon.options.options.SyncOptionsClient.get_aggregate_bars
+   :noindex:
+
 Get Previous Close
 ------------------
 
 .. automethod:: polygon.options.options.SyncOptionsClient.get_previous_close
+   :noindex:
+
+Get Snapshot
+------------
+
+.. automethod:: polygon.options.options.SyncOptionsClient.get_snapshot
    :noindex:

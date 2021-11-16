@@ -180,6 +180,26 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos5, 'WPGGQ_101521C134')
         self.assertEqual(bos6, 'PPPPPP_101521P134.345')
 
+    def test_get_trades(self):
+        with polygon.OptionsClient(cred.KEY) as client:
+            data = client.get_trades('O:TSLA210903C00700000', limit=10)
+            data2 = client.get_trades('O:TSLA210903C00700000', limit=10, raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY)
+        data = client.get_trades('O:TSLA210903C00700000', limit=10)
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
     def test_get_last_trade(self):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_last_trade('O:TSLA210903C00700000')
@@ -196,6 +216,69 @@ class TestOptions(unittest.TestCase):
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY)
         data = client.get_last_trade('O:TSLA210903C00700000')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_daily_open_close(self):
+        with polygon.OptionsClient(cred.KEY) as client:
+            data = client.get_daily_open_close('O:TSLA210903C00700000', date='2021-07-22')
+            data2 = client.get_daily_open_close('TSLA210903C00700000', date=dt.date(2021, 7, 22), raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY)
+        data = client.get_daily_open_close('O:TSLA210903C00700000', date='2021-07-22')
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_aggregate_bars(self):
+        with polygon.OptionsClient(cred.KEY) as client:
+            data = client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22', to_date='2021-10-22',
+                                             limit=10)
+            data2 = client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22', to_date='2021-10-22',
+                                              limit=10, raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY)
+        data = client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22', to_date='2021-10-22',
+                                         limit=10)
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    def test_get_snapshot(self):
+        with polygon.OptionsClient(cred.KEY) as client:
+            data = client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
+            data2 = client.get_snapshot('AAPL', 'O:AAPL230616C00150000', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY)
+        data = client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
@@ -221,6 +304,27 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(data['status'], 'OK')
 
     @async_test
+    async def test_async_get_trades(self):
+        async with polygon.OptionsClient(cred.KEY, True) as client:
+            data = await client.get_trades('O:TSLA210903C00700000', limit=10)
+            data2 = await client.get_trades('O:TSLA210903C00700000', limit=10, raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY, True)
+        data = await client.get_trades('O:TSLA210903C00700000', limit=10)
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
     async def test_async_get_last_trade(self):
         async with polygon.OptionsClient(cred.KEY, use_async=True) as client:
             data = await client.get_last_trade('O:TSLA210903C00700000')
@@ -237,6 +341,73 @@ class TestOptions(unittest.TestCase):
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, use_async=True)
         data = await client.get_last_trade('O:TSLA210903C00700000')
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_daily_open_close(self):
+        async with polygon.OptionsClient(cred.KEY, True) as client:
+            data = await client.get_daily_open_close('O:TSLA210903C00700000', date='2021-07-22')
+            data2 = await client.get_daily_open_close('TSLA210903C00700000', date=dt.date(2021, 7, 22),
+                                                      raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY, True)
+        data = await client.get_daily_open_close('O:TSLA210903C00700000', date='2021-07-22')
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_aggregate_bars(self):
+        async with polygon.OptionsClient(cred.KEY, True) as client:
+            data = await client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22',
+                                                   to_date='2021-10-22', limit=10)
+            data2 = await client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22',
+                                                    to_date='2021-10-22', limit=10, raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY, True)
+        data = await client.get_aggregate_bars('O:TSLA210903C00700000', from_date='2021-07-22', to_date='2021-10-22',
+                                               limit=10)
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_snapshot(self):
+        async with polygon.OptionsClient(cred.KEY, True) as client:
+            data = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
+            data2 = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000', raw_response=True)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY, True)
+        data = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')

@@ -256,6 +256,111 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return _res.json()
 
+    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
+                             raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the OCHLV and after-hours prices of a contract on a certain date.
+        `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
+
+        :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
+                       without the prefix ``O:``
+        :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
+                     ``YYYY-MM-DD``
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+            date = date.strftime('%Y-%m-%d')
+
+        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
+                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
+                           raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get aggregate bars for an option contract over a given date range in custom time window sizes.
+        For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
+        `Official Docs
+        <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__range__multiplier___timespan___from___to__anchor>`__
+
+        :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
+                       the prefix ``O:``
+        :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
+                          ``YYYY-MM-DD``
+        :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
+        :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
+                      Default 5000. see `this article <https://polygon.io/blog/aggs-api-updates/>`__ for more info.
+        :param multiplier: The size of the timespan multiplier. Must be a positive whole number. defaults to 1.
+        :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
+                         ``day``
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(from_date, datetime.date) or isinstance(from_date, datetime.datetime):
+            from_date = from_date.strftime('%Y-%m-%d')
+
+        if isinstance(to_date, datetime.date) or isinstance(to_date, datetime.datetime):
+            to_date = to_date.strftime('%Y-%m-%d')
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+
+        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol)}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false',
+                 'sort': sort,
+                 'limit': limit}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    def get_snapshot(self, underlying_symbol: str, option_symbol: str,
+                     raw_response: bool = False) -> Union[Response, dict]:
+        """
+        Get the snapshot of an option contract for a stock equity.
+        `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
+
+        :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
+        :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
+                              easy to work with option symbols in polygon or tda formats.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+        """
+
+        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
+
+        _res = self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
     def get_previous_close(self, ticker: str, adjusted: bool = True,
                            raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -354,6 +459,111 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
 
         _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
+
+        _res = await self._get_response(_path)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
+                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        """
+        Get the OCHLV and after-hours prices of a contract on a certain date.
+        `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
+
+        :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
+                       without the prefix ``O:``
+        :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
+                     ``YYYY-MM-DD``
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+            date = date.strftime('%Y-%m-%d')
+
+        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _res = await self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
+                                 sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
+                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        """
+        Get aggregate bars for an option contract over a given date range in custom time window sizes.
+        For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
+        `Official Docs
+        <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__range__multiplier___timespan___from___to__anchor>`__
+
+        :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
+                       the prefix ``O:``
+        :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
+                          ``YYYY-MM-DD``
+        :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
+        :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
+                      Default 5000. see `this article <https://polygon.io/blog/aggs-api-updates/>`__ for more info.
+        :param multiplier: The size of the timespan multiplier. Must be a positive whole number. defaults to 1.
+        :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
+                         ``day``
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        if isinstance(from_date, datetime.date) or isinstance(from_date, datetime.datetime):
+            from_date = from_date.strftime('%Y-%m-%d')
+
+        if isinstance(to_date, datetime.date) or isinstance(to_date, datetime.datetime):
+            to_date = to_date.strftime('%Y-%m-%d')
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+
+        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol)}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+
+        _data = {'adjusted': 'true' if adjusted else 'false',
+                 'sort': sort,
+                 'limit': limit}
+
+        _res = await self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def get_snapshot(self, underlying_symbol: str, option_symbol: str,
+                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        """
+        Get the snapshot of an option contract for a stock equity.
+        `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
+
+        :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
+        :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
+                              easy to work with option symbols in polygon or tda formats.
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+        """
+
+        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
 
         _res = await self._get_response(_path)
 

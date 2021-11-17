@@ -233,5 +233,7 @@ Get Previous Close
 Get Snapshot
 ------------
 
+This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+
 .. automethod:: polygon.options.options.SyncOptionsClient.get_snapshot
    :noindex:

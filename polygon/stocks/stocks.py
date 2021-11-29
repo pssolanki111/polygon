@@ -439,7 +439,13 @@ class SyncStocksClient(base_client.BaseClient):
         :return: The current price. A ``KeyError`` indicates the request wasn't successful.
         """
 
-        return self.get_last_trade(symbol)['results']['p']
+        _res = self.get_last_trade(symbol)
+
+        try:
+            return _res['results']['p']
+        except KeyError:
+            raise ValueError('Request failed. Make sure your API key is correct and your subscription has access to '
+                             f'the data you requested. Response from the API: {_res}')
 
     def get_snapshot_all(self, symbols: list = None, raw_response: bool = False) -> Union[Response, dict]:
         """

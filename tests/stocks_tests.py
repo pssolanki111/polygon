@@ -366,14 +366,14 @@ class TestStocks(unittest.TestCase):
         with polygon.StocksClient(cred.KEY) as client:
             data = client.get_current_price('AMD')
 
-            self.assertTrue(isinstance(data, int) or isinstance(data, float))
+            self.assertTrue(isinstance(data, (int, float)))
             self.assertGreater(data, 0)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
         data = client.get_current_price('AMD')
         client.close()
-        self.assertTrue(isinstance(data, int) or isinstance(data, float))
+        self.assertTrue(isinstance(data, (int, float)))
         self.assertGreater(data, 0)
 
     def test_get_snapshot_all(self):
@@ -738,14 +738,14 @@ class TestStocks(unittest.TestCase):
         async with polygon.StocksClient(cred.KEY, True) as client:
             data = await client.get_current_price('AMD')
 
-            self.assertTrue(isinstance(data, int) or isinstance(data, float))
+            self.assertTrue(isinstance(data, (int, float)))
             self.assertGreater(data, 0)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
         data = await client.get_current_price('AMD')
         await client.close()
-        self.assertTrue(isinstance(data, int) or isinstance(data, float))
+        self.assertTrue(isinstance(data, (int, float)))
         self.assertGreater(data, 0)
 
     @async_test

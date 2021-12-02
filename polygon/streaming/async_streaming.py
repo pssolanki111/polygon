@@ -212,8 +212,6 @@ class AsyncStreamClient:
         elif max_reconnection_attempts < 1:
             raise ValueError('max_reconnection_attempts must be a positive whole number')
 
-        # TODO: Check availability of handlers on OSX or perhaps just remove them completely.
-
         while 1:
             try:
                 if self._re:
@@ -327,9 +325,9 @@ class AsyncStreamClient:
                     self._attempts = 0
                 # get_logger().info(update['message'])
                 return
-            else:
-                # get_logger().error(update['message'])
-                return
+
+            # get_logger().error(update['message'])
+            return
 
         print(update)
         self._attempts = 0

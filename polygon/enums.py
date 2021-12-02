@@ -230,7 +230,7 @@ class OptionsContractType(enum.Enum):
     """
     Contract Type for method: ``ReferenceClient.get_options_contracts()``
     """
-    CALL = 'call',
+    CALL = 'call'
     PUT = 'put'
     OTHER = 'other'
 

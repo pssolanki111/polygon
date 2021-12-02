@@ -91,7 +91,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
@@ -181,7 +181,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/vX/reference/tickers/{symbol.upper()}'
@@ -220,19 +220,19 @@ class SyncReferenceClient(base_client.BaseClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        if isinstance(expiration_date, datetime.date) or isinstance(expiration_date, datetime.datetime):
+        if isinstance(expiration_date, (datetime.date, datetime.datetime)):
             expiration_date = expiration_date.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_lt, datetime.date) or isinstance(expiration_date_lt, datetime.datetime):
+        if isinstance(expiration_date_lt, (datetime.date, datetime.datetime)):
             expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_lte, datetime.date) or isinstance(expiration_date_lte, datetime.datetime):
+        if isinstance(expiration_date_lte, (datetime.date, datetime.datetime)):
             expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_gt, datetime.date) or isinstance(expiration_date_gt, datetime.datetime):
+        if isinstance(expiration_date_gt, (datetime.date, datetime.datetime)):
             expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
+        if isinstance(expiration_date_gte, (datetime.date, datetime.datetime)):
             expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
 
         contract_type = self._change_enum(contract_type, str)
@@ -281,19 +281,19 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(published_utc, datetime.date) or isinstance(published_utc, datetime.datetime):
+        if isinstance(published_utc, (datetime.date, datetime.datetime)):
             published_utc = published_utc.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_lt, datetime.date) or isinstance(published_utc_lt, datetime.datetime):
+        if isinstance(published_utc_lt, (datetime.date, datetime.datetime)):
             published_utc_lt = published_utc_lt.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_lte, datetime.date) or isinstance(published_utc_lte, datetime.datetime):
+        if isinstance(published_utc_lte, (datetime.date, datetime.datetime)):
             published_utc_lte = published_utc_lte.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_gt, datetime.date) or isinstance(published_utc_gt, datetime.datetime):
+        if isinstance(published_utc_gt, (datetime.date, datetime.datetime)):
             published_utc_gt = published_utc_gt.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_gte, datetime.date) or isinstance(published_utc_gte, datetime.datetime):
+        if isinstance(published_utc_gte, (datetime.date, datetime.datetime)):
             published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -494,7 +494,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
+    def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                        limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses.
@@ -504,7 +504,7 @@ class SyncReferenceClient(base_client.BaseClient):
                             for choices. Defaults to all assets.
         :param data_type: Filter by data type. See :class:`polygon.enums.ConditionsDataType` for choices. defaults to
                           all.
-        :param id: Filter for conditions with a given ID
+        :param condition_id: Filter for conditions with a given ID
         :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
         :param order: Order results. See :class:`polygon.enums.SortOrder` for choices.
         :param limit: limit the number of results. defaults to 50.
@@ -521,7 +521,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _path = f'/vX/reference/conditions'
 
-        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
+        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
 
         _res = self._get_response(_path, params=_data)
@@ -640,7 +640,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
@@ -731,7 +731,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/vX/reference/tickers/{symbol.upper()}'
@@ -771,19 +771,19 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        if isinstance(expiration_date, datetime.date) or isinstance(expiration_date, datetime.datetime):
+        if isinstance(expiration_date, (datetime.date, datetime.datetime)):
             expiration_date = expiration_date.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_lt, datetime.date) or isinstance(expiration_date_lt, datetime.datetime):
+        if isinstance(expiration_date_lt, (datetime.date, datetime.datetime)):
             expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_lte, datetime.date) or isinstance(expiration_date_lte, datetime.datetime):
+        if isinstance(expiration_date_lte, (datetime.date, datetime.datetime)):
             expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_gt, datetime.date) or isinstance(expiration_date_gt, datetime.datetime):
+        if isinstance(expiration_date_gt, (datetime.date, datetime.datetime)):
             expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
 
-        if isinstance(expiration_date_gte, datetime.date) or isinstance(expiration_date_gte, datetime.datetime):
+        if isinstance(expiration_date_gte, (datetime.date, datetime.datetime)):
             expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
 
         contract_type = self._change_enum(contract_type, str)
@@ -833,19 +833,19 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(published_utc, datetime.date) or isinstance(published_utc, datetime.datetime):
+        if isinstance(published_utc, (datetime.date, datetime.datetime)):
             published_utc = published_utc.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_lt, datetime.date) or isinstance(published_utc_lt, datetime.datetime):
+        if isinstance(published_utc_lt, (datetime.date, datetime.datetime)):
             published_utc_lt = published_utc_lt.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_lte, datetime.date) or isinstance(published_utc_lte, datetime.datetime):
+        if isinstance(published_utc_lte, (datetime.date, datetime.datetime)):
             published_utc_lte = published_utc_lte.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_gt, datetime.date) or isinstance(published_utc_gt, datetime.datetime):
+        if isinstance(published_utc_gt, (datetime.date, datetime.datetime)):
             published_utc_gt = published_utc_gt.strftime('%Y-%m-%d')
 
-        if isinstance(published_utc_gte, datetime.date) or isinstance(published_utc_gte, datetime.datetime):
+        if isinstance(published_utc_gte, (datetime.date, datetime.datetime)):
             published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -1048,7 +1048,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_conditions(self, asset_class=None, data_type=None, id=None, sip=None, order=None,
+    async def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                              limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses - Async method
@@ -1058,7 +1058,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                             for choices. Defaults to all assets.
         :param data_type: Filter by data type. See :class:`polygon.enums.ConditionsDataType` for choices. defaults to
                           all.
-        :param id: Filter for conditions with a given ID
+        :param condition_id: Filter for conditions with a given ID
         :param sip: Filter by SIP. If the condition contains a mapping for that SIP, the condition will be returned.
         :param order: Order results. See :class:`polygon.enums.SortOrder` for choices.
         :param limit: limit the number of results. defaults to 50.
@@ -1074,7 +1074,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _path = f'/vX/reference/conditions'
 
-        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': id, 'sip': sip, 'order': order,
+        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
 
         _res = await self._get_response(_path, params=_data)

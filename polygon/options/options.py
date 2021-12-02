@@ -28,7 +28,7 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     :return: The option symbol in the format specified by polygon
     """
 
-    if isinstance(expiry, datetime.datetime) or isinstance(expiry, datetime.date):
+    if isinstance(expiry, (datetime.datetime, datetime.date)):
         expiry = expiry.strftime('%y%m%d')
 
     elif isinstance(expiry, str) and len(expiry) != 6:
@@ -89,7 +89,7 @@ def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, str
     :return: The option symbol built in the format supported by TD Ameritrade.
     """
 
-    if isinstance(expiry, datetime.date) or isinstance(expiry, datetime.datetime):
+    if isinstance(expiry, (datetime.date, datetime.datetime)):
         expiry = expiry.strftime('%m%d%y')
 
     call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
@@ -274,7 +274,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
@@ -316,10 +316,10 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, datetime.date) or isinstance(from_date, datetime.datetime):
+        if isinstance(from_date, (datetime.date, datetime.datetime)):
             from_date = from_date.strftime('%Y-%m-%d')
 
-        if isinstance(to_date, datetime.date) or isinstance(to_date, datetime.datetime):
+        if isinstance(to_date, (datetime.date, datetime.datetime)):
             to_date = to_date.strftime('%Y-%m-%d')
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
@@ -485,7 +485,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
+        if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
@@ -527,10 +527,10 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, datetime.date) or isinstance(from_date, datetime.datetime):
+        if isinstance(from_date, (datetime.date, datetime.datetime)):
             from_date = from_date.strftime('%Y-%m-%d')
 
-        if isinstance(to_date, datetime.date) or isinstance(to_date, datetime.datetime):
+        if isinstance(to_date, (datetime.date, datetime.datetime)):
             to_date = to_date.strftime('%Y-%m-%d')
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)

@@ -65,7 +65,7 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+        if isinstance(date, (datetime.datetime, datetime.date)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v1/historic/forex/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
@@ -107,19 +107,19 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(timestamp, datetime.date) or isinstance(timestamp, datetime.datetime):
+        if isinstance(timestamp, (datetime.date, datetime.datetime)):
             timestamp = timestamp.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_lt, datetime.date) or isinstance(timestamp_lt, datetime.datetime):
+        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
             timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_lte, datetime.date) or isinstance(timestamp_lte, datetime.datetime):
+        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
             timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_gt, datetime.date) or isinstance(timestamp_gt, datetime.datetime):
+        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
             timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_gte, datetime.date) or isinstance(timestamp_gte, datetime.datetime):
+        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
             timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
 
         _path = f'/vX/quotes/{ensure_prefix(symbol)}'
@@ -186,10 +186,10 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, datetime.datetime) or isinstance(from_date, datetime.date):
+        if isinstance(from_date, (datetime.datetime, datetime.date)):
             from_date = from_date.strftime('%Y-%m-%d')
 
-        if isinstance(to_date, datetime.datetime) or isinstance(to_date, datetime.date):
+        if isinstance(to_date, (datetime.datetime, datetime.date)):
             to_date = to_date.strftime('%Y-%m-%d')
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
@@ -222,7 +222,7 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+        if isinstance(date, (datetime.datetime, datetime.date)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v2/aggs/grouped/locale/global/market/fx/{date}'
@@ -401,7 +401,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+        if isinstance(date, (datetime.datetime, datetime.date)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v1/historic/forex/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
@@ -443,19 +443,19 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(timestamp, datetime.date) or isinstance(timestamp, datetime.datetime):
+        if isinstance(timestamp, (datetime.date, datetime.datetime)):
             timestamp = timestamp.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_lt, datetime.date) or isinstance(timestamp_lt, datetime.datetime):
+        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
             timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_lte, datetime.date) or isinstance(timestamp_lte, datetime.datetime):
+        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
             timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_gt, datetime.date) or isinstance(timestamp_gt, datetime.datetime):
+        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
             timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
 
-        if isinstance(timestamp_gte, datetime.date) or isinstance(timestamp_gte, datetime.datetime):
+        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
             timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
 
         _path = f'/vX/quotes/{ensure_prefix(symbol)}'
@@ -523,10 +523,10 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, datetime.datetime) or isinstance(from_date, datetime.date):
+        if isinstance(from_date, (datetime.datetime, datetime.date)):
             from_date = from_date.strftime('%Y-%m-%d')
 
-        if isinstance(to_date, datetime.datetime) or isinstance(to_date, datetime.date):
+        if isinstance(to_date, (datetime.datetime, datetime.date)):
             to_date = to_date.strftime('%Y-%m-%d')
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
@@ -560,7 +560,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, datetime.datetime) or isinstance(date, datetime.date):
+        if isinstance(date, (datetime.datetime, datetime.date)):
             date = date.strftime('%Y-%m-%d')
 
         _path = f'/v2/aggs/grouped/locale/global/market/fx/{date}'

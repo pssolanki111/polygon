@@ -22,7 +22,7 @@ here is how the client initializer looks like:
 
 .. autofunction:: polygon.options.options.OptionsClient
 
-**NOTE** if you don't want to use the option symbol helper functions, then you can just go to the data :ref:`option_endpoints_header` documentation
+**NOTE** if you don't want to use the option symbol helper functions, then you can just go to the desired endpoint documentation from the list to left
 
 .. _option_symbols_header:
 

@@ -74,7 +74,8 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
     return _obj
 
 
-def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, strike_price):
+def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, strike_price,
+                                format_: str = 'underscore'):
     """
     Only use this function if you need to create option symbol for TD ameritrade API. This function is just a bonus.
 
@@ -86,6 +87,9 @@ def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, str
     :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
                          ``15.003``, ``56``, ``129.02`` are all valid values. It shouldn't have more than three
                          numbers after decimal point.
+    :param format_: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
+                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
+                    ``'dot'`` to get dot format.
     :return: The option symbol built in the format supported by TD Ameritrade.
     """
 
@@ -95,6 +99,9 @@ def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, str
     call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
 
     strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
+
+    if format_ == 'dot':
+        return f'.{underlying_symbol}{expiry}{call_or_put}{strike_price}'
 
     return f'{underlying_symbol}_{expiry}{call_or_put}{strike_price}'
 
@@ -110,7 +117,11 @@ def parse_option_symbol_from_tda(option_symbol: str, output_format='object', exp
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='tda')
+    format_ = 'underscore'
+    if option_symbol.startswith('.'):
+        format_ = 'dot'
+
+    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='tda', fmt=format_)
 
     if output_format in ['list', list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
@@ -135,25 +146,49 @@ def convert_from_tda_to_polygon_format(option_symbol: str, prefix_o: bool = Fals
     :return: The formatted symbol converted to polygon's symbol format.
     """
 
-    _temp = OptionSymbol(option_symbol, symbol_format='tda')
+    format_ = 'underscore'
+    if option_symbol.startswith('.'):
+        format_ = 'dot'
+
+    _temp = OptionSymbol(option_symbol, symbol_format='tda', fmt=format_)
 
     return build_option_symbol(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
                                prefix_o=prefix_o)
 
 
-def convert_from_polygon_to_tda_format(option_symbol: str):
+def convert_from_polygon_to_tda_format(option_symbol: str, format_: str = 'underscore'):
     """
     Helper function to convert from polygon.io symbol format to TD Ameritrade symbol format. Useful for writing
     applications which make use of both the APIs
 
     :param option_symbol: The option symbol. This must be in the format supported by polygon.io
+    :param format_: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
+                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
+                    ``'dot'`` to get dot format.
     :return: The formatted symbol converted to TDA symbol format.
     """
 
     _temp = OptionSymbol(option_symbol)
 
-    return build_option_symbol_for_tda(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price)
+    return build_option_symbol_for_tda(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
+                                       format_=format_)
 
+
+def detect_symbol_format(option_symbol: str) -> Union[str, bool]:
+    """
+    Detect what format a symbol is formed in. Returns ``polygon`` or ``tda`` depending on which format the symbol is
+    in. Returns False if the format doesn't match any of the two supported.
+
+    :param option_symbol: The option symbol to check.
+    :return: ``tda`` or ``polygon`` if format is recognized. ``False`` otherwise.
+    """
+    if option_symbol.startswith('.') or ('_' in option_symbol):
+        return 'tda'
+
+    if option_symbol.startswith('O:') or len(option_symbol) > 15:
+        return 'polygon'
+
+    return False
 
 # ========================================================= #
 
@@ -429,7 +464,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                       available choices.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
                              check the status code or inspect the headers. Defaults to False which returns the json
-                             decoded ictionary.
+                             decoded dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
@@ -607,7 +642,7 @@ class OptionSymbol:
     The custom object for parsed details from option symbols.
     """
 
-    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon'):
+    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon', fmt: str = 'underscore'):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -617,6 +652,9 @@ class OptionSymbol:
                               param to ``string`` to get the value as a string: ``YYYY-MM-DD``
         :param symbol_format: Which formatting spec to use. Defaults to polygon. also supports ``tda`` which is the
                               format supported by TD Ameritrade
+        :param fmt: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
+                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
+                    ``'dot'`` to get dot format. (ONLY use when using tda formats, has no effect on polygon format)
         """
         if symbol_format == 'polygon':
             if option_symbol.startswith('O:'):
@@ -644,6 +682,18 @@ class OptionSymbol:
                 self.expiry = self.expiry.strftime('%Y-%m-%d')
 
         elif symbol_format == 'tda':
+            if fmt == 'dot':
+                option_symbol, num = option_symbol[1:].upper(), 0
+
+                for char in option_symbol:
+                    if char.isalpha():
+                        num += 1
+                        continue
+                    break
+
+                option_symbol = f'{option_symbol[:num]}_{option_symbol[num:]}'
+
+            # Usual flow
             _split = option_symbol.split('_')
 
             self.underlying_symbol = _split[0]

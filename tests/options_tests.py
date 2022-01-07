@@ -114,6 +114,7 @@ class TestOptions(unittest.TestCase):
         bos3 = polygon.build_option_symbol_for_tda('MSFT', dt.datetime(2021, 12, 5), 'put', 7.345)
         bos4 = polygon.build_option_symbol_for_tda('WPGGQ', '120521', 'CALL', 134.0)
         bos5 = polygon.build_option_symbol_for_tda('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345')
+        bos6 = polygon.build_option_symbol_for_tda('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345', format_='dot')
 
         self.assertEqual(bos, 'X_120521C134')
         self.assertEqual(bos1, 'AA_120521C134.4')
@@ -121,6 +122,7 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos3, 'MSFT_120521P7.345')
         self.assertEqual(bos4, 'WPGGQ_120521C134')
         self.assertEqual(bos5, 'PPPPPP_120521P134.345')
+        self.assertEqual(bos6, '.PPPPPP120521P134.345')
 
     def test_parse_option_symbol_from_tda(self):
         bos = polygon.parse_option_symbol_from_tda('X_101521C134')
@@ -129,6 +131,8 @@ class TestOptions(unittest.TestCase):
         bos6 = polygon.parse_option_symbol_from_tda('MSFT_101521P7.345', output_format=list)
         bos8 = polygon.parse_option_symbol_from_tda('WPGGQ_101521C134.0', output_format=list)
         bos9 = polygon.parse_option_symbol_from_tda('PPPPPP_101521P134.345', output_format=list)
+        bos10 = polygon.parse_option_symbol_from_tda('.PPPPPP101521P134.345', output_format=list)
+        bos11 = polygon.parse_option_symbol_from_tda('.X101521P134', output_format=list)
 
         self.assertIsInstance(bos, polygon.OptionSymbol)
         self.assertIsInstance(bos3, list)
@@ -143,6 +147,8 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos6, ['MSFT', dt.date(_dt, 10, 15), 'P', 7.345, 'MSFT_101521P7.345'])
         self.assertEqual(bos8, ['WPGGQ', dt.date(_dt, 10, 15), 'C', 134, 'WPGGQ_101521C134.0'])
         self.assertEqual(bos9, ['PPPPPP', dt.date(_dt, 10, 15), 'P', 134.345, 'PPPPPP_101521P134.345'])
+        self.assertEqual(bos10, ['PPPPPP', dt.date(_dt, 10, 15), 'P', 134.345, 'PPPPPP_101521P134.345'])
+        self.assertEqual(bos11, ['X', dt.date(_dt, 10, 15), 'P', 134, 'X_101521P134'])
 
         self.assertEqual(bos4, {'underlying_symbol': 'AMD',
                                 'strike_price': 14.23,
@@ -157,6 +163,8 @@ class TestOptions(unittest.TestCase):
         bos4 = polygon.convert_from_tda_to_polygon_format('MSFT_101521P7.345')
         bos5 = polygon.convert_from_tda_to_polygon_format('WPGGQ_101521C134.0')
         bos6 = polygon.convert_from_tda_to_polygon_format('PPPPPP_101521P134.345')
+        bos7 = polygon.convert_from_tda_to_polygon_format('.PPPPPP101521P134.345')
+        bos8 = polygon.convert_from_tda_to_polygon_format('.X101521P134.02')
 
         self.assertEqual(bos1, 'X211015C00134000')
         self.assertEqual(bos2, 'O:AA211015C00134400')
@@ -164,6 +172,8 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos4, 'MSFT211015P00007345')
         self.assertEqual(bos5, 'WPGGQ211015C00134000')
         self.assertEqual(bos6, 'PPPPPP211015P00134345')
+        self.assertEqual(bos7, 'PPPPPP211015P00134345')
+        self.assertEqual(bos8, 'X211015P00134020')
 
     def test_convert_from_polygon_to_tda_format(self):
         bos1 = polygon.convert_from_polygon_to_tda_format('X211015C00134000')
@@ -172,6 +182,8 @@ class TestOptions(unittest.TestCase):
         bos4 = polygon.convert_from_polygon_to_tda_format('MSFT211015P00007345')
         bos5 = polygon.convert_from_polygon_to_tda_format('WPGGQ211015C00134000')
         bos6 = polygon.convert_from_polygon_to_tda_format('PPPPPP211015P00134345')
+        bos7 = polygon.convert_from_polygon_to_tda_format('PPPPPP211015P00134345', format_='dot')
+        bos8 = polygon.convert_from_polygon_to_tda_format('X211015P00134000', format_='dot')
 
         self.assertEqual(bos1, 'X_101521C134')
         self.assertEqual(bos2, 'AA_101521C134.4')
@@ -179,6 +191,8 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(bos4, 'MSFT_101521P7.345')
         self.assertEqual(bos5, 'WPGGQ_101521C134')
         self.assertEqual(bos6, 'PPPPPP_101521P134.345')
+        self.assertEqual(bos7, '.PPPPPP101521P134.345')
+        self.assertEqual(bos8, '.X101521P134')
 
     def test_get_trades(self):
         with polygon.OptionsClient(cred.KEY) as client:

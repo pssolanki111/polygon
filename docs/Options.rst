@@ -22,6 +22,8 @@ here is how the client initializer looks like:
 
 .. autofunction:: polygon.options.options.OptionsClient
 
+**NOTE** if you don't want to use the option symbol helper functions, then you can just go to the data :ref:`option_endpoints_header` documentation
+
 .. _option_symbols_header:
 
 Creating Option Symbols
@@ -151,6 +153,8 @@ don't use this function on polygon endpoints. this is a bonus function meant for
 
 The output_format and expiry_format have the same behavior as above. Only difference is in the formatting.
 
+the dot format (symbol starting with a ``.``, usually found **when you export some file through ThinkOrSwim** or similar tda tool) is also supported
+
 .. autofunction:: polygon.options.options.parse_option_symbol
    :noindex:
 
@@ -188,10 +192,20 @@ Converting from polygon to TDA format
 Converting from TDA to polygon format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Checking order statuses
+for when you grab a option symbol from tda, and want to get relevant data from polygon
 
 .. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
    :noindex:
+
+Detecting what format is a symbol in
+------------------------------------
+
+as the name suggests, when you want to programmatically determine what format is a symbol in. Might be useful for symbol lookups, for instance.
+
+.. autofunction:: polygon.options.options.detect_symbol_format
+   :noindex:
+
+.. _option_endpoints_header:
 
 **Endpoints**
 

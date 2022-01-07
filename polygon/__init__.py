@@ -9,3 +9,8 @@ from .options import (OptionsClient, build_option_symbol, parse_option_symbol, O
                       convert_from_tda_to_polygon_format)
 from .base_client import (BaseClient, BaseAsyncClient)
 # ========================================================= #
+
+
+__version__ = '0.9.8'
+
+# ========================================================= #

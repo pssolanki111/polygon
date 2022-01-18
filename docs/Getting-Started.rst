@@ -196,13 +196,6 @@ header.
 
 All REST clients have these functions and you will use the same function name for all endpoints. See examples below
 
-**first here is how the functions for pagination look like:** (click on names to see definition - **you won't have to import them with this name**. They are available
-with the client you create as shown in examples below)
-
-for usual client: :meth:`polygon.base_client.BaseClient.get_next_page` and :meth:`polygon.base_client.BaseClient.get_previous_page`
-
-For async client: :meth:`polygon.base_client.BaseAsyncClient.get_next_page` and :meth:`polygon.base_client.BaseAsyncClient.get_previous_page`
-
 **Examples Use**
 
 .. code-block:: python
@@ -228,8 +221,11 @@ For async client: :meth:`polygon.base_client.BaseAsyncClient.get_next_page` and 
   response = client.get_trades(<blah-blah>)  # using get_trades as example. you can use it on all methods which support pagination
   responses.append(response)  # using a list to store all the pages of response. You can use your own approach here.
 
-  while 'next_url' in response.keys():  # change to 'previous_url' for previous pages
-      response = client.get_next_page(response)  # similarly change to get_previous_page for previous pages.
+  while 1:
+      response = client.get_next_page(response)  # change to get_previous_page for previous pages.
+
+      if not response:
+          break
 
       responses.append(response)  # adding further responses to our list. you can use your own approach.
 
@@ -284,6 +280,9 @@ Special Points
 
 * All the date parameters in any method/function in the library can be supplied as ``datetime.date`` or ``datetime.datetime``
   You may also pass in a string in format: ``YYYY-MM-DD``.
+* Any method/endpoint having ``vX`` in its name is deemed experimental by polygon and its name and underlying URL path will be changed to a
+  version number in the future. If you do use one of these, be aware of that name change which is reflected in the docs. If you find the lib
+  doesn't have the changes reflected, let me know through any means mentioned in the help page.
 * You would notice some parameters having ``lt``, ``lte``, ``gt`` and ``gte`` in their names. Those parameters are supposed to be filters for
   ``less than``, ``less than or equal to``, ``greater than``, ``greater than or equal to`` respectively. To know more see heading **Query Filter Extensions**
   in `This blog post by polygon <https://polygon.io/blog/api-pagination-patterns/>`__

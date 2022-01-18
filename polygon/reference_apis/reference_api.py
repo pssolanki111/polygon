@@ -138,38 +138,22 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    @staticmethod
+    def get_ticker_details(symbol: str, raw_response: bool = False):
         """
-        Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
-        information such as name, sector, exchange, logo and similar companies.
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
+        will be removed in a future version from the library
 
-        This endpoint will be replaced by :meth:`get_ticker_details_vx` in future.
-        `Official Docs <https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor>`__
-
-        :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
-        _path = f'/v1/meta/symbols/{symbol.upper()}/company'
-
-        _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    def get_ticker_details_vx(self, symbol: str, date=None,
+    def get_ticker_details_v3(self, symbol: str, date=None,
                               raw_response: bool = False) -> Union[Response, dict]:
         """
-        This API is Experimental and will replace :meth:`get_ticker_details` in future.
-
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
-        `Official Docs <https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers__ticker__anchor>`__
 
         :param symbol: The ticker symbol of the asset.
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
@@ -184,7 +168,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
-        _path = f'/vX/reference/tickers/{symbol.upper()}'
+        _path = f'/v3/reference/tickers/{symbol.upper()}'
 
         _data = {'date': date}
 
@@ -313,21 +297,144 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
+                            declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
+                            cash_amount=None, dividend_type=None, sort: str = None, order: str = 'asc',
+                            ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
+                            ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
+                            ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,
+                            record_date_gt=None, record_date_gte=None, declaration_date_lt=None,
+                            declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
+                            pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
+                            cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
+                            raw_response: bool = False):
         """
-        Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor>`__
+        Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
+        record date, pay date, frequency, and amount.
 
-        :param symbol: The ticker symbol of the stock/equity.
+        :param ticker: Return the dividends that contain this ticker.
+        :param ex_dividend_date: Query by ex-dividend date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param record_date: Query by record date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param declaration_date: Query by declaration date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param pay_date: Query by pay date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param frequency: Query by the number of times per year the dividend is paid out. No default value applied.
+                          see :class:`polygon.enums.PayoutFrequency` for choices
+        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param cash_amount: Query by the cash amount of the dividend.
+        :param dividend_type: Query by the type of dividend. See :class:`polygon.enums.DividendType` for choices
+        :param sort: sort key used for ordering. See :class:`polygon.enums.DividendSort` for choices.
+        :param order: orders of results. defaults to asc. see :class:`polygon.enums.SortOrder` for choices
+        :param ticker_lt: filter where ticker is less than given value (alphabetically)
+        :param ticker_lte: filter where ticker is less than or equal to given value (alphabetically)
+        :param ticker_gt: filter where ticker is greater than given value (alphabetically)
+        :param ticker_gte: filter where ticker is greater than or equal to given value (alphabetically)
+        :param ex_dividend_date_lt: filter where ex-div date is less than given date
+        :param ex_dividend_date_lte: filter where ex-div date is less than or equal to given date
+        :param ex_dividend_date_gt: filter where ex-div date is greater than given date
+        :param ex_dividend_date_gte: filter where ex-div date is greater than or equal to given date
+        :param record_date_lt: filter where record date is less than given date
+        :param record_date_lte: filter where record date is less than or equal to given date
+        :param record_date_gt: filter where record date is greater than given date
+        :param record_date_gte: filter where record date is greater than or equal to given date
+        :param declaration_date_lt: filter where declaration date is less than given date
+        :param declaration_date_lte: filter where declaration date is less than or equal to given date
+        :param declaration_date_gt: filter where declaration date is greater than given date
+        :param declaration_date_gte: filter where declaration date is greater than or equal to given date
+        :param pay_date_lt: filter where pay date is less than given date
+        :param pay_date_lte: filter where pay date is less than or equal to given date
+        :param pay_date_gt: filter where pay date is greater than given date
+        :param pay_date_gte: filter where pay date is greater than or equal to given date
+        :param cash_amount_lt: filter where cash amt is less than given value
+        :param cash_amount_lte: filter where cash amt is less than or equal to given value
+        :param cash_amount_gt: filter where cash amt is greater than given value
+        :param cash_amount_gte: filter where cash amt is greater than or equal to given value
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/reference/dividends/{symbol.upper()}'
+        if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
+            ex_dividend_date = ex_dividend_date.strftime('%Y-%m-%d')
 
-        _res = self._get_response(_path)
+        if isinstance(record_date, (datetime.date, datetime.datetime)):
+            record_date = record_date.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date, (datetime.date, datetime.datetime)):
+            declaration_date = declaration_date.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date, (datetime.date, datetime.datetime)):
+            pay_date = pay_date.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_lt, (datetime.date, datetime.datetime)):
+            ex_dividend_date_lt = ex_dividend_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_lte, (datetime.date, datetime.datetime)):
+            ex_dividend_date_lte = ex_dividend_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_gt, (datetime.date, datetime.datetime)):
+            ex_dividend_date_gt = ex_dividend_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_gte, (datetime.date, datetime.datetime)):
+            ex_dividend_date_gte = ex_dividend_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_lt, (datetime.date, datetime.datetime)):
+            record_date_lt = record_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_lte, (datetime.date, datetime.datetime)):
+            record_date_lte = record_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_gt, (datetime.date, datetime.datetime)):
+            record_date_gt = record_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_gte, (datetime.date, datetime.datetime)):
+            record_date_gte = record_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_lt, (datetime.date, datetime.datetime)):
+            declaration_date_lt = declaration_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_lte, (datetime.date, datetime.datetime)):
+            declaration_date_lte = declaration_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_gt, (datetime.date, datetime.datetime)):
+            declaration_date_gt = declaration_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_gte, (datetime.date, datetime.datetime)):
+            declaration_date_gte = declaration_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_lt, (datetime.date, datetime.datetime)):
+            pay_date_lt = pay_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_lte, (datetime.date, datetime.datetime)):
+            pay_date_lte = pay_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_gt, (datetime.date, datetime.datetime)):
+            pay_date_gt = pay_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_gte, (datetime.date, datetime.datetime)):
+            pay_date_gte = pay_date_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
+
+        _path = f'/v3/reference/dividends'
+
+        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
+                 'ticker.gte': ticker_gte, 'ex_dividend_date': ex_dividend_date,
+                 'ex_dividend_date.lt': ex_dividend_date_lt, 'ex_dividend_date.lte': ex_dividend_date_lte,
+                 'ex_dividend_date.gt': ex_dividend_date_gt, 'ex_dividend_date.gte': ex_dividend_date_gte,
+                 'record_date': record_date, 'record_date.lt': record_date_lt, 'record_date.lte': record_date_lte,
+                 'record_date.gt': record_date_gt, 'record_date.gte': record_date_gte,
+                 'declaration_date': declaration_date, 'declaration_date.lt': declaration_date_lt,
+                 'declaration_date.lte': declaration_date_lte, 'declaration_date.gt': declaration_date_gt,
+                 'declaration_date.gte': declaration_date_gte, 'pay_date': pay_date, 'pay_date.lt': pay_date_lt,
+                 'pay_date.lte': pay_date_lte, 'pay_date.gt': pay_date_gt, 'pay_date.gte': pay_date_gte,
+                 'frequency': frequency, 'cash_amount': cash_amount, 'cash_amount.lt': cash_amount_lt,
+                 'cash_amount.lte': cash_amount_lte, 'cash_amount.gt': cash_amount_gt,
+                 'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -405,22 +512,63 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
+                         sort: str = 'execution_date', limit: int = 10, ticker_lt=None, ticker_lte=None,
+                         ticker_gt=None, ticker_gte=None, execution_date_lt=None, execution_date_lte=None,
+                         execution_date_gt=None, execution_date_gte=None, raw_response: bool = False):
         """
-        Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
-        stock split, and the split ratio.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor>`__
+        Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
+        the split ratio.
 
-        :param symbol: The ticker symbol of the stock/equity.
+        :param ticker: Return the stock splits that contain this ticker. defaults to no ticker filter returning all.
+        :param execution_date: query by execution date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param reverse_split: Query for reverse stock splits. A split ratio where split_from is greater than split_to
+               represents a reverse split. By default this filter is not used.
+        :param order: Order results based on the sort field. defaults to ascending. See
+               :class:`polygon.enums.SortOrder` for choices
+        :param sort: Sort field used for ordering. Defaults to 'execution_date'. See
+               :class:`polygon.enums.SplitsSortKey` for choices.
+        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param ticker_lt: filter where ticker name is less than given value (alphabetically)
+        :param ticker_lte: filter where ticker name is less than or equal to given value (alphabetically)
+        :param ticker_gt: filter where ticker name is greater than given value (alphabetically)
+        :param ticker_gte: filter where ticker name is greater than or equal to given value (alphabetically)
+        :param execution_date_lt: filter where execution date is less than given value
+        :param execution_date_lte: filter where execution date is less than or equal to given value
+        :param execution_date_gt: filter where execution date is greater than given value
+        :param execution_date_gte: filter where execution date is greater than or equal to given value
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/reference/splits/{symbol.upper()}'
+        if isinstance(execution_date, (datetime.date, datetime.datetime)):
+            execution_date = execution_date.strftime('%Y-%m-%d')
 
-        _res = self._get_response(_path)
+        if isinstance(execution_date_lt, (datetime.date, datetime.datetime)):
+            execution_date_lt = execution_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_lte, (datetime.date, datetime.datetime)):
+            execution_date_lte = execution_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_gt, (datetime.date, datetime.datetime)):
+            execution_date_gt = execution_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_gte, (datetime.date, datetime.datetime)):
+            execution_date_gte = execution_date_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+
+        _path = f'/v3/reference/splits'
+
+        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
+                 'ticker.gte': ticker_gte, 'execution_date': execution_date, 'execution_date.lt': execution_date_lt,
+                 'execution_date.lte': execution_date_lte, 'execution_date.gt': execution_date_gt,
+                 'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
+                 'sort': sort, 'limit': limit}
+
+        _res = self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -688,38 +836,22 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_ticker_details(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    @staticmethod
+    async def get_ticker_details(symbol: str, raw_response: bool = False):
         """
-        Get details for a ticker symbol's company/entity. This provides a general overview of the entity with
-        information such as name, sector, exchange, logo and similar companies - Async method
+        DEPRECATED! This endpoint has been removed from polygon docs. This method
+        will be removed in a future version from the library
 
-        This endpoint will be replaced by :meth:`get_ticker_details_vx` in future.
-        `Official Docs <https://polygon.io/docs/get_v1_meta_symbols__stocksTicker__company_anchor>`__
-
-        :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
+        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
+              f'library, let me know.')
 
-        _path = f'/v1/meta/symbols/{symbol.upper()}/company'
-
-        _res = await self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
-    async def get_ticker_details_vx(self, symbol: str, date=None,
+    async def get_ticker_details_v3(self, symbol: str, date=None,
                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
-        This API is Experimental and will replace :meth:`get_ticker_details` in future - Async method
-
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
-        `Official Docs <https://polygon.io/docs/get_vX_reference_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers__ticker__anchor>`__
 
         :param symbol: The ticker symbol of the asset.
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
@@ -734,7 +866,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if isinstance(date, (datetime.date, datetime.datetime)):
             date = date.strftime('%Y-%m-%d')
 
-        _path = f'/vX/reference/tickers/{symbol.upper()}'
+        _path = f'/v3/reference/tickers/{symbol.upper()}'
 
         _data = {'date': date}
 
@@ -865,22 +997,144 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_stock_dividends(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
+                                  declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
+                                  cash_amount=None, dividend_type=None, sort: str = None, order: str = 'asc',
+                                  ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
+                                  ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
+                                  ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,
+                                  record_date_gt=None, record_date_gte=None, declaration_date_lt=None,
+                                  declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
+                                  pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
+                                  cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
+                                  raw_response: bool = False):
         """
-        Get a list of historical dividends for a stock, including the relevant dates and the amount of the dividend -
-        Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_dividends__stocksTicker__anchor>`__
+        Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
+        record date, pay date, frequency, and amount.
 
-        :param symbol: The ticker symbol of the stock/equity.
+        :param ticker: Return the dividends that contain this ticker.
+        :param ex_dividend_date: Query by ex-dividend date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param record_date: Query by record date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param declaration_date: Query by declaration date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param pay_date: Query by pay date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param frequency: Query by the number of times per year the dividend is paid out. No default value applied.
+                          see :class:`polygon.enums.PayoutFrequency` for choices
+        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param cash_amount: Query by the cash amount of the dividend.
+        :param dividend_type: Query by the type of dividend. See :class:`polygon.enums.DividendType` for choices
+        :param sort: sort key used for ordering. See :class:`polygon.enums.DividendSort` for choices.
+        :param order: orders of results. defaults to asc. see :class:`polygon.enums.SortOrder` for choices
+        :param ticker_lt: filter where ticker is less than given value (alphabetically)
+        :param ticker_lte: filter where ticker is less than or equal to given value (alphabetically)
+        :param ticker_gt: filter where ticker is greater than given value (alphabetically)
+        :param ticker_gte: filter where ticker is greater than or equal to given value (alphabetically)
+        :param ex_dividend_date_lt: filter where ex-div date is less than given date
+        :param ex_dividend_date_lte: filter where ex-div date is less than or equal to given date
+        :param ex_dividend_date_gt: filter where ex-div date is greater than given date
+        :param ex_dividend_date_gte: filter where ex-div date is greater than or equal to given date
+        :param record_date_lt: filter where record date is less than given date
+        :param record_date_lte: filter where record date is less than or equal to given date
+        :param record_date_gt: filter where record date is greater than given date
+        :param record_date_gte: filter where record date is greater than or equal to given date
+        :param declaration_date_lt: filter where declaration date is less than given date
+        :param declaration_date_lte: filter where declaration date is less than or equal to given date
+        :param declaration_date_gt: filter where declaration date is greater than given date
+        :param declaration_date_gte: filter where declaration date is greater than or equal to given date
+        :param pay_date_lt: filter where pay date is less than given date
+        :param pay_date_lte: filter where pay date is less than or equal to given date
+        :param pay_date_gt: filter where pay date is greater than given date
+        :param pay_date_gte: filter where pay date is greater than or equal to given date
+        :param cash_amount_lt: filter where cash amt is less than given value
+        :param cash_amount_lte: filter where cash amt is less than or equal to given value
+        :param cash_amount_gt: filter where cash amt is greater than given value
+        :param cash_amount_gte: filter where cash amt is greater than or equal to given value
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/reference/dividends/{symbol.upper()}'
+        if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
+            ex_dividend_date = ex_dividend_date.strftime('%Y-%m-%d')
 
-        _res = await self._get_response(_path)
+        if isinstance(record_date, (datetime.date, datetime.datetime)):
+            record_date = record_date.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date, (datetime.date, datetime.datetime)):
+            declaration_date = declaration_date.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date, (datetime.date, datetime.datetime)):
+            pay_date = pay_date.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_lt, (datetime.date, datetime.datetime)):
+            ex_dividend_date_lt = ex_dividend_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_lte, (datetime.date, datetime.datetime)):
+            ex_dividend_date_lte = ex_dividend_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_gt, (datetime.date, datetime.datetime)):
+            ex_dividend_date_gt = ex_dividend_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(ex_dividend_date_gte, (datetime.date, datetime.datetime)):
+            ex_dividend_date_gte = ex_dividend_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_lt, (datetime.date, datetime.datetime)):
+            record_date_lt = record_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_lte, (datetime.date, datetime.datetime)):
+            record_date_lte = record_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_gt, (datetime.date, datetime.datetime)):
+            record_date_gt = record_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(record_date_gte, (datetime.date, datetime.datetime)):
+            record_date_gte = record_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_lt, (datetime.date, datetime.datetime)):
+            declaration_date_lt = declaration_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_lte, (datetime.date, datetime.datetime)):
+            declaration_date_lte = declaration_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_gt, (datetime.date, datetime.datetime)):
+            declaration_date_gt = declaration_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(declaration_date_gte, (datetime.date, datetime.datetime)):
+            declaration_date_gte = declaration_date_gte.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_lt, (datetime.date, datetime.datetime)):
+            pay_date_lt = pay_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_lte, (datetime.date, datetime.datetime)):
+            pay_date_lte = pay_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_gt, (datetime.date, datetime.datetime)):
+            pay_date_gt = pay_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(pay_date_gte, (datetime.date, datetime.datetime)):
+            pay_date_gte = pay_date_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
+
+        _path = f'/v3/reference/dividends'
+
+        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
+                 'ticker.gte': ticker_gte, 'ex_dividend_date': ex_dividend_date,
+                 'ex_dividend_date.lt': ex_dividend_date_lt, 'ex_dividend_date.lte': ex_dividend_date_lte,
+                 'ex_dividend_date.gt': ex_dividend_date_gt, 'ex_dividend_date.gte': ex_dividend_date_gte,
+                 'record_date': record_date, 'record_date.lt': record_date_lt, 'record_date.lte': record_date_lte,
+                 'record_date.gt': record_date_gt, 'record_date.gte': record_date_gte,
+                 'declaration_date': declaration_date, 'declaration_date.lt': declaration_date_lt,
+                 'declaration_date.lte': declaration_date_lte, 'declaration_date.gt': declaration_date_gt,
+                 'declaration_date.gte': declaration_date_gte, 'pay_date': pay_date, 'pay_date.lt': pay_date_lt,
+                 'pay_date.lte': pay_date_lte, 'pay_date.gt': pay_date_gt, 'pay_date.gte': pay_date_gte,
+                 'frequency': frequency, 'cash_amount': cash_amount, 'cash_amount.lt': cash_amount_lt,
+                 'cash_amount.lte': cash_amount_lte, 'cash_amount.gt': cash_amount_gt,
+                 'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
@@ -958,22 +1212,64 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_stock_splits(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None,
+                               order: str = 'asc', sort: str = 'execution_date', limit: int = 10, ticker_lt=None,
+                               ticker_lte=None, ticker_gt=None, ticker_gte=None, execution_date_lt=None,
+                               execution_date_lte=None, execution_date_gt=None, execution_date_gte=None,
+                               raw_response: bool = False):
         """
-        Get a list of historical stock splits for a ticker symbol, including the execution and payment dates of the
-        stock split, and the split ratio - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_splits__stocksTicker__anchor>`__
+        Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
+        the split ratio.
 
-        :param symbol: The ticker symbol of the stock/equity.
+        :param ticker: Return the stock splits that contain this ticker. defaults to no ticker filter returning all.
+        :param execution_date: query by execution date. could be a date, datetime object or a string ``YYYY-MM-DD``
+        :param reverse_split: Query for reverse stock splits. A split ratio where split_from is greater than split_to
+               represents a reverse split. By default this filter is not used.
+        :param order: Order results based on the sort field. defaults to ascending. See
+               :class:`polygon.enums.SortOrder` for choices
+        :param sort: Sort field used for ordering. Defaults to 'execution_date'. See
+               :class:`polygon.enums.SplitsSortKey` for choices.
+        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param ticker_lt: filter where ticker name is less than given value (alphabetically)
+        :param ticker_lte: filter where ticker name is less than or equal to given value (alphabetically)
+        :param ticker_gt: filter where ticker name is greater than given value (alphabetically)
+        :param ticker_gte: filter where ticker name is greater than or equal to given value (alphabetically)
+        :param execution_date_lt: filter where execution date is less than given value
+        :param execution_date_lte: filter where execution date is less than or equal to given value
+        :param execution_date_gt: filter where execution date is greater than given value
+        :param execution_date_gte: filter where execution date is greater than or equal to given value
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/reference/splits/{symbol.upper()}'
+        if isinstance(execution_date, (datetime.date, datetime.datetime)):
+            execution_date = execution_date.strftime('%Y-%m-%d')
 
-        _res = await self._get_response(_path)
+        if isinstance(execution_date_lt, (datetime.date, datetime.datetime)):
+            execution_date_lt = execution_date_lt.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_lte, (datetime.date, datetime.datetime)):
+            execution_date_lte = execution_date_lte.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_gt, (datetime.date, datetime.datetime)):
+            execution_date_gt = execution_date_gt.strftime('%Y-%m-%d')
+
+        if isinstance(execution_date_gte, (datetime.date, datetime.datetime)):
+            execution_date_gte = execution_date_gte.strftime('%Y-%m-%d')
+
+        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+
+        _path = f'/v3/reference/splits'
+
+        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
+                 'ticker.gte': ticker_gte, 'execution_date': execution_date, 'execution_date.lt': execution_date_lt,
+                 'execution_date.lte': execution_date_lte, 'execution_date.gt': execution_date_gt,
+                 'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
+                 'sort': sort, 'limit': limit}
+
+        _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res

@@ -47,10 +47,10 @@ Get Ticker Details
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details
    :noindex:
 
-Get Ticker Details vX
+Get Ticker Details v3
 ---------------------
 
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details_vx
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details_v3
    :noindex:
 
 Get Option Contracts

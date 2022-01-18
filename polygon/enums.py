@@ -273,6 +273,58 @@ class StocksQuotesSort(enum.Enum):
     TIMESTAMP = 'timestamp'
 
 
+# Stocks Splits Sort Type - References
+class SplitsSortKey(enum.Enum):
+    """
+    Sort field used for ordering stock splits. Used for method ``ReferenceClient.get_stock_splits``
+    """
+
+    EXECUTION_DATE = 'execution_date'
+    TICKER = 'ticker'
+
+
+# Stocks Dividends Payout Frequency - References
+class PayoutFrequency(enum.Enum):
+    """
+    the number of times per year the dividend is paid out. Possible values are 0 (one-time), 1 (annually),
+    2 (bi-annually), 4 (quarterly), and 12 (monthly). used by method ``ReferenceClient.get_stock_dividends``
+    """
+
+    ONE_TIME = 0
+    ANNUALLY = 1
+    BI_ANNUALLY = 2
+    QUARTERLY = 4
+    MONTHLY = 12
+
+
+# Stock dividend Type - References
+class DividendType(enum.Enum):
+    """
+    the type of dividend. Dividends that have been paid and/or are expected to be paid on consistent schedules
+    are denoted as CD. Special Cash dividends that have been paid that are infrequent or unusual, and/or can not be
+    expected to occur in the future are denoted as SC. Used for method ``ReferenceClient.get_stock_dividends``
+    """
+
+    CD = 'CD'
+    SC = 'SC'
+    LT = 'LT'
+    ST = 'ST'
+
+
+# Stock Dividend Sort - References
+class DividendSort(enum.Enum):
+    """
+    sort field used for ordering dividend results. used for method ``ReferenceClient.get_stock_dividends``
+    """
+
+    EX_DIVIDEND_DATE = 'ex_dividend_date'
+    PAY_DATE = 'pay_date'
+    DECLARATION_DATE = 'declaration_date'
+    RECORD_DATE = 'record_date'
+    CASH_AMOUNT = 'cash_amount'
+    TICKER = 'ticker'
+
+
 # Forex Quotes Sort Type - Forex
 class ForexQuotesSort(enum.Enum):
     """

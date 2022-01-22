@@ -399,8 +399,10 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout)
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
+                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
+                         write_timeout)
 
     # Endpoints
     async def get_historic_trades(self, from_symbol: str, to_symbol: str,

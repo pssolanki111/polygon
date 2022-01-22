@@ -176,7 +176,8 @@ class BaseAsyncClient:
     their own endpoints on top of it.
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
+                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
         """
         Initiates a Client to be used to access all the endpoints.
 
@@ -185,15 +186,27 @@ class BaseAsyncClient:
                                 wait for a connection to be established. Raises a ``ConnectTimeout`` if unable to
                                 connect within specified time limit.
         :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
-                             date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
+                             data to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
                              time limit.
+        :param pool_timeout: The pool timeout in seconds. Defaults to 10. Basically the number of seconds to wait while
+                             trying to get a connection from connection pool. Do NOT change if you're unsure of what it
+                             implies
+        :param max_connections: Max number of connections in the pool. Defaults to NO LIMITS. Do NOT change if you're
+                                unsure of application
+        :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to 30. Do NOT
+                              Do NOT change if you're unsure of the applications.
+        :param write_timeout: The write timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                             data to be written/posted. Raises a ``WriteTimeout`` if unable to connect within the
+                             specified time limit.
         """
         self.KEY = api_key
         self.BASE = 'https://api.polygon.io'
 
-        self.time_out_conf = httpx.Timeout(connect=connect_timeout, read=read_timeout, pool=10,
-                                           write=10)
-        self.session = httpx.AsyncClient(timeout=self.time_out_conf)
+        self.time_out_conf = httpx.Timeout(connect=connect_timeout, read=read_timeout, pool=pool_timeout,
+                                           write=write_timeout)
+        self._conn_pool_limits = httpx.Limits(max_connections=max_connections,
+                                              max_keepalive_connections=max_keepalive)
+        self.session = httpx.AsyncClient(timeout=self.time_out_conf, limits=self._conn_pool_limits)
 
         self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
 

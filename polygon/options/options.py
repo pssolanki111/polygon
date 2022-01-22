@@ -436,8 +436,10 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout)
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
+                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
+                         write_timeout)
 
     # Endpoints
     async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,

@@ -49,7 +49,7 @@ class AsyncStreamClient:
     """
     def __init__(self, api_key: str, cluster, host=HOST, ping_interval: int = 20,
                  ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
-                 read_limit: int = 65536, write_limit: int = 65536):
+                 read_limit: int = 65536, write_limit: int = 65536, use_uvloop: bool = None):
         """
         Initializes the stream client for async streaming
         `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
@@ -79,6 +79,24 @@ class AsyncStreamClient:
                             low-water limit is a quarter of the high-water limit. The default value is ``64 KiB``,
                             equal to asyncio’s default. Don't change if you're unsure what it implies.
         """
+        if use_uvloop is None:
+            try:
+                import uvloop
+                asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+                get_logger().info(f'uvloop install found. Using uvloop as the event loop policy...')
+            except ImportError:
+                pass
+        elif use_uvloop is False:
+            pass
+
+        elif use_uvloop:
+            try:
+                import uvloop
+                asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+            except ImportError:
+                raise ImportError('Please install uvloop (pip install uvloop) before using it. NOTE that it is NOT '
+                                  'AVAILABLE FOR WINDOWS machines. ')
+
         self.KEY, self._market, self._re = api_key, self._change_enum(cluster, str), None
 
         self.WS, self._subs = None, []

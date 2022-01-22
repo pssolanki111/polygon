@@ -3,6 +3,9 @@ websocket-client
 websockets
 httpx
 
+# Only needed for uvloop implementation
+uvloop
+
 # Only needed for documentation
 sphinx
 sphinx_rtd_theme

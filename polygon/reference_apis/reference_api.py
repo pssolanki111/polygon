@@ -737,8 +737,10 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout)
+    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
+                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
+        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
+                         write_timeout)
 
     # Endpoints
     async def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,

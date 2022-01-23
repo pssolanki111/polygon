@@ -691,9 +691,10 @@ class OptionSymbol:
                     if char.isalpha():
                         num += 1
                         continue
-                    break
+                    break  # STOCKyymmdd -> STOCKmmddyy
 
-                option_symbol = f'{option_symbol[:num]}_{option_symbol[num:]}'
+                option_symbol = f'{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}' \
+                                f'{option_symbol[num:num+2]}{option_symbol[num+6:]}'
 
             # Usual flow
             _split = option_symbol.split('_')

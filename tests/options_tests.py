@@ -131,8 +131,8 @@ class TestOptions(unittest.TestCase):
         bos6 = polygon.parse_option_symbol_from_tda('MSFT_101521P7.345', output_format=list)
         bos8 = polygon.parse_option_symbol_from_tda('WPGGQ_101521C134.0', output_format=list)
         bos9 = polygon.parse_option_symbol_from_tda('PPPPPP_101521P134.345', output_format=list)
-        bos10 = polygon.parse_option_symbol_from_tda('.PPPPPP101521P134.345', output_format=list)
-        bos11 = polygon.parse_option_symbol_from_tda('.X101521P134', output_format=list)
+        bos10 = polygon.parse_option_symbol_from_tda('.PPPPPP211015P134.345', output_format=list)
+        bos11 = polygon.parse_option_symbol_from_tda('.X211015P134', output_format=list)
 
         self.assertIsInstance(bos, polygon.OptionSymbol)
         self.assertIsInstance(bos3, list)

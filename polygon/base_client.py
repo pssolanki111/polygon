@@ -177,7 +177,7 @@ class BaseAsyncClient:
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
+                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
         """
         Initiates a Client to be used to access all the endpoints.
 
@@ -193,7 +193,7 @@ class BaseAsyncClient:
                              implies
         :param max_connections: Max number of connections in the pool. Defaults to NO LIMITS. Do NOT change if you're
                                 unsure of application
-        :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to 30. Do NOT
+        :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to no limit. Do NOT
                               Do NOT change if you're unsure of the applications.
         :param write_timeout: The write timeout in seconds. Defaults to 10. basically the number of seconds to wait for
                              data to be written/posted. Raises a ``WriteTimeout`` if unable to connect within the

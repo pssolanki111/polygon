@@ -193,7 +193,9 @@ def detect_symbol_format(option_symbol: str) -> Union[str, bool]:
 # ========================================================= #
 
 
-def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10):
+def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
+                    pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
+                    write_timeout: int = 10):
     """
     Initiates a Client to be used to access all REST options endpoints.
 
@@ -205,12 +207,23 @@ def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 
     :param read_timeout: The read timeout in seconds. Defaults to 10. basically the number of seconds to wait for
                          date to be received. Raises a ``ReadTimeout`` if unable to connect within the specified
                          time limit.
+    :param pool_timeout: The pool timeout in seconds. Defaults to 10. Basically the number of seconds to wait while
+                             trying to get a connection from connection pool. Do NOT change if you're unsure of what it
+                             implies
+    :param max_connections: Max number of connections in the pool. Defaults to NO LIMITS. Do NOT change if you're
+                            unsure of application
+    :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to no limit. Do NOT
+                          Do NOT change if you're unsure of the applications.
+    :param write_timeout: The write timeout in seconds. Defaults to 10. basically the number of seconds to wait for
+                         data to be written/posted. Raises a ``WriteTimeout`` if unable to connect within the
+                         specified time limit.
     """
 
     if not use_async:
         return SyncOptionsClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncOptionsClient(api_key, connect_timeout, read_timeout)
+    return AsyncOptionsClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
+                              max_keepalive, write_timeout)
 
 
 # ========================================================= #
@@ -437,7 +450,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = 30, write_timeout: int = 10):
+                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
         super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
                          write_timeout)
 
@@ -691,7 +704,7 @@ class OptionSymbol:
                     if char.isalpha():
                         num += 1
                         continue
-                    break  # STOCKyymmdd -> STOCKmmddyy
+                    break
 
                 option_symbol = f'{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}' \
                                 f'{option_symbol[num:num+2]}{option_symbol[num+6:]}'

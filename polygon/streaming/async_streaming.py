@@ -78,6 +78,10 @@ class AsyncStreamClient:
         :param write_limit: The write_limit argument sets the high-water limit of the buffer for outgoing bytes. The
                             low-water limit is a quarter of the high-water limit. The default value is ``64 KiB``,
                             equal to asyncio’s default. Don't change if you're unsure what it implies.
+        :param use_uvloop: control whether to use uvloop. Defaults to None which uses uvloop IFF installed. Setting
+                           to False disables the use of uvloop. Setting to True enforces the use and raises
+                           ``ImportError`` with appropriate message if it's not installed. See section below for more
+                           info
         """
         if use_uvloop is None:
             try:

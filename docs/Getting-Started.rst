@@ -87,10 +87,37 @@ Now creating a client is as simple as (using stocks and forex clients as example
 1. Regular client: ``stocks_client = polygon.StocksClient('API_KEY')``
 #. Async client: ``forex_client = polygon.ForexClient('API_KEY', True)``
 
-**You can also specify timeouts on requests. By default the timeout is set to 10 seconds** for both connection timeout and read timeout which
-should be fine for most people. You can specify both connect and read OR either one of them.
-If you're unsure of what this implies, it's just the max time limit to specify for a request. Don't change it unless you
-know you need to.
+Note that It is NOT recommended to hard code your API key or other credentials into your code unless you really have a use case.
+Instead preferably do one of the following:
+
+1. create a separate python file with credentials, import that file into main file and reference using variable names.
+#. Use environment variables.
+
+Request timeouts and limits configuration (optional)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**section Only meant for advanced use cases**. For most people, default timeouts would be enough.
+
+You can also specify timeouts on requests. By default the timeout is set to 10 seconds for connection, read, write and pool timeouts.
+
+**write timeout and pool timeout are only available for async rest client (which is httpx based)**. They'll be ignored if used with normal client
+
+If you're unsure of what this implies, you probably don't need to change them.
+
+**Limits config**
+
+    Only meant for async rest client (httpx based).
+
+    You also have the ability to change httpx connection pool settings when you work with async based rest client. This allows you to better control
+    the behavior of underlying httpx pool, especially in cases where you need highly concurrent async applications.
+    Using `uvloop <https://github.com/MagicStack/uvloop>`__ is also a good option in those case
+
+    You can change the below configs:
+
+    * **max_connections**: the max number of connections in the pool. Defaults to No Limit in the lib.
+    * **max_keepalive**: max number of keepalive connections in the pool. Defaults to 30.
+
+Example uses:
 
 .. code-block:: python
 
@@ -101,16 +128,11 @@ know you need to.
   client = polygon.StocksClient('api_key', connect_timeout=5, read_timeout=5)
 
   # An async one now
-  client = polygon.StocksClient('key', True, read_timeout=5)
-
-  # another async one
   client = polygon.StocksClient('key', True, read_timeout=5, connect_timeout=15)
 
-Note that It is NOT recommended to hard code your API key or other credentials into your code unless you really have a use case.
-Instead preferably do one of the following:
+  # another async one
+  client = polygon.StocksClient('key', True, connect_timeout=15, max_connections=200)
 
-1. create a separate python file with credentials, import that file into main file and reference using variable names.
-#. Use environment variables.
 
 Now that you have a client, simply call its methods to get data from the API
 
@@ -296,6 +318,8 @@ Special Points
 * You'll notice some type hints having ``Union`` in them followed by two or more types inside a square bracket. That simply means the parameter could be of any type from that list in bracket
   . For example: ``price: Union[str, float, int]`` means the parameter ``price`` could be either a string, a float or an integer. You'd notice Union type hints more on return types
   of the functions/methods.
+* For a better performance on :ref:`async_streaming_header`, you can make use of lib's built in ``uvloop`` integration. **Only meant for *nix based OS**.
+  Just do ``pip install uvloop`` and async streamer will make use of it without changing anything. See async streaming docs for better control options on this behavior
 
 **so far so good? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 

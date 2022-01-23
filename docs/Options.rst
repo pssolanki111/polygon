@@ -155,7 +155,7 @@ The output_format and expiry_format have the same behavior as above. Only differ
 
 the dot format (symbol starting with a ``.``, usually found **when you export some file through ThinkOrSwim** or similar tda tool) is also supported
 
-.. autofunction:: polygon.options.options.parse_option_symbol
+.. autofunction:: polygon.options.options.parse_option_symbol_from_tda
    :noindex:
 
 Example use:
@@ -167,7 +167,7 @@ Example use:
   parsed_details = parse_option_symbol_from_tda('GOOG_012122P620')
 
   # another one!
-  parsed_details = parse_option_symbol_from_tda('TSLA_112020C1360', output_format=list)
+  parsed_details = parse_option_symbol_from_tda('.AMD220128P81', output_format=list)  # DOT format from ThinkOrSwim
 
   # another one!
   parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)

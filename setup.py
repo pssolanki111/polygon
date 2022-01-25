@@ -5,14 +5,14 @@ with open('README.md') as file:
 
 setup(
     name='polygon',
-    version='0.9.9',
+    version='1.0.0',
     packages=['polygon', 'polygon.forex', 'polygon.crypto', 'polygon.stocks', 'polygon.streaming',
               'polygon.reference_apis', 'polygon.options'],
     url='https://github.com/pssolanki111/polygon',
     license='MIT',
     author='P S Solanki',
     author_email='google_was_my_idea@gmail.com',
-    description='A Complete Python Wrapper for Polygon.io APIs. Public Alpha Release',
+    description='A Complete Python Wrapper for Polygon.io APIs.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     project_urls={
@@ -25,7 +25,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Intended Audience :: Developers',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Topic :: Office/Business :: Financial :: Investment',
     ],

@@ -142,7 +142,7 @@ Now that you have a client, simply call its methods to get data from the API
   print(f'Current price for AMD is {current_price}')
 
 
-**Note that you can have instances of all 5 different types of http clients together. So you can create client for each one of the stocks, options and other APIs**
+**Note that you can have instances of all 5 different types of http clients together**. So you can create client for each one of the stocks, options and other APIs
 
 All the clients in the lib support context managers
 

@@ -272,8 +272,8 @@ class SyncOptionsClient(base_client.BaseClient):
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'order': order, 'sort': sort,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
         _res = self._get_response(_path, params=_data)
@@ -485,8 +485,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'order': order, 'sort': sort,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
         _res = await self._get_response(_path, params=_data)

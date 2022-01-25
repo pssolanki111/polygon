@@ -140,8 +140,8 @@ class SyncStocksClient(base_client.BaseClient):
 
         _path = f'/vX/trades/{symbol}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
         _res = self._get_response(_path, params=_data)
@@ -233,8 +233,8 @@ class SyncStocksClient(base_client.BaseClient):
 
         _path = f'/vX/quotes/{symbol}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
         _res = self._get_response(_path, params=_data)
@@ -612,8 +612,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _path = f'/vX/trades/{symbol}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
         _res = await self._get_response(_path, params=_data)
@@ -706,8 +706,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _path = f'/vX/quotes/{symbol}'
 
-        _data = {'timestamp': timestamp, 'timestamp_lt': timestamp_lt, 'timestamp_lte': timestamp_lte,
-                 'timestamp_gt': timestamp_gt, 'timestamp_gte': timestamp_gte, 'limit': limit,
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
         _res = await self._get_response(_path, params=_data)

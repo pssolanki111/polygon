@@ -72,7 +72,7 @@ class BaseClient:
 
         return _res.json()
 
-    def get_next_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
@@ -106,12 +106,12 @@ class BaseClient:
         """
 
         try:
-            if not isinstance(old_response, dict):
+            if not isinstance(old_response, (dict, list)):
                 old_response = old_response.json()
 
             _next_url = old_response['next_url']
 
-            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+            return self.get_page_by_url(_next_url, raw_response=raw_response)
 
         except KeyError:
             return False
@@ -132,15 +132,52 @@ class BaseClient:
         """
 
         try:
-            if not isinstance(old_response, dict):
+            if not isinstance(old_response, (dict, list)):
                 old_response = old_response.json()
 
-            _next_url = old_response['next_url']
+            _prev_url = old_response['previous_url']
 
-            return self.get_next_page_by_url(_next_url, raw_response=raw_response)
+            return self.get_page_by_url(_prev_url, raw_response=raw_response)
 
         except KeyError:
             return False
+
+    def get_all_pages(self, old_response, direction: str = 'next', raw_responses: bool = False):
+        """
+        A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
+        Can be used externally too to get all responses in a list.
+
+        :param old_response: The last response you had. In most cases, this would be simply the very first response.
+        :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
+                          :class:`polygon.enums.PaginationDirection` for choices
+        :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
+                              instead of the json formatted dict/list. Only use if you need to check status codes or
+                              headers. Defaults to False, which makes it return decoded data in list.
+        :return: A list of responses. By default, responses are actual json decoded dict/list. Depending on value of
+                 ``raw_response``
+        """
+
+        direction, container, _res = self._change_enum(direction, str), [], old_response
+
+        if direction in ['prev', 'previous']:
+            fn = self.get_previous_page
+        else:
+            fn = self.get_next_page
+
+        # Start paginating
+        while 1:
+            _res = fn(_res, raw_response=True)
+
+            if not _res:
+                break
+
+            if raw_responses:
+                container.append(_res)
+                continue
+
+            container.append(_res.json())
+
+        return container
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
@@ -244,7 +281,7 @@ class BaseAsyncClient:
 
         return _res.json()
 
-    async def get_next_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
@@ -284,7 +321,7 @@ class BaseAsyncClient:
 
             _next_url = old_response['next_url']
 
-            return await self.get_next_page_by_url(_next_url, raw_response=raw_response)
+            return await self.get_page_by_url(_next_url, raw_response=raw_response)
 
         except KeyError:
             return False
@@ -308,12 +345,49 @@ class BaseAsyncClient:
             if not isinstance(old_response, dict):
                 old_response = old_response.json()
 
-            _next_url = old_response['next_url']
+            _prev_url = old_response['previous_url']
 
-            return await self.get_next_page_by_url(_next_url, raw_response=raw_response)
+            return await self.get_page_by_url(_prev_url, raw_response=raw_response)
 
         except KeyError:
             return False
+
+    async def get_all_pages(self, old_response, direction: str = 'next', raw_responses: bool = False):
+        """
+        A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
+        Can be used externally too to get all responses in a list.
+
+        :param old_response: The last response you had. In most cases, this would be simply the very first response.
+        :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
+                          :class:`polygon.enums.PaginationDirection` for choices
+        :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
+                              instead of the json formatted dict/list. Only use if you need to check status codes or
+                              headers. Defaults to False, which makes it return decoded data in list.
+        :return: A list of responses. By default, responses are actual json decoded dict/list. Depending on value of
+                 ``raw_response``
+        """
+
+        direction, container, _res = self._change_enum(direction, str), [], old_response
+
+        if direction in ['prev', 'previous']:
+            fn = self.get_previous_page
+        else:
+            fn = self.get_next_page
+
+        # Start paginating
+        while 1:
+            _res = await fn(_res, raw_response=True)
+
+            if not _res:
+                break
+
+            if raw_responses:
+                container.append(_res)
+                continue
+
+            container.append(_res.json())
+
+        return container
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):

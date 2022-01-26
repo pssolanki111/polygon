@@ -60,7 +60,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                     symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
                     date=None, search: str = None,
-                    active: bool = True, sort='ticker', order='asc', limit: int = 100,
+                    active: bool = True, sort='ticker', order='asc', limit: int = 100, all_pages: bool = False,
                     raw_response: bool = False) -> Union[Response, dict]:
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
@@ -98,6 +98,7 @@ class SyncReferenceClient(base_client.BaseClient):
                       available choices.
         :param limit: Limit the size of the response, default is 100 and max is 1000. ``Pagination`` is supported by the
                       pagination function below
+        :param all_pages:
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.

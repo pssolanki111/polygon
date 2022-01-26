@@ -212,6 +212,19 @@ class SnapshotDirection:
     LOSE = 'losers'
 
 
+# Pagination direction - common for all
+class PaginationDirection(enum.Enum):
+    """
+    The direction to paginate in.
+    """
+
+    NEXT = 'next'
+    FORWARD = 'next'
+    PREV = 'previous'
+    PREVIOUS = 'previous'
+    BACKWARD = 'previous'
+
+
 # Stream Cluster - Websockets
 class StreamCluster(enum.Enum):
     """

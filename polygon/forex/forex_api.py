@@ -2,8 +2,6 @@
 from .. import base_client
 from typing import Union
 import datetime
-from requests.models import Response
-from httpx import Response as HttpxResponse
 
 # ========================================================= #
 
@@ -58,7 +56,7 @@ class SyncForexClient(base_client.BaseClient):
 
     # Endpoints
     def get_historic_forex_ticks(self, from_symbol: str, to_symbol: str, date, offset: Union[str, int] = None,
-                                 limit: int = 500, raw_response: bool = False) -> Union[Response, dict]:
+                                 limit: int = 500, raw_response: bool = False):
         """
         Get historic trade ticks for a forex currency pair.
         `Official Docs <https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor>`__
@@ -95,7 +93,8 @@ class SyncForexClient(base_client.BaseClient):
 
     def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                    timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                   raw_response: bool = False) -> Union[Response, dict]:
+                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                   raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
@@ -114,10 +113,23 @@ class SyncForexClient(base_client.BaseClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -143,12 +155,15 @@ class SyncForexClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_last_quote(self, from_symbol: str, to_symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_last_quote(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
         Get the last trade tick for a forex currency pair.
         `Official Docs <https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor>`__
@@ -172,7 +187,7 @@ class SyncForexClient(base_client.BaseClient):
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                            adjusted: bool = True, sort='asc', limit: int = 5000,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
@@ -221,7 +236,7 @@ class SyncForexClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor>`__
@@ -250,7 +265,7 @@ class SyncForexClient(base_client.BaseClient):
         return _res.json()
 
     def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor>`__
@@ -275,7 +290,7 @@ class SyncForexClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols
@@ -302,7 +317,7 @@ class SyncForexClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded forex symbol.
@@ -324,7 +339,7 @@ class SyncForexClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False) -> Union[Response, dict]:
+    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in forex markets.
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor>`__
@@ -347,7 +362,7 @@ class SyncForexClient(base_client.BaseClient):
         return _res.json()
 
     def real_time_currency_conversion(self, from_symbol: str, to_symbol: str, amount: float, precision: int = 2,
-                                      raw_response: bool = False) -> Union[Response, dict]:
+                                      raw_response: bool = False):
         """
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
         For example USD to CAD or CAD to USD.
@@ -396,7 +411,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
     # Endpoints
     async def get_historic_forex_ticks(self, from_symbol: str, to_symbol: str,
                                        date, offset: Union[str, int] = None, limit: int = 500,
-                                       raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                       raw_response: bool = False):
         """
         Get historic trade ticks for a forex currency pair - Async method.
         `Official Docs <https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor>`__
@@ -433,7 +448,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
     async def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                          timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                         raw_response: bool = False) -> Union[Response, dict]:
+                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                         raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
@@ -452,10 +468,23 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -481,13 +510,16 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_last_quote(self, from_symbol: str, to_symbol: str,
-                             raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                             raw_response: bool = False):
         """
         Get the last trade tick for a forex currency pair - Async method
         `Official Docs <https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor>`__
@@ -511,7 +543,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1,
                                  timespan='day', adjusted: bool = True, sort='asc',
-                                 limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 limit: int = 5000, raw_response: bool = False):
         """
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
@@ -561,7 +593,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True,
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor>`__
@@ -590,7 +622,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor>`__
@@ -615,7 +647,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols - Async method
@@ -642,7 +674,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded forex symbol - Async method
@@ -665,7 +697,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in forex markets.
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor>`__
@@ -689,7 +721,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
     async def real_time_currency_conversion(self, from_symbol: str, to_symbol: str, amount: float,
                                             precision: int = 2,
-                                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                            raw_response: bool = False):
         """
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
         For example USD to CAD or CAD to USD - Async method

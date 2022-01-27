@@ -142,12 +142,15 @@ class BaseClient:
         except KeyError:
             return False
 
-    def get_all_pages(self, old_response, direction: str = 'next', raw_responses: bool = False):
+    def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next',
+                      raw_responses: bool = False):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
         Can be used externally too to get all responses in a list.
 
         :param old_response: The last response you had. In most cases, this would be simply the very first response.
+        :param max_pages: If you want to limit the number of pages to retrieve. Defaults to None which fetches ALL
+                          available pages
         :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
                           :class:`polygon.enums.PaginationDirection` for choices
         :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
@@ -158,6 +161,8 @@ class BaseClient:
         """
 
         direction, container, _res = self._change_enum(direction, str), [], old_response
+        if not max_pages:
+            max_pages = float('inf')
 
         if direction in ['prev', 'previous']:
             fn = self.get_previous_page
@@ -166,6 +171,9 @@ class BaseClient:
 
         # Start paginating
         while 1:
+            if len(container) >= max_pages:
+                break
+
             _res = fn(_res, raw_response=True)
 
             if not _res:
@@ -176,6 +184,39 @@ class BaseClient:
                 continue
 
             container.append(_res.json())
+
+        return container
+
+    def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, raw_page_responses: bool = False):
+        """
+        Internal function to call the core pagination methods to build the response object to be parsed by individual
+        methods.
+
+        :param merge_all_pages: whether to merge all the pages into one response. defaults to True
+        :param max_pages: number of pages to fetch. defaults to all available pages.
+        :param raw_page_responses: whether to keep raw response objects or decode them. Only considered if
+                                   merge_all_pages is set to False. Defaults to False.
+        :return:
+        """
+
+        if isinstance(max_pages, int):
+            max_pages -= 1
+
+        # How many pages do you want?? YES!!!
+        if merge_all_pages:  # prepare for a merge
+            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages)
+        elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
+            return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages)
+        else:  # okay a little bit of help is fine  (no merge, only decoding)
+            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages)
+
+        # We need your help adventurer  (decode and merge)
+        container = []
+        try:
+            for page in pages:
+                container += page['results']
+        except KeyError:
+            return pages
 
         return container
 
@@ -352,12 +393,15 @@ class BaseAsyncClient:
         except KeyError:
             return False
 
-    async def get_all_pages(self, old_response, direction: str = 'next', raw_responses: bool = False):
+    async def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next',
+                            raw_responses: bool = False):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
         Can be used externally too to get all responses in a list.
 
         :param old_response: The last response you had. In most cases, this would be simply the very first response.
+        :param max_pages: If you want to limit the number of pages to retrieve. Defaults to None which fetches ALL
+                          available pages
         :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
                           :class:`polygon.enums.PaginationDirection` for choices
         :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
@@ -368,6 +412,8 @@ class BaseAsyncClient:
         """
 
         direction, container, _res = self._change_enum(direction, str), [], old_response
+        if not max_pages:
+            max_pages = float('inf')
 
         if direction in ['prev', 'previous']:
             fn = self.get_previous_page
@@ -376,6 +422,9 @@ class BaseAsyncClient:
 
         # Start paginating
         while 1:
+            if len(container) >= max_pages:
+                break
+
             _res = await fn(_res, raw_response=True)
 
             if not _res:
@@ -386,6 +435,40 @@ class BaseAsyncClient:
                 continue
 
             container.append(_res.json())
+
+        return container
+
+    async def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None,
+                        raw_page_responses: bool = False):
+        """
+        Internal function to call the core pagination methods to build the response object to be parsed by individual
+        methods.
+
+        :param merge_all_pages: whether to merge all the pages into one response. defaults to True
+        :param max_pages: number of pages to fetch. defaults to all available pages.
+        :param raw_page_responses: whether to keep raw response objects or decode them. Only considered if
+                                   merge_all_pages is set to False. Defaults to False.
+        :return:
+        """
+
+        if isinstance(max_pages, int):
+            max_pages -= 1
+
+        # How many pages do you want?? YES!!!
+        if merge_all_pages:  # prepare for a merge
+            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages)
+        elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
+            return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages)
+        else:  # okay a little bit of help is fine  (no merge, only decoding)
+            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages)
+
+        # We need your help adventurer  (decode and merge)
+        container = []
+        try:
+            for page in pages:
+                container += page['results']
+        except KeyError:
+            return pages
 
         return container
 

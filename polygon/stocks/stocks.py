@@ -1,9 +1,6 @@
 # ========================================================= #
 from .. import base_client
-from typing import Union
 import datetime
-from requests.models import Response
-from httpx import Response as HttpxResponse
 
 # ========================================================= #
 
@@ -58,7 +55,7 @@ class SyncStocksClient(base_client.BaseClient):
 
     # Endpoints
     def get_trades(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                   limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+                   limit: int = 5000, raw_response: bool = False):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
@@ -98,7 +95,8 @@ class SyncStocksClient(base_client.BaseClient):
 
     def get_trades_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False) -> Union[Response, dict]:
+                      all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                      raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_trades__stockTicker__anchor>`__
@@ -117,10 +115,23 @@ class SyncStocksClient(base_client.BaseClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -146,13 +157,16 @@ class SyncStocksClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                   limit: int = 5000, raw_response: bool = False) -> Union[Response, dict]:
+                   limit: int = 5000, raw_response: bool = False):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
@@ -191,7 +205,8 @@ class SyncStocksClient(base_client.BaseClient):
 
     def get_quotes_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False) -> Union[Response, dict]:
+                      all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                      raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_quotes__stockTicker__anchor>`__
@@ -210,10 +225,23 @@ class SyncStocksClient(base_client.BaseClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -239,12 +267,15 @@ class SyncStocksClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent trade for a given stock.
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
@@ -265,7 +296,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent NBBO (Quote) tick for a given stock.
         `Official Docs <https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor>`__
@@ -287,7 +318,7 @@ class SyncStocksClient(base_client.BaseClient):
         return _res.json()
 
     def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False) -> Union[Response, dict]:
+                             raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date.
         `Official Docs <https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor>`__
@@ -319,7 +350,7 @@ class SyncStocksClient(base_client.BaseClient):
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                            sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -365,7 +396,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily OCHLV for the entire stocks/equities markets.
         `Official docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor>`__
@@ -393,7 +424,7 @@ class SyncStocksClient(base_client.BaseClient):
         return _res.json()
 
     def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor>`__
@@ -418,7 +449,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker.
@@ -460,7 +491,7 @@ class SyncStocksClient(base_client.BaseClient):
             raise ValueError('Request failed. Make sure your API key is correct and your subscription has access to '
                              f'the data you requested. Response from the API: {_res}')
 
-    def get_snapshot_all(self, symbols: list = None, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot_all(self, symbols: list = None, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols.
@@ -487,7 +518,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False) -> Union[Response, dict]:
+    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets.
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__
@@ -530,7 +561,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     # Endpoints
     async def get_trades(self, symbol: str, date,
                          timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                         limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                         limit: int = 5000, raw_response: bool = False):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -570,7 +601,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
     async def get_trades_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                            raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_trades__stockTicker__anchor>`__
@@ -589,10 +621,23 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -618,14 +663,17 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None,
                          reverse: bool = True, limit: int = 5000,
-                         raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                         raw_response: bool = False):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -664,7 +712,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
     async def get_quotes_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                            raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                            raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_quotes__stockTicker__anchor>`__
@@ -683,10 +732,23 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -712,12 +774,15 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    async def get_last_trade(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    async def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent trade for a given stock - Async method
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
@@ -738,7 +803,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_last_quote(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent NBBO (Quote) tick for a given stock - Async method
         `Official Docs <https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor>`__
@@ -760,7 +825,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                   raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date - Async method
         `Official Docs <https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor>`__
@@ -792,7 +857,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1,
-                                 timespan='day', raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 timespan='day', raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned - Async
@@ -837,9 +902,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_grouped_daily_bars(self, date,
-                                     adjusted: bool = True,
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily OCHLV for the entire stocks/equities markets - Async method
         `Official docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor>`__
@@ -867,7 +930,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor>`__
@@ -892,7 +955,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker - Async method
@@ -930,7 +993,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res['results']['p']
 
-    async def get_snapshot_all(self, symbols: list = None, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list = None, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols - Async method
@@ -958,7 +1021,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets - Async method
         `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__

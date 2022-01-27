@@ -2,8 +2,6 @@
 from .. import base_client
 from typing import Union
 import datetime
-from requests.models import Response
-from httpx import Response as HttpxResponse
 
 # ========================================================= #
 
@@ -58,7 +56,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
     # Endpoints
     def get_historic_trades(self, from_symbol: str, to_symbol: str, date, offset: Union[str, int] = None,
-                            limit: int = 500, raw_response: bool = False) -> Union[Response, dict]:
+                            limit: int = 500, raw_response: bool = False):
         """
         Get historic trade ticks for a cryptocurrency pair.
         `Official Docs
@@ -96,12 +94,13 @@ class SyncCryptoClient(base_client.BaseClient):
 
     def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                    timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                   raw_response: bool = False) -> Union[Response, dict]:
+                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                   raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_trades__cryptoTicker__anchor>`__
 
-        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass withor without the
+        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
@@ -116,10 +115,23 @@ class SyncCryptoClient(base_client.BaseClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -145,12 +157,15 @@ class SyncCryptoClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
         Get the last trade tick for a cryptocurrency pair.
         `Official Docs
@@ -174,7 +189,7 @@ class SyncCryptoClient(base_client.BaseClient):
         return _res.json()
 
     def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False) -> Union[Response, dict]:
+                             raw_response: bool = False):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day.
         `Official Docs: <https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor>`__
@@ -203,7 +218,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                            adjusted: bool = True, sort='asc', limit: int = 5000,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
@@ -252,7 +267,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False) -> Union[Response, dict]:
+    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor>`__
@@ -281,7 +296,7 @@ class SyncCryptoClient(base_client.BaseClient):
         return _res.json()
 
     def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
@@ -307,7 +322,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols
@@ -334,7 +349,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded cryptocurrency symbol.
@@ -356,7 +371,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False) -> Union[Response, dict]:
+    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
@@ -378,7 +393,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_level2_book(self, symbol: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_level2_book(self, symbol: str, raw_response: bool = False):
         """
         Get the current level 2 book of a single ticker. This is the combined book from all of the exchanges.
         `Official Docs
@@ -420,7 +435,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     # Endpoints
     async def get_historic_trades(self, from_symbol: str, to_symbol: str,
                                   date, offset: Union[str, int] = None, limit: int = 500,
-                                  raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                  raw_response: bool = False):
         """
         Get historic trade ticks for a cryptocurrency pair - Async method.
         `Official Docs
@@ -458,12 +473,13 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
     async def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                          timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                         raw_response: bool = False) -> Union[Response, dict]:
+                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                         raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/get_vX_trades__cryptoTicker__anchor>`__
 
-        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass withor without the
+        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
@@ -478,10 +494,23 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                              string.
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
                               date string.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(timestamp, (datetime.date, datetime.datetime)):
@@ -507,13 +536,16 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_last_trade(self, from_symbol: str, to_symbol: str,
-                             raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                             raw_response: bool = False):
         """
         Get the last trade tick for a cryptocurrency pair - Async method
         `Official Docs
@@ -537,7 +569,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                   raw_response: bool = False):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - Async method
         `Official Docs: <https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor>`__
@@ -566,7 +598,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1,
                                  timespan='day', adjusted: bool = True, sort='asc',
-                                 limit: int = 5000, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 limit: int = 5000, raw_response: bool = False):
         """
         et aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned - Async method
@@ -616,7 +648,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True,
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor>`__
@@ -645,7 +677,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
@@ -671,7 +703,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot_all(self, symbols: list, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols - Async method
@@ -698,7 +730,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded cryptocurrency symbol - Async method
@@ -721,7 +753,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
         `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
@@ -743,7 +775,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_level2_book(self, symbol: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_level2_book(self, symbol: str, raw_response: bool = False):
         """
         Get the current level 2 book of a single ticker. combined book from all of the exchanges - Async method
         `Official Docs

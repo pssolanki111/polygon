@@ -2,8 +2,6 @@
 from .. import base_client
 from typing import Union
 import datetime
-from requests.models import Response
-from httpx import Response as HttpxResponse
 
 
 # ========================================================= #
@@ -244,7 +242,8 @@ class SyncOptionsClient(base_client.BaseClient):
     # Endpoints
     def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                    timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100, order='asc',
-                   raw_response: bool = False):
+                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                   raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -264,10 +263,23 @@ class SyncOptionsClient(base_client.BaseClient):
         :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
         :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
                       available choices.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
@@ -278,12 +290,15 @@ class SyncOptionsClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
         Get the most recent trade for a given options contract.
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor>`__
@@ -305,7 +320,7 @@ class SyncOptionsClient(base_client.BaseClient):
         return _res.json()
 
     def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False) -> Union[Response, dict]:
+                             raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
@@ -338,7 +353,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                            sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -385,8 +400,9 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_snapshot(self, underlying_symbol: str, option_symbol: str,
-                     raw_response: bool = False) -> Union[Response, dict]:
+    def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
+                     max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False, 
+                     raw_response: bool = False):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
@@ -394,23 +410,39 @@ class SyncOptionsClient(base_client.BaseClient):
         :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
                               easy to work with option symbols in polygon or tda formats.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
 
         _res = self._get_response(_path)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_previous_close(self, ticker: str, adjusted: bool = True,
-                           raw_response: bool = False) -> Union[Response, dict]:
+                           raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor>`__
@@ -457,7 +489,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     # Endpoints
     async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                          timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100,
-                         order='asc', raw_response: bool = False):
+                         order='asc', all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                         raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option
         symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
@@ -477,10 +510,23 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
         :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
                       available choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
-                             check the status code or inspect the headers. Defaults to False which returns the json
-                             decoded dictionary.
-        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
@@ -491,12 +537,15 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    async def get_last_trade(self, ticker: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    async def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
         Get the most recent trade for a given options contract - Async
         `Official Docs <https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor>`__
@@ -518,7 +567,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                   raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
@@ -551,7 +600,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                                 raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                 raw_response: bool = False):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -598,8 +647,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_snapshot(self, underlying_symbol: str, option_symbol: str,
-                           raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
+                           max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
+                           raw_response: bool = False):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
@@ -607,23 +657,39 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
                               easy to work with option symbols in polygon or tda formats.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
 
         _res = await self._get_response(_path)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_previous_close(self, ticker: str, adjusted: bool = True,
-                                 raw_response: bool = False) -> Union[Response, dict]:
+                                 raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
         `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor>`__

@@ -2,8 +2,6 @@
 from .. import base_client
 from typing import Union
 import datetime
-from requests.models import Response
-from httpx import Response as HttpxResponse
 
 # ========================================================= #
 
@@ -61,7 +59,8 @@ class SyncReferenceClient(base_client.BaseClient):
                     symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
                     date=None, search: str = None,
                     active: bool = True, sort='ticker', order='asc', limit: int = 100, all_pages: bool = False,
-                    raw_response: bool = False) -> Union[Response, dict]:
+                    max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
+                    raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
@@ -98,11 +97,23 @@ class SyncReferenceClient(base_client.BaseClient):
                       available choices.
         :param limit: Limit the size of the response, default is 100 and max is 1000. ``Pagination`` is supported by the
                       pagination function below
-        :param all_pages:
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(date, (datetime.date, datetime.datetime)):
@@ -120,12 +131,15 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         Get a mapping of ticker types to their descriptive names.
         `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
@@ -162,8 +176,7 @@ class SyncReferenceClient(base_client.BaseClient):
         print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
               f'library, let me know.')
 
-    def get_ticker_details_v3(self, symbol: str, date=None,
-                              raw_response: bool = False) -> Union[Response, dict]:
+    def get_ticker_details_v3(self, symbol: str, date=None, raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -196,7 +209,8 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
                              expiration_date_gt=None, expiration_date_gte=None, order='asc', sort=None,
-                             limit=100, raw_response: bool = False) -> Union[Response, dict]:
+                             limit=100, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                             raw_page_responses: bool = False, raw_response: bool = False):
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
@@ -213,10 +227,23 @@ class SyncReferenceClient(base_client.BaseClient):
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
         :param limit: Number of results to return
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
         if isinstance(expiration_date, (datetime.date, datetime.datetime)):
             expiration_date = expiration_date.strftime('%Y-%m-%d')
@@ -239,21 +266,25 @@ class SyncReferenceClient(base_client.BaseClient):
         _path = f'/vX/reference/options/contracts'
 
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
-                 'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
-                 'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
-                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+                 'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
+                 'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
+                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc', sort='published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
                         published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
-                        raw_response: bool = False) -> Union[Response, dict]:
+                        all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                        raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source.
@@ -273,10 +304,23 @@ class SyncReferenceClient(base_client.BaseClient):
         :param published_utc_lte: Return results where this field is less than or equal to the value given
         :param published_utc_gt: Return results where this field is greater than the value given
         :param published_utc_gte: Return results where this field is greater than or equal to the value given
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(published_utc, (datetime.date, datetime.datetime)):
@@ -306,10 +350,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                             declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
@@ -321,7 +368,8 @@ class SyncReferenceClient(base_client.BaseClient):
                             declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
                             pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
                             cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
-                            raw_response: bool = False):
+                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                            raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -362,10 +410,23 @@ class SyncReferenceClient(base_client.BaseClient):
         :param cash_amount_lte: filter where cash amt is less than or equal to given value
         :param cash_amount_gt: filter where cash amt is greater than given value
         :param cash_amount_gte: filter where cash amt is greater than or equal to given value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
@@ -450,10 +511,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
                                 company_name_search: str = None, sic: str = None, filing_date=None,
@@ -511,8 +575,8 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
                  'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
-                 'filing_date_lt': filing_date_lt, 'filing_date_lte': filing_date_lte,
-                 'filing_date_gt': filing_date_gt, 'filing_date_gte': filing_date_gte,
+                 'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
+                 'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
                  'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
                  'period_of_report_date_lte': period_of_report_date_lte,
                  'period_of_report_date_gt': period_of_report_date_gt,
@@ -529,7 +593,9 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
                          sort: str = 'execution_date', limit: int = 10, ticker_lt=None, ticker_lte=None,
                          ticker_gt=None, ticker_gte=None, execution_date_lt=None, execution_date_lte=None,
-                         execution_date_gt=None, execution_date_gte=None, raw_response: bool = False):
+                         execution_date_gt=None, execution_date_gte=None, all_pages: bool = False,
+                         max_pages: int = None, merge_all_pages: bool = True,
+                         raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
@@ -551,10 +617,23 @@ class SyncReferenceClient(base_client.BaseClient):
         :param execution_date_lte: filter where execution date is less than or equal to given value
         :param execution_date_gt: filter where execution date is greater than given value
         :param execution_date_gte: filter where execution date is greater than or equal to given value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(execution_date, (datetime.date, datetime.datetime)):
@@ -584,12 +663,15 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    def get_market_holidays(self, raw_response: bool = False) -> Union[Response, dict]:
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    def get_market_holidays(self, raw_response: bool = False):
         """
         Get upcoming market holidays and their open/close times.
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor>`__
@@ -609,7 +691,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_market_status(self, raw_response: bool = False) -> Union[Response, dict]:
+    def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets.
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_now_anchor>`__
@@ -629,7 +711,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_condition_mappings(self, tick_type='trades', raw_response: bool = False) -> Union[Response, dict]:
+    def get_condition_mappings(self, tick_type='trades', raw_response: bool = False):
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
         codes to identify conditions, so the same condition may have a different code depending on the originator of
@@ -761,10 +843,11 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                           ticker_gte=None, symbol_type='', market='', exchange: str = '',
                           cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
                           = None, search: str = None, active: bool = True, sort='ticker', order: str =
-                          'asc', limit: int = 100, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                          'asc', limit: int = 100, all_pages: bool = False, max_pages: int = None,
+                          merge_all_pages: bool = True, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
-        and Forex - Async method
+        and Forex.
         `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_anchor>`__
 
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
@@ -798,10 +881,23 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                       available choices.
         :param limit: Limit the size of the response, default is 100 and max is 1000. ``Pagination`` is supported by the
                       pagination function below
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(date, (datetime.date, datetime.datetime)):
@@ -819,13 +915,16 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_ticker_types(self, asset_class=None, locale=None,
-                               raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                               raw_response: bool = False):
         """
         Get a mapping of ticker types to their descriptive names - Async method
         `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
@@ -863,7 +962,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
               f'library, let me know.')
 
     async def get_ticker_details_v3(self, symbol: str, date=None,
-                                    raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                    raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -897,7 +996,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                    contract_type=None, expiration_date=None,
                                    expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
                                    expiration_date_gte=None, order='asc', sort=None, limit: int = 50,
-                                   raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                                   raw_page_responses: bool = False, raw_response: bool = False):
         """
         List currently active options contracts - Async method
         `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
@@ -914,10 +1014,23 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
         :param limit: Number of results to return
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
         if isinstance(expiration_date, (datetime.date, datetime.datetime)):
             expiration_date = expiration_date.strftime('%Y-%m-%d')
@@ -940,22 +1053,26 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _path = f'/vX/reference/options/contracts'
 
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
-                 'expiration_date': expiration_date, 'expiration_date_lt': expiration_date,
-                 'expiration_date_lte': expiration_date_lte, 'expiration_date_gt': expiration_date_gt,
-                 'expiration_date_gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+                 'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
+                 'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
+                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc',
                               sort='published_utc', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                               published_utc=None, published_utc_lt=None, published_utc_lte=None,
-                              published_utc_gt=None, published_utc_gte=None,
-                              raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                              published_utc_gt=None, published_utc_gte=None, all_pages: bool = False,
+                              max_pages: int = None, merge_all_pages: bool = True,
+                              raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - Async method
@@ -975,10 +1092,23 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param published_utc_lte: Return results where this field is less than or equal to the value given
         :param published_utc_gt: Return results where this field is greater than the value given
         :param published_utc_gte: Return results where this field is greater than or equal to the value given
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(published_utc, (datetime.date, datetime.datetime)):
@@ -1008,10 +1138,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                                   declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
@@ -1023,7 +1156,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                   declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
                                   pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
                                   cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
-                                  raw_response: bool = False):
+                                  all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                                  raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -1064,10 +1198,23 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param cash_amount_lte: filter where cash amt is less than or equal to given value
         :param cash_amount_gt: filter where cash amt is greater than given value
         :param cash_amount_gte: filter where cash amt is greater than or equal to given value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
@@ -1152,10 +1299,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
                                       company_name_search: str = None, sic: str = None, filing_date=None,
@@ -1213,8 +1363,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
                  'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
-                 'filing_date_lt': filing_date_lt, 'filing_date_lte': filing_date_lte,
-                 'filing_date_gt': filing_date_gt, 'filing_date_gte': filing_date_gte,
+                 'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
+                 'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
                  'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
                  'period_of_report_date_lte': period_of_report_date_lte,
                  'period_of_report_date_gt': period_of_report_date_gt,
@@ -1232,7 +1382,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                order: str = 'asc', sort: str = 'execution_date', limit: int = 10, ticker_lt=None,
                                ticker_lte=None, ticker_gt=None, ticker_gte=None, execution_date_lt=None,
                                execution_date_lte=None, execution_date_gt=None, execution_date_gte=None,
-                               raw_response: bool = False):
+                               all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                               raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
@@ -1254,10 +1405,23 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param execution_date_lte: filter where execution date is less than or equal to given value
         :param execution_date_gt: filter where execution date is greater than given value
         :param execution_date_gte: filter where execution date is greater than or equal to given value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
         if isinstance(execution_date, (datetime.date, datetime.datetime)):
@@ -1287,12 +1451,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
 
-    async def get_market_holidays(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    async def get_market_holidays(self, raw_response: bool = False):
         """
         Get upcoming market holidays and their open/close times - Async method
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor>`__
@@ -1312,7 +1479,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_market_status(self, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets - Async method
         `Official Docs <https://polygon.io/docs/get_v1_marketstatus_now_anchor>`__
@@ -1333,7 +1500,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_condition_mappings(self, tick_type='trades',
-                                     raw_response: bool = False) -> Union[HttpxResponse, dict]:
+                                     raw_response: bool = False):
         """
         Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
         codes to identify conditions, so the same condition may have a different code depending on the originator of

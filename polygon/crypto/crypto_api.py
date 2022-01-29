@@ -149,7 +149,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
             timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
 
-        _path = f'/vX/trades/{symbol}'
+        _path = f'/vX/trades/{ensure_prefix(symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,

@@ -42,7 +42,7 @@ Get Historic forex ticks
 Get Quotes (NBBO)
 -----------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.forex.forex_api.SyncForexClient.get_quotes
    :noindex:

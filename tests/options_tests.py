@@ -198,14 +198,21 @@ class TestOptions(unittest.TestCase):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_trades('O:TSLA210903C00700000', limit=10)
             data2 = client.get_trades('O:TSLA210903C00700000', limit=10, raw_response=True)
+            data3 = client.get_trades('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_trades('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2,
+                                      merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY)
@@ -281,13 +288,20 @@ class TestOptions(unittest.TestCase):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
             data2 = client.get_snapshot('AAPL', 'O:AAPL230616C00150000', raw_response=True)
+            data3 = client.get_snapshot('AAPL', 'O:AAPL230616C00150000', all_pages=True, max_pages=2)
+            data4 = client.get_snapshot('AAPL', 'O:AAPL230616C00150000', all_pages=True, max_pages=2,
+                                        merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data2.json()['status'], 'OK')
 
         # Testing without context manager
@@ -322,14 +336,21 @@ class TestOptions(unittest.TestCase):
         async with polygon.OptionsClient(cred.KEY, True) as client:
             data = await client.get_trades('O:TSLA210903C00700000', limit=10)
             data2 = await client.get_trades('O:TSLA210903C00700000', limit=10, raw_response=True)
+            data3 = await client.get_trades('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_trades('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2,
+                                            merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, True)
@@ -410,13 +431,20 @@ class TestOptions(unittest.TestCase):
         async with polygon.OptionsClient(cred.KEY, True) as client:
             data = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000')
             data2 = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000', raw_response=True)
+            data3 = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000', all_pages=True, max_pages=2)
+            data4 = await client.get_snapshot('AAPL', 'O:AAPL230616C00150000', all_pages=True, max_pages=2,
+                                              merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data2.json()['status'], 'OK')
 
         # Testing without context manager

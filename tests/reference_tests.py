@@ -35,15 +35,22 @@ class TestReferences(unittest.TestCase):
             data = client.get_tickers('AMD')
             data1 = client.get_tickers(search='GO', limit=20, market='stocks')
             data2 = client.get_tickers(symbol_type='CS', market='stocks', raw_response=True, limit=120)
+            data3 = client.get_tickers(limit=5, market='stocks', all_pages=True, max_pages=2)
+            data4 = client.get_tickers(limit=5, market='stocks', all_pages=True, max_pages=2,
+                                       merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, dict)
             self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['count'], 1)
             self.assertEqual(data1['count'], 20)
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data2.json()['count'], 120)
 
         # Testing without context manager
@@ -76,25 +83,6 @@ class TestReferences(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
-    def test_get_ticker_details(self):
-        with polygon.ReferenceClient(cred.KEY) as client:
-            data = client.get_ticker_details('AMD')
-            data1 = client.get_ticker_details('AMD', raw_response=True)
-
-            self.assertIsInstance(data, dict)
-            self.assertIsInstance(data1, Response)
-            self.assertIsInstance(data1.json(), dict)
-
-            self.assertEqual(data['type'], 'CS')
-            self.assertEqual(data1.json()['type'], 'CS')
-
-        # without context manager
-        client = polygon.ReferenceClient(cred.KEY)
-        data = client.get_ticker_details('AMD')
-        client.close()
-        self.assertIsInstance(data, dict)
-        self.assertEqual(data['type'], 'CS')
-
     def test_get_ticker_details_v3(self):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_ticker_details_v3('AMD')
@@ -118,12 +106,18 @@ class TestReferences(unittest.TestCase):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_option_contracts('AMD', limit=10)
             data1 = client.get_option_contracts('AMD', limit=10, contract_type='call', raw_response=True)
+            data3 = client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data3, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -137,12 +131,18 @@ class TestReferences(unittest.TestCase):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_ticker_news(limit=10)
             data1 = client.get_ticker_news('AMD', limit=10, raw_response=True)
+            data3 = client.get_ticker_news(limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_ticker_news(limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -159,12 +159,18 @@ class TestReferences(unittest.TestCase):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_stock_dividends('AMD')
             data1 = client.get_stock_dividends('AMD', raw_response=True)
+            data3 = client.get_stock_dividends('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_stock_dividends('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -197,12 +203,18 @@ class TestReferences(unittest.TestCase):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_stock_splits('AMD')
             data1 = client.get_stock_splits('AMD', raw_response=True)
+            data3 = client.get_stock_splits('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_stock_splits('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -301,15 +313,22 @@ class TestReferences(unittest.TestCase):
             data = await client.get_tickers('AMD')
             data1 = await client.get_tickers(search='GO', limit=20, market='stocks')
             data2 = await client.get_tickers(symbol_type='CS', market='stocks', raw_response=True, limit=120)
+            data3 = await client.get_tickers(limit=5, market='stocks', all_pages=True, max_pages=2)
+            data4 = await client.get_tickers(limit=5, market='stocks', all_pages=True, max_pages=2,
+                                             merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, dict)
             self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
 
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['count'], 1)
             self.assertEqual(data1['count'], 20)
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data2.json()['count'], 120)
 
         # Testing without context manager
@@ -344,26 +363,6 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(data['status'], 'OK')
 
     @async_test
-    async def test_async_get_ticker_details(self):
-        async with polygon.ReferenceClient(cred.KEY, True) as client:
-            data = await client.get_ticker_details('AMD')
-            data1 = await client.get_ticker_details('AMD', raw_response=True)
-
-            self.assertIsInstance(data, dict)
-            self.assertIsInstance(data1, HttpxResponse)
-            self.assertIsInstance(data1.json(), dict)
-
-            self.assertEqual(data['type'], 'CS')
-            self.assertEqual(data1.json()['type'], 'CS')
-
-        # without context manager
-        client = polygon.ReferenceClient(cred.KEY, True)
-        data = await client.get_ticker_details('AMD')
-        await client.close()
-        self.assertIsInstance(data, dict)
-        self.assertEqual(data['type'], 'CS')
-
-    @async_test
     async def test_async_get_ticker_details_v3(self):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
             data = await client.get_ticker_details_v3('AMD')
@@ -388,12 +387,19 @@ class TestReferences(unittest.TestCase):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
             data = await client.get_option_contracts('AMD', limit=10)
             data1 = await client.get_option_contracts('AMD', limit=10, contract_type='call', raw_response=True)
+            data3 = await client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2,
+                                                      merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data3, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -408,12 +414,18 @@ class TestReferences(unittest.TestCase):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
             data = await client.get_ticker_news(limit=10)
             data1 = await client.get_ticker_news('AMD', limit=10, raw_response=True)
+            data3 = await client.get_ticker_news(limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_ticker_news(limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -431,12 +443,18 @@ class TestReferences(unittest.TestCase):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
             data = await client.get_stock_dividends('AMD')
             data1 = await client.get_stock_dividends('AMD', raw_response=True)
+            data3 = await client.get_stock_dividends('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_stock_dividends('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager
@@ -471,12 +489,18 @@ class TestReferences(unittest.TestCase):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
             data = await client.get_stock_splits('AMD')
             data1 = await client.get_stock_splits('AMD', raw_response=True)
+            data3 = await client.get_stock_splits('AMD', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_stock_splits('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data1.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data1.json()['status'], 'OK')
 
         # without context manager

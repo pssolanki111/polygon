@@ -94,11 +94,16 @@ class TestStocks(unittest.TestCase):
             data1 = client.get_trades_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
             data2 = client.get_trades_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = client.get_trades_vx('AMD', '2021-06-28', limit=10)
+            data4 = client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+                                         merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
             self.assertIsInstance(data2, Response)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
             self.assertIsInstance(data2.json(), dict)
@@ -107,6 +112,8 @@ class TestStocks(unittest.TestCase):
             self.assertEqual(len(data1.json()['results']), 10)
             self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 10)
+            self.assertEqual(len(data5), 2)
 
             self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
 
@@ -153,11 +160,16 @@ class TestStocks(unittest.TestCase):
             data1 = client.get_quotes_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
             data2 = client.get_quotes_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = client.get_quotes_vx('AMD', '2021-06-28', limit=10)
+            data4 = client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+                                         merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
             self.assertIsInstance(data2, Response)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
             self.assertIsInstance(data2.json(), dict)
@@ -166,6 +178,8 @@ class TestStocks(unittest.TestCase):
             self.assertEqual(len(data1.json()['results']), 10)
             self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 10)
+            self.assertEqual(len(data5), 2)
 
             self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
 
@@ -455,11 +469,16 @@ class TestStocks(unittest.TestCase):
             data1 = await client.get_trades_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
             data2 = await client.get_trades_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = await client.get_trades_vx('AMD', '2021-06-28', limit=10)
+            data4 = await client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = await client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+                                               merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
             self.assertIsInstance(data2, HttpxResponse)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
             self.assertIsInstance(data2.json(), dict)
@@ -468,6 +487,8 @@ class TestStocks(unittest.TestCase):
             self.assertEqual(len(data1.json()['results']), 10)
             self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 10)
+            self.assertEqual(len(data5), 2)
 
             self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
 
@@ -517,11 +538,16 @@ class TestStocks(unittest.TestCase):
             data1 = await client.get_quotes_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
             data2 = await client.get_quotes_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = await client.get_quotes_vx('AMD', '2021-06-28', limit=10)
+            data4 = await client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = await client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+                                               merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
             self.assertIsInstance(data2, HttpxResponse)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
             self.assertIsInstance(data2.json(), dict)
@@ -530,6 +556,8 @@ class TestStocks(unittest.TestCase):
             self.assertEqual(len(data1.json()['results']), 10)
             self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 10)
+            self.assertEqual(len(data5), 2)
 
             self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
 

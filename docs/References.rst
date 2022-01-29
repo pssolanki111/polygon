@@ -30,7 +30,7 @@ you'd call the methods as ``client.get_tickers`` and so on. Async methods will n
 Get Tickers
 -----------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_tickers
    :noindex:
@@ -56,7 +56,7 @@ Get Ticker Details v3
 Get Option Contracts
 --------------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_option_contracts
    :noindex:
@@ -64,7 +64,7 @@ This endpoint supports pagination. The library has support for pagination. See :
 Get Ticker News
 ---------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_news
    :noindex:
@@ -72,7 +72,7 @@ This endpoint supports pagination. The library has support for pagination. See :
 Get Stock dividends
 -------------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_dividends
    :noindex:
@@ -86,7 +86,7 @@ Get Stock financials vX
 Get Stock Splits
 ----------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_stock_splits
    :noindex:

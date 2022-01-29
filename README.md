@@ -9,10 +9,10 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 -  Stocks and Options data
 -  Forex and Crypto data
 -  Websocket streaming (both callback and async based)
--  Market Info, News, Holidays, Schedules
+-  Market Info, News, Holidays, Schedules, Tickers, Conditions, Dividends, Splits
 -  Async support for REST endpoints
--  Built In stream reconnection functionality (only async stream, callback stream in progress)
--  Pagination support (next/previous pages)
+-  Built In stream reconnection functionality (async streamer only, in progress for callback streamer)
+-  Complete Pagination support (with internal merging of responses)
 
 and more...
 
@@ -21,7 +21,9 @@ and more...
 The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) which has answers to 
 any question you might have with example uses included wherever needed. Docs is a must-read for most people.
 
-More examples will be added to this repository in a folder `examples` as they are ready. 
+-  For examples to get started with, see the [examples](https://github.com/pssolanki111/polygon/tree/main/EXAMPLES)
+-  For an advanced use case example code involving redis queue and postgresql database, check out [MarketMakerLite/polygon](https://github.com/MarketMakerLite/polygon) 
+-  The lib is also officially supported by the popular TA library [pandas-ta](https://github.com/twopirllc/pandas-ta) as an underlying data source instead of the default `yfinance`. See relevant docs to know how to use
 
 ### Here is a quick setup guide with a few examples
 

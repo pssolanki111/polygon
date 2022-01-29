@@ -205,18 +205,79 @@ Every method's documentation contains a direct link to the corresponding officia
 Pagination Support
 ------------------
 
-So quite a few endpoints implement pagination for large response and hence the library implements a simple mechanism to get next page of the response.
-(support for previous page is also available but not all endpoints will have previous page implementation. The documentation will mention which endpoint has which kinda pagination
-implementation so make sure you read that)
+So quite a few endpoints implement pagination for large responses and hence the library implements a very simple and convenient way to
+get all the pages and merge responses internally to give you a single response with all the results in it.
 
-`This blog by polygon <https://polygon.io/blog/api-pagination-patterns/>`__ explains a few concepts around pagination and other query extensions. A good read overall.
+The behavior is exactly the same for ALL endpoints which support pagination (docs will mention when an endpoint is paginated). Knowing
+the functions and parameters once is enough for all endpoints.
 
-The pagination function simply parses the ``next_url`` attribute (for next page) and ``previous_url`` attribute (for previous page) and send an authorized request using your key as
-header.
+**To enable pagination**
 
-**The functions will return** ``False`` **if there is no next/previous page remaining** or the endpoint doesn't support pagination.
+    you simply need to pass ``all_pages=True`` to enable pagination for the concerned endpoint. You can also pass ``max_pages=an integer`` to limit how many pages the lib will fetch
+    internally. The default behavior is to fetch all available pages.
 
-All REST clients have these functions and you will use the same function name for all endpoints. See examples below
+You can further customize what kinda output you want to get. **you have three possible options to make use of pagination abilities** in the
+library
+
+Get a Single Merged Response (recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Recommended for most users. Using this method will give you all the pages, **merged into one single response** internally for your convenience, and you will get
+all the results from all pages in one single list.
+
+To use, simply pass ``all_pages=True``. you can optionally provide ``max_pages`` number too to limit how many pages to get.
+
+for example, below examples will do the merging of responses internally for you
+
+.. code-block:: python
+
+  # assuming client is created already
+
+  # This will pull ALL available tickers from reference APIs and merge them into a single list
+  data = client.get_tickers(market='stocks', limit=1000, all_pages=True)
+
+  # This will pull up to 4 available pages of tickers from reference APIs and merge them into a
+  # single list
+  data = client.get_tickers(market='stocks', limit=1000, all_pages=True, max_pages=5)
+
+
+Get a List of all pages
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Only for people who know they need it. what this method does is provide you with a list of all pages, WITHOUT merging them. so you'll basically get a list of all pages like so
+``[page1_data, page2_data, page3_data]``.
+
+By default each page element is the corresponding page's data itself. You can also customize it to get the underlying response objects (meant for advanced use cases)
+
+To enable, as usual you'd pass in ``all_pages=True``. But this time you'll ask the lib not to merge the pages using ``merge_all_pages=False``. That's it.
+as described above, to get underlying response objects, pass an additional ``raw_page_responses=True`` too.
+
+See examples below
+
+.. code-block:: python
+
+  # assuming client is created already
+
+  # will fetch all available pages, won't merge them and return a list of responses
+  data = client.get_tickers(market='stocks', limit=1000, all_pages=True, merge_all_pages=False)
+
+  # will fetch all available pages, won't merge them and return a list of response objects
+  data = client.get_tickers(market='stocks', limit=1000, all_pages=True, merge_all_pages=False,
+                            raw_page_responses=True)
+
+  # will fetch up to 5 available pages, won't merge them and return a list of responses
+  data = client.get_tickers(market='stocks', limit=1000, all_pages=True, merge_all_pages=False,
+                            max_pages=5)
+
+Paginate Manually
+~~~~~~~~~~~~~~~~~
+
+Only meant for people who really need more manual control over pagination, yet want to make use of available functionality.
+
+Every client has a few core methods which can be used to get next or previous pages by passing in the last response you have.
+
+Note that while using these methods, you'd need to use your own mechanism to combine pages or process them.
+If any of these methods return False, it means no more pages are available.
 
 **Examples Use**
 
@@ -238,10 +299,10 @@ All REST clients have these functions and you will use the same function name fo
 
 .. code-block:: python
 
-  responses = []
+  all_responses = []
 
-  response = client.get_trades(<blah-blah>)  # using get_trades as example. you can use it on all methods which support pagination
-  responses.append(response)  # using a list to store all the pages of response. You can use your own approach here.
+  response = client.get_trades_vx(<blah-blah>)  # using get_trades as example. you can use it on all methods which support pagination
+  all_responses.append(response)  # using a list to store all the pages of response. You can use your own approach here.
 
   while 1:
       response = client.get_next_page(response)  # change to get_previous_page for previous pages.
@@ -249,9 +310,9 @@ All REST clients have these functions and you will use the same function name fo
       if not response:
           break
 
-      responses.append(response)  # adding further responses to our list. you can use your own approach.
+      all_responses.append(response)  # adding further responses to our list. you can use your own approach.
 
-  print('all pages received.')
+  print(f'all pages received. total pages: {len(all_responses)}')
 
 .. _async_support_header:
 

@@ -37,7 +37,7 @@ Get Trades
 Get Trades vX
 -------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades_vx
    :noindex:
@@ -51,7 +51,7 @@ Get Quotes
 Get Quotes vX
 -------------
 
-This endpoint supports pagination. The library has support for pagination. See :ref:`pagination_header` for info and examples
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes_vx
    :noindex:

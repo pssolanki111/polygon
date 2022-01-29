@@ -128,25 +128,11 @@ class StreamClient:
         self.WS.run_forever(ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
                             ping_payload=self._ping_payload, skip_utf8_validation=self._skip_utf8_validation)
 
-    def start_stream_thread(self, reconnect: bool = False, max_reconnection_attempts=5, reconnection_delay=5,
-                            ping_interval: int = 21, ping_timeout: int = 20,  ping_payload: str = '',
+    def start_stream_thread(self, ping_interval: int = 21, ping_timeout: int = 20,  ping_payload: str = '',
                             skip_utf8_validation: bool = True):
         """
         Starts the Stream. This will not block the main thread and it spawns the streamer in its own thread.
 
-        :param reconnect: If this is ``False`` (default), it starts the usual connection thread and calls your
-                          callbacks when a msg is received. Uses the :meth:`_default_on_msg` if no callback was
-                          specified. Setting it to True traps disconnection errors reconnects to the stream with the
-                          same subscriptions it had earlier before getting disconnected. Note that if you define a
-                          custom function for ``on_error`` callback, the reconnection would not work.
-        :param max_reconnection_attempts: Determines how many times should the program attempt to reconnect in
-                                          case of failed attempts. The Counter is reset as soon as a successful
-                                          connection is re-established. Setting it to False disables the limit which is
-                                          NOT recommended unless you know you got a situation. This value is ignored
-                                          if ``reconnect`` is False (The default). Defaults to 5.
-        :param reconnection_delay: Number of seconds to wait before attempting to reconnect after a failed
-                                   reconnection attempt or a disconnection. This value is ignored if ``reconnect``
-                                   is False (the default). Defaults to 5.
         :param ping_interval: client would send a ``ping`` every specified number of seconds to server to keep
                               connection alive. Set to 0 to disable pinging. Defaults to 21 seconds
         :param ping_timeout: Timeout in seconds if a ``pong`` (response to ping from server) is not received. The Stream

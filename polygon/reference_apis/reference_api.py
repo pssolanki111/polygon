@@ -360,7 +360,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
     def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                             declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
-                            cash_amount=None, dividend_type=None, sort: str = None, order: str = 'asc',
+                            cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
                             ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                             ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
                             ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,
@@ -1148,7 +1148,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
     async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                                   declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
-                                  cash_amount=None, dividend_type=None, sort: str = None, order: str = 'asc',
+                                  cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
                                   ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                                   ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
                                   ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,

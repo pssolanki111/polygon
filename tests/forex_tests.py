@@ -73,13 +73,19 @@ class TestForex(unittest.TestCase):
         with polygon.ForexClient(cred.KEY) as client:
             data = client.get_quotes('C:EUR-USD')
             data2 = client.get_quotes('EUR-USD', raw_response=True)
+            data3 = client.get_quotes('C:EUR-USD', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_quotes('C:EUR-USD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
 
         # without context manager
         client = polygon.ForexClient(cred.KEY)
@@ -268,13 +274,19 @@ class TestForex(unittest.TestCase):
         async with polygon.ForexClient(cred.KEY, True) as client:
             data = await client.get_quotes('C:EUR-USD')
             data2 = await client.get_quotes('EUR-USD', raw_response=True)
+            data3 = await client.get_quotes('C:EUR-USD', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_quotes('C:EUR-USD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
 
         # without context manager
         client = polygon.ForexClient(cred.KEY, True)

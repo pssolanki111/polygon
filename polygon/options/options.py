@@ -241,7 +241,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
     # Endpoints
     def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100, order='asc',
+                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                    raw_page_responses: bool = False, raw_response: bool = False):
         """
@@ -260,7 +260,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
         :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionTradesSort`
                      for available choices.
-        :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
+        :param limit: Limit the number of results returned. Defaults to 5000. max is 50000.
         :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
                       available choices.
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -488,7 +488,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
     # Endpoints
     async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 100,
+                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000,
                          order='asc', all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                          raw_page_responses: bool = False, raw_response: bool = False):
         """

@@ -58,7 +58,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                     symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
                     date=None, search: str = None,
-                    active: bool = True, sort='ticker', order='asc', limit: int = 100, all_pages: bool = False,
+                    active: bool = True, sort='ticker', order='asc', limit: int = 1000, all_pages: bool = False,
                     max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
                     raw_response: bool = False):
         """
@@ -95,8 +95,8 @@ class SyncReferenceClient(base_client.BaseClient):
                      for available choices.
         :param order: The order to sort the results on. Default is asc. See :class:`polygon.enums.SortOrder` for
                       available choices.
-        :param limit: Limit the size of the response, default is 100 and max is 1000. ``Pagination`` is supported by the
-                      pagination function below
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -209,7 +209,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
                              expiration_date_gt=None, expiration_date_gte=None, order='asc', sort=None,
-                             limit=100, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                             limit=1000, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                              raw_page_responses: bool = False, raw_response: bool = False):
         """
         List currently active options contracts
@@ -226,7 +226,8 @@ class SyncReferenceClient(base_client.BaseClient):
         :param expiration_date_gte: expiration_date greater than equal to given value
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
-        :param limit: Number of results to return
+        :param limit: Limit the size of the response, default is 1000.
+                      ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -280,7 +281,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
-    def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc', sort='published_utc',
+    def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc', sort='published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
                         published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
@@ -291,8 +292,8 @@ class SyncReferenceClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/get_v2_reference_news_anchor>`__
 
         :param symbol: To get news mentioning the name given. Defaults to empty string which doesn't filter tickers
-        :param limit: Limit the size of the response, default is 100 and max is 1000. Use pagination helper function
-                      for larger responses.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param order: Order the results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: The field key to sort. See :class:`polygon.enums.TickerNewsSort` for choices.
         :param ticker_lt: Return results where this field is less than the value.
@@ -359,7 +360,7 @@ class SyncReferenceClient(base_client.BaseClient):
         return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
-                            declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
+                            declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
                             cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
                             ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                             ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
@@ -381,7 +382,8 @@ class SyncReferenceClient(base_client.BaseClient):
         :param pay_date: Query by pay date. could be a date, datetime object or a string ``YYYY-MM-DD``
         :param frequency: Query by the number of times per year the dividend is paid out. No default value applied.
                           see :class:`polygon.enums.PayoutFrequency` for choices
-        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param cash_amount: Query by the cash amount of the dividend.
         :param dividend_type: Query by the type of dividend. See :class:`polygon.enums.DividendType` for choices
         :param sort: sort key used for ordering. See :class:`polygon.enums.DividendSort` for choices.
@@ -591,7 +593,7 @@ class SyncReferenceClient(base_client.BaseClient):
         return _res.json()
 
     def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
-                         sort: str = 'execution_date', limit: int = 10, ticker_lt=None, ticker_lte=None,
+                         sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,
                          ticker_gt=None, ticker_gte=None, execution_date_lt=None, execution_date_lte=None,
                          execution_date_gt=None, execution_date_gte=None, all_pages: bool = False,
                          max_pages: int = None, merge_all_pages: bool = True,
@@ -608,7 +610,8 @@ class SyncReferenceClient(base_client.BaseClient):
                :class:`polygon.enums.SortOrder` for choices
         :param sort: Sort field used for ordering. Defaults to 'execution_date'. See
                :class:`polygon.enums.SplitsSortKey` for choices.
-        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param ticker_lt: filter where ticker name is less than given value (alphabetically)
         :param ticker_lte: filter where ticker name is less than or equal to given value (alphabetically)
         :param ticker_gt: filter where ticker name is greater than given value (alphabetically)
@@ -843,7 +846,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                           ticker_gte=None, symbol_type='', market='', exchange: str = '',
                           cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
                           = None, search: str = None, active: bool = True, sort='ticker', order: str =
-                          'asc', limit: int = 100, all_pages: bool = False, max_pages: int = None,
+                          'asc', limit: int = 1000, all_pages: bool = False, max_pages: int = None,
                           merge_all_pages: bool = True, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
@@ -879,8 +882,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                      for available choices.
         :param order: The order to sort the results on. Default is asc. See :class:`polygon.enums.SortOrder` for
                       available choices.
-        :param limit: Limit the size of the response, default is 100 and max is 1000. ``Pagination`` is supported by the
-                      pagination function below
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -995,7 +998,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
                                    contract_type=None, expiration_date=None,
                                    expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                                   expiration_date_gte=None, order='asc', sort=None, limit: int = 50,
+                                   expiration_date_gte=None, order='asc', sort=None, limit: int = 1000,
                                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                                    raw_page_responses: bool = False, raw_response: bool = False):
         """
@@ -1013,7 +1016,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param expiration_date_gte: expiration_date greater than equal to given value
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
-        :param limit: Number of results to return
+        :param limit: Limit the size of the response, default is 1000.
+                      ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -1067,7 +1071,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
-    async def get_ticker_news(self, symbol: str = None, limit: int = 100, order='desc',
+    async def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc',
                               sort='published_utc', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                               published_utc=None, published_utc_lt=None, published_utc_lte=None,
                               published_utc_gt=None, published_utc_gte=None, all_pages: bool = False,
@@ -1079,8 +1083,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/get_v2_reference_news_anchor>`__
 
         :param symbol: To get news mentioning the name given. Defaults to empty string which doesn't filter tickers
-        :param limit: Limit the size of the response, default is 100 and max is 1000. Use pagination helper function
-                      for larger responses.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param order: Order the results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: The field key to sort. See :class:`polygon.enums.TickerNewsSort` for choices.
         :param ticker_lt: Return results where this field is less than the value.
@@ -1147,7 +1151,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
     async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
-                                  declaration_date=None, pay_date=None, frequency: int = None, limit: int = 10,
+                                  declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
                                   cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
                                   ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                                   ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
@@ -1169,7 +1173,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param pay_date: Query by pay date. could be a date, datetime object or a string ``YYYY-MM-DD``
         :param frequency: Query by the number of times per year the dividend is paid out. No default value applied.
                           see :class:`polygon.enums.PayoutFrequency` for choices
-        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param cash_amount: Query by the cash amount of the dividend.
         :param dividend_type: Query by the type of dividend. See :class:`polygon.enums.DividendType` for choices
         :param sort: sort key used for ordering. See :class:`polygon.enums.DividendSort` for choices.
@@ -1379,7 +1384,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None,
-                               order: str = 'asc', sort: str = 'execution_date', limit: int = 10, ticker_lt=None,
+                               order: str = 'asc', sort: str = 'execution_date', limit: int = 1000, ticker_lt=None,
                                ticker_lte=None, ticker_gt=None, ticker_gte=None, execution_date_lt=None,
                                execution_date_lte=None, execution_date_gt=None, execution_date_gte=None,
                                all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
@@ -1396,7 +1401,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                :class:`polygon.enums.SortOrder` for choices
         :param sort: Sort field used for ordering. Defaults to 'execution_date'. See
                :class:`polygon.enums.SplitsSortKey` for choices.
-        :param limit: Limit the number of results returned, default is 10 and max is 1000.
+        :param limit: Limit the size of the response, default is 1000 which is also the max.
+                      ``Pagination`` is supported by the pagination function below
         :param ticker_lt: filter where ticker name is less than given value (alphabetically)
         :param ticker_lte: filter where ticker name is less than or equal to given value (alphabetically)
         :param ticker_gt: filter where ticker name is greater than given value (alphabetically)

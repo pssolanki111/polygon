@@ -1,7 +1,5 @@
 # ========================================================= #
 from .. import base_client
-from typing import Union
-import datetime
 
 # ========================================================= #
 
@@ -116,8 +114,7 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -166,16 +163,6 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    @staticmethod
-    def get_ticker_details(symbol: str, raw_response: bool = False):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
-
     def get_ticker_details_v3(self, symbol: str, date=None, raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
@@ -192,8 +179,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v3/reference/tickers/{symbol.upper()}'
 
@@ -246,20 +232,15 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
-        if isinstance(expiration_date, (datetime.date, datetime.datetime)):
-            expiration_date = expiration_date.strftime('%Y-%m-%d')
+        expiration_date = self.normalize_datetime(expiration_date, output_type='str')
 
-        if isinstance(expiration_date_lt, (datetime.date, datetime.datetime)):
-            expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
+        expiration_date_lt = self.normalize_datetime(expiration_date_lt, output_type='str')
 
-        if isinstance(expiration_date_lte, (datetime.date, datetime.datetime)):
-            expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
+        expiration_date_lte = self.normalize_datetime(expiration_date_lte, output_type='str')
 
-        if isinstance(expiration_date_gt, (datetime.date, datetime.datetime)):
-            expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
+        expiration_date_gt = self.normalize_datetime(expiration_date_gt, output_type='str')
 
-        if isinstance(expiration_date_gte, (datetime.date, datetime.datetime)):
-            expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
+        expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
 
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -324,20 +305,15 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(published_utc, (datetime.date, datetime.datetime)):
-            published_utc = published_utc.strftime('%Y-%m-%d')
+        published_utc = self.normalize_datetime(published_utc, output_type='str')
 
-        if isinstance(published_utc_lt, (datetime.date, datetime.datetime)):
-            published_utc_lt = published_utc_lt.strftime('%Y-%m-%d')
+        published_utc_lt = self.normalize_datetime(published_utc_lt)
 
-        if isinstance(published_utc_lte, (datetime.date, datetime.datetime)):
-            published_utc_lte = published_utc_lte.strftime('%Y-%m-%d')
+        published_utc_lte = self.normalize_datetime(published_utc_lte)
 
-        if isinstance(published_utc_gt, (datetime.date, datetime.datetime)):
-            published_utc_gt = published_utc_gt.strftime('%Y-%m-%d')
+        published_utc_gt = self.normalize_datetime(published_utc_gt)
 
-        if isinstance(published_utc_gte, (datetime.date, datetime.datetime)):
-            published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
+        published_utc_gte = self.normalize_datetime(published_utc_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -431,65 +407,45 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
-            ex_dividend_date = ex_dividend_date.strftime('%Y-%m-%d')
+        ex_dividend_date = self.normalize_datetime(ex_dividend_date, output_type='str')
 
-        if isinstance(record_date, (datetime.date, datetime.datetime)):
-            record_date = record_date.strftime('%Y-%m-%d')
+        record_date = self.normalize_datetime(record_date, output_type='str')
 
-        if isinstance(declaration_date, (datetime.date, datetime.datetime)):
-            declaration_date = declaration_date.strftime('%Y-%m-%d')
+        declaration_date = self.normalize_datetime(declaration_date, output_type='str')
 
-        if isinstance(pay_date, (datetime.date, datetime.datetime)):
-            pay_date = pay_date.strftime('%Y-%m-%d')
+        pay_date = self.normalize_datetime(pay_date, output_type='str')
 
-        if isinstance(ex_dividend_date_lt, (datetime.date, datetime.datetime)):
-            ex_dividend_date_lt = ex_dividend_date_lt.strftime('%Y-%m-%d')
+        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
 
-        if isinstance(ex_dividend_date_lte, (datetime.date, datetime.datetime)):
-            ex_dividend_date_lte = ex_dividend_date_lte.strftime('%Y-%m-%d')
+        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte)
 
-        if isinstance(ex_dividend_date_gt, (datetime.date, datetime.datetime)):
-            ex_dividend_date_gt = ex_dividend_date_gt.strftime('%Y-%m-%d')
+        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt)
 
-        if isinstance(ex_dividend_date_gte, (datetime.date, datetime.datetime)):
-            ex_dividend_date_gte = ex_dividend_date_gte.strftime('%Y-%m-%d')
+        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte)
 
-        if isinstance(record_date_lt, (datetime.date, datetime.datetime)):
-            record_date_lt = record_date_lt.strftime('%Y-%m-%d')
+        record_date_lt = self.normalize_datetime(record_date_lt)
 
-        if isinstance(record_date_lte, (datetime.date, datetime.datetime)):
-            record_date_lte = record_date_lte.strftime('%Y-%m-%d')
+        record_date_lte = self.normalize_datetime(record_date_lte)
 
-        if isinstance(record_date_gt, (datetime.date, datetime.datetime)):
-            record_date_gt = record_date_gt.strftime('%Y-%m-%d')
+        record_date_gt = self.normalize_datetime(record_date_gt)
 
-        if isinstance(record_date_gte, (datetime.date, datetime.datetime)):
-            record_date_gte = record_date_gte.strftime('%Y-%m-%d')
+        record_date_gte = self.normalize_datetime(record_date_gte)
 
-        if isinstance(declaration_date_lt, (datetime.date, datetime.datetime)):
-            declaration_date_lt = declaration_date_lt.strftime('%Y-%m-%d')
+        declaration_date_lt = self.normalize_datetime(declaration_date_lt)
 
-        if isinstance(declaration_date_lte, (datetime.date, datetime.datetime)):
-            declaration_date_lte = declaration_date_lte.strftime('%Y-%m-%d')
+        declaration_date_lte = self.normalize_datetime(declaration_date_lte)
 
-        if isinstance(declaration_date_gt, (datetime.date, datetime.datetime)):
-            declaration_date_gt = declaration_date_gt.strftime('%Y-%m-%d')
+        declaration_date_gt = self.normalize_datetime(declaration_date_gt)
 
-        if isinstance(declaration_date_gte, (datetime.date, datetime.datetime)):
-            declaration_date_gte = declaration_date_gte.strftime('%Y-%m-%d')
+        declaration_date_gte = self.normalize_datetime(declaration_date_gte)
 
-        if isinstance(pay_date_lt, (datetime.date, datetime.datetime)):
-            pay_date_lt = pay_date_lt.strftime('%Y-%m-%d')
+        pay_date_lt = self.normalize_datetime(pay_date_lt)
 
-        if isinstance(pay_date_lte, (datetime.date, datetime.datetime)):
-            pay_date_lte = pay_date_lte.strftime('%Y-%m-%d')
+        pay_date_lte = self.normalize_datetime(pay_date_lte)
 
-        if isinstance(pay_date_gt, (datetime.date, datetime.datetime)):
-            pay_date_gt = pay_date_gt.strftime('%Y-%m-%d')
+        pay_date_gt = self.normalize_datetime(pay_date_gt)
 
-        if isinstance(pay_date_gte, (datetime.date, datetime.datetime)):
-            pay_date_gte = pay_date_gte.strftime('%Y-%m-%d')
+        pay_date_gte = self.normalize_datetime(pay_date_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
         frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
@@ -570,6 +526,26 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
+        filing_date = self.normalize_datetime(filing_date, output_type='str')
+
+        period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
+
+        filing_date_lt = self.normalize_datetime(filing_date_lt)
+
+        filing_date_lte = self.normalize_datetime(filing_date_lte)
+
+        filing_date_gt = self.normalize_datetime(filing_date_gt)
+
+        filing_date_gte = self.normalize_datetime(filing_date_gte)
+
+        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+
+        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+
+        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+
+        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
@@ -579,10 +555,10 @@ class SyncReferenceClient(base_client.BaseClient):
                  'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
                  'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
                  'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
-                 'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
-                 'period_of_report_date_lte': period_of_report_date_lte,
-                 'period_of_report_date_gt': period_of_report_date_gt,
-                 'period_of_report_date_gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
+                 'period_of_report_date': period_of_report_date, 'period_of_report_date.lt': period_of_report_date_lt,
+                 'period_of_report_date.lte': period_of_report_date_lte,
+                 'period_of_report_date.gt': period_of_report_date_gt,
+                 'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
                  'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
 
         _res = self._get_response(_path, params=_data)
@@ -639,20 +615,15 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(execution_date, (datetime.date, datetime.datetime)):
-            execution_date = execution_date.strftime('%Y-%m-%d')
+        execution_date = self.normalize_datetime(execution_date, output_type='str')
 
-        if isinstance(execution_date_lt, (datetime.date, datetime.datetime)):
-            execution_date_lt = execution_date_lt.strftime('%Y-%m-%d')
+        execution_date_lt = self.normalize_datetime(execution_date_lt)
 
-        if isinstance(execution_date_lte, (datetime.date, datetime.datetime)):
-            execution_date_lte = execution_date_lte.strftime('%Y-%m-%d')
+        execution_date_lte = self.normalize_datetime(execution_date_lte)
 
-        if isinstance(execution_date_gt, (datetime.date, datetime.datetime)):
-            execution_date_gt = execution_date_gt.strftime('%Y-%m-%d')
+        execution_date_gt = self.normalize_datetime(execution_date_gt)
 
-        if isinstance(execution_date_gte, (datetime.date, datetime.datetime)):
-            execution_date_gte = execution_date_gte.strftime('%Y-%m-%d')
+        execution_date_gte = self.normalize_datetime(execution_date_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -804,26 +775,6 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    @staticmethod
-    def get_locales(*args, **kwargs):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
-
-    @staticmethod
-    def get_markets(*args, **kwargs):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
-
 
 # ========================================================= #
 
@@ -844,10 +795,10 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     # Endpoints
     async def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,
                           ticker_gte=None, symbol_type='', market='', exchange: str = '',
-                          cusip: str = None, cik: str = '', date: Union[str, datetime.date, datetime.datetime]
-                          = None, search: str = None, active: bool = True, sort='ticker', order: str =
-                          'asc', limit: int = 1000, all_pages: bool = False, max_pages: int = None,
-                          merge_all_pages: bool = True, raw_page_responses: bool = False, raw_response: bool = False):
+                          cusip: str = None, cik: str = '', date=None, search: str = None, active: bool = True,
+                          sort='ticker', order: str = 'asc', limit: int = 1000, all_pages: bool = False,
+                          max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
+                          raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
@@ -903,8 +854,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -926,8 +876,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
-    async def get_ticker_types(self, asset_class=None, locale=None,
-                               raw_response: bool = False):
+    async def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         Get a mapping of ticker types to their descriptive names - Async method
         `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
@@ -954,18 +903,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    @staticmethod
-    async def get_ticker_details(symbol: str, raw_response: bool = False):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
-
-    async def get_ticker_details_v3(self, symbol: str, date=None,
-                                    raw_response: bool = False):
+    async def get_ticker_details_v3(self, symbol: str, date=None, raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -981,8 +919,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v3/reference/tickers/{symbol.upper()}'
 
@@ -1036,20 +973,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
-        if isinstance(expiration_date, (datetime.date, datetime.datetime)):
-            expiration_date = expiration_date.strftime('%Y-%m-%d')
+        expiration_date = self.normalize_datetime(expiration_date, output_type='str')
 
-        if isinstance(expiration_date_lt, (datetime.date, datetime.datetime)):
-            expiration_date_lt = expiration_date_lt.strftime('%Y-%m-%d')
+        expiration_date_lt = self.normalize_datetime(expiration_date_lt, output_type='str')
 
-        if isinstance(expiration_date_lte, (datetime.date, datetime.datetime)):
-            expiration_date_lte = expiration_date_lte.strftime('%Y-%m-%d')
+        expiration_date_lte = self.normalize_datetime(expiration_date_lte, output_type='str')
 
-        if isinstance(expiration_date_gt, (datetime.date, datetime.datetime)):
-            expiration_date_gt = expiration_date_gt.strftime('%Y-%m-%d')
+        expiration_date_gt = self.normalize_datetime(expiration_date_gt, output_type='str')
 
-        if isinstance(expiration_date_gte, (datetime.date, datetime.datetime)):
-            expiration_date_gte = expiration_date_gte.strftime('%Y-%m-%d')
+        expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
 
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
@@ -1115,20 +1047,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(published_utc, (datetime.date, datetime.datetime)):
-            published_utc = published_utc.strftime('%Y-%m-%d')
+        published_utc = self.normalize_datetime(published_utc, output_type='str')
 
-        if isinstance(published_utc_lt, (datetime.date, datetime.datetime)):
-            published_utc_lt = published_utc_lt.strftime('%Y-%m-%d')
+        published_utc_lt = self.normalize_datetime(published_utc_lt)
 
-        if isinstance(published_utc_lte, (datetime.date, datetime.datetime)):
-            published_utc_lte = published_utc_lte.strftime('%Y-%m-%d')
+        published_utc_lte = self.normalize_datetime(published_utc_lte)
 
-        if isinstance(published_utc_gt, (datetime.date, datetime.datetime)):
-            published_utc_gt = published_utc_gt.strftime('%Y-%m-%d')
+        published_utc_gt = self.normalize_datetime(published_utc_gt)
 
-        if isinstance(published_utc_gte, (datetime.date, datetime.datetime)):
-            published_utc_gte = published_utc_gte.strftime('%Y-%m-%d')
+        published_utc_gte = self.normalize_datetime(published_utc_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -1222,65 +1149,45 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(ex_dividend_date, (datetime.date, datetime.datetime)):
-            ex_dividend_date = ex_dividend_date.strftime('%Y-%m-%d')
+        ex_dividend_date = self.normalize_datetime(ex_dividend_date, output_type='str')
 
-        if isinstance(record_date, (datetime.date, datetime.datetime)):
-            record_date = record_date.strftime('%Y-%m-%d')
+        record_date = self.normalize_datetime(record_date, output_type='str')
 
-        if isinstance(declaration_date, (datetime.date, datetime.datetime)):
-            declaration_date = declaration_date.strftime('%Y-%m-%d')
+        declaration_date = self.normalize_datetime(declaration_date, output_type='str')
 
-        if isinstance(pay_date, (datetime.date, datetime.datetime)):
-            pay_date = pay_date.strftime('%Y-%m-%d')
+        pay_date = self.normalize_datetime(pay_date, output_type='str')
 
-        if isinstance(ex_dividend_date_lt, (datetime.date, datetime.datetime)):
-            ex_dividend_date_lt = ex_dividend_date_lt.strftime('%Y-%m-%d')
+        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
 
-        if isinstance(ex_dividend_date_lte, (datetime.date, datetime.datetime)):
-            ex_dividend_date_lte = ex_dividend_date_lte.strftime('%Y-%m-%d')
+        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte)
 
-        if isinstance(ex_dividend_date_gt, (datetime.date, datetime.datetime)):
-            ex_dividend_date_gt = ex_dividend_date_gt.strftime('%Y-%m-%d')
+        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt)
 
-        if isinstance(ex_dividend_date_gte, (datetime.date, datetime.datetime)):
-            ex_dividend_date_gte = ex_dividend_date_gte.strftime('%Y-%m-%d')
+        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte)
 
-        if isinstance(record_date_lt, (datetime.date, datetime.datetime)):
-            record_date_lt = record_date_lt.strftime('%Y-%m-%d')
+        record_date_lt = self.normalize_datetime(record_date_lt)
 
-        if isinstance(record_date_lte, (datetime.date, datetime.datetime)):
-            record_date_lte = record_date_lte.strftime('%Y-%m-%d')
+        record_date_lte = self.normalize_datetime(record_date_lte)
 
-        if isinstance(record_date_gt, (datetime.date, datetime.datetime)):
-            record_date_gt = record_date_gt.strftime('%Y-%m-%d')
+        record_date_gt = self.normalize_datetime(record_date_gt)
 
-        if isinstance(record_date_gte, (datetime.date, datetime.datetime)):
-            record_date_gte = record_date_gte.strftime('%Y-%m-%d')
+        record_date_gte = self.normalize_datetime(record_date_gte)
 
-        if isinstance(declaration_date_lt, (datetime.date, datetime.datetime)):
-            declaration_date_lt = declaration_date_lt.strftime('%Y-%m-%d')
+        declaration_date_lt = self.normalize_datetime(declaration_date_lt)
 
-        if isinstance(declaration_date_lte, (datetime.date, datetime.datetime)):
-            declaration_date_lte = declaration_date_lte.strftime('%Y-%m-%d')
+        declaration_date_lte = self.normalize_datetime(declaration_date_lte)
 
-        if isinstance(declaration_date_gt, (datetime.date, datetime.datetime)):
-            declaration_date_gt = declaration_date_gt.strftime('%Y-%m-%d')
+        declaration_date_gt = self.normalize_datetime(declaration_date_gt)
 
-        if isinstance(declaration_date_gte, (datetime.date, datetime.datetime)):
-            declaration_date_gte = declaration_date_gte.strftime('%Y-%m-%d')
+        declaration_date_gte = self.normalize_datetime(declaration_date_gte)
 
-        if isinstance(pay_date_lt, (datetime.date, datetime.datetime)):
-            pay_date_lt = pay_date_lt.strftime('%Y-%m-%d')
+        pay_date_lt = self.normalize_datetime(pay_date_lt)
 
-        if isinstance(pay_date_lte, (datetime.date, datetime.datetime)):
-            pay_date_lte = pay_date_lte.strftime('%Y-%m-%d')
+        pay_date_lte = self.normalize_datetime(pay_date_lte)
 
-        if isinstance(pay_date_gt, (datetime.date, datetime.datetime)):
-            pay_date_gt = pay_date_gt.strftime('%Y-%m-%d')
+        pay_date_gt = self.normalize_datetime(pay_date_gt)
 
-        if isinstance(pay_date_gte, (datetime.date, datetime.datetime)):
-            pay_date_gte = pay_date_gte.strftime('%Y-%m-%d')
+        pay_date_gte = self.normalize_datetime(pay_date_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
         frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
@@ -1361,6 +1268,26 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
+        filing_date = self.normalize_datetime(filing_date, output_type='str')
+
+        period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
+
+        filing_date_lt = self.normalize_datetime(filing_date_lt)
+
+        filing_date_lte = self.normalize_datetime(filing_date_lte)
+
+        filing_date_gt = self.normalize_datetime(filing_date_gt)
+
+        filing_date_gte = self.normalize_datetime(filing_date_gte)
+
+        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+
+        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+
+        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+
+        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
@@ -1370,10 +1297,10 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
                  'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
                  'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
-                 'period_of_report_date': period_of_report_date, 'period_of_report_date_lt': period_of_report_date_lt,
-                 'period_of_report_date_lte': period_of_report_date_lte,
-                 'period_of_report_date_gt': period_of_report_date_gt,
-                 'period_of_report_date_gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
+                 'period_of_report_date': period_of_report_date, 'period_of_report_date.lt': period_of_report_date_lt,
+                 'period_of_report_date.lte': period_of_report_date_lte,
+                 'period_of_report_date.gt': period_of_report_date_gt,
+                 'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
                  'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
 
         _res = await self._get_response(_path, params=_data)
@@ -1430,20 +1357,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(execution_date, (datetime.date, datetime.datetime)):
-            execution_date = execution_date.strftime('%Y-%m-%d')
+        execution_date = self.normalize_datetime(execution_date, output_type='str')
 
-        if isinstance(execution_date_lt, (datetime.date, datetime.datetime)):
-            execution_date_lt = execution_date_lt.strftime('%Y-%m-%d')
+        execution_date_lt = self.normalize_datetime(execution_date_lt)
 
-        if isinstance(execution_date_lte, (datetime.date, datetime.datetime)):
-            execution_date_lte = execution_date_lte.strftime('%Y-%m-%d')
+        execution_date_lte = self.normalize_datetime(execution_date_lte)
 
-        if isinstance(execution_date_gt, (datetime.date, datetime.datetime)):
-            execution_date_gt = execution_date_gt.strftime('%Y-%m-%d')
+        execution_date_gt = self.normalize_datetime(execution_date_gt)
 
-        if isinstance(execution_date_gte, (datetime.date, datetime.datetime)):
-            execution_date_gte = execution_date_gte.strftime('%Y-%m-%d')
+        execution_date_gte = self.normalize_datetime(execution_date_gte)
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -1594,26 +1516,6 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             return _res
 
         return _res.json()
-
-    @staticmethod
-    async def get_locales(*args, **kwargs):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
-
-    @staticmethod
-    async def get_markets(*args, **kwargs):
-        """
-        DEPRECATED! This endpoint has been removed from polygon docs. This method
-        will be removed in a future version from the library
-
-        """
-        print(f'This endpoint has been deprecated and removed from polygon docs. If you think this should be in the '
-              f'library, let me know.')
 
 
 # ========================================================= #

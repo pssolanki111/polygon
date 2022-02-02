@@ -254,10 +254,14 @@ class SyncOptionsClient(base_client.BaseClient):
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
-        :param timestamp_lt: query results where timestamp is less than the supplied value
-        :param timestamp_lte: query results where timestamp is less than or equal to the supplied value
-        :param timestamp_gt: query results where timestamp is greater than the supplied value
-        :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string or nanosecond timestamp
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string or nanosecond timestamp
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string or nanosecond timestamp
         :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionTradesSort`
                      for available choices.
         :param limit: Limit the number of results returned. Defaults to 5000. max is 50000.
@@ -281,6 +285,16 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
+
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
 
@@ -337,8 +351,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
 
@@ -379,11 +392,12 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.date, datetime.datetime)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.date, datetime.datetime)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
@@ -501,10 +515,14 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
-        :param timestamp_lt: query results where timestamp is less than the supplied value
-        :param timestamp_lte: query results where timestamp is less than or equal to the supplied value
-        :param timestamp_gt: query results where timestamp is greater than the supplied value
-        :param timestamp_gte: query results where timestamp is greater than or equal to the supplied value
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string or nanosecond timestamp
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string or nanosecond timestamp
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string or nanosecond timestamp
         :param sort: Sort field used for ordering. Defaults to timestamp. See
                      :class:`polygon.enums.OptionTradesSort` for available choices.
         :param limit: Limit the number of results returned. Defaults to 100. max is 50000.
@@ -528,6 +546,16 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
+
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
 
@@ -584,8 +612,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
 
@@ -626,11 +653,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.date, datetime.datetime)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.date, datetime.datetime)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 

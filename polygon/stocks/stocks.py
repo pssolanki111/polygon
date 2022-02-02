@@ -1,6 +1,5 @@
 # ========================================================= #
 from .. import base_client
-import datetime
 
 # ========================================================= #
 
@@ -76,8 +75,8 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        timestamp = self.normalize_datetime(timestamp)
 
         _path = f'/v2/ticks/stocks/trades/{symbol.upper()}/{date}'
 
@@ -108,13 +107,14 @@ class SyncStocksClient(base_client.BaseClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.StocksTradesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -134,20 +134,15 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/trades/{symbol}'
 
@@ -186,8 +181,8 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        timestamp = self.normalize_datetime(timestamp)
 
         _path = f'/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}'
 
@@ -218,13 +213,14 @@ class SyncStocksClient(base_client.BaseClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.StocksQuotesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -244,20 +240,15 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/quotes/{symbol}'
 
@@ -334,8 +325,7 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v1/open-close/{symbol.upper()}/{date}'
 
@@ -375,11 +365,12 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.date, datetime.datetime)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.date, datetime.datetime)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
@@ -409,8 +400,8 @@ class SyncStocksClient(base_client.BaseClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v2/aggs/grouped/locale/us/market/stocks/{date}'
 
@@ -582,8 +573,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        timestamp = self.normalize_datetime(timestamp)
 
         _path = f'/v2/ticks/stocks/trades/{symbol.upper()}/{date}'
 
@@ -614,13 +605,14 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.StocksTradesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -640,20 +632,15 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/trades/{symbol}'
 
@@ -693,8 +680,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        timestamp = self.normalize_datetime(timestamp)
 
         _path = f'/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}'
 
@@ -725,13 +712,14 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.StocksQuotesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -751,20 +739,15 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/quotes/{symbol}'
 
@@ -841,8 +824,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v1/open-close/{symbol.upper()}/{date}'
 
@@ -883,11 +865,14 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.date, datetime.datetime)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.date, datetime.datetime)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
+
+        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
         _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
@@ -915,8 +900,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        if isinstance(date, (datetime.date, datetime.datetime)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v2/aggs/grouped/locale/us/market/stocks/{date}'
 

@@ -5,6 +5,20 @@ from typing import Union
 from requests.models import Response
 from httpx import Response as HttpxResponse
 from enum import Enum
+import datetime
+
+# ========================================================= #
+
+
+TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
+                     'hour': datetime.timedelta(days=90),
+                     'day': datetime.timedelta(days=5400),
+                     'week': datetime.timedelta(days=5400),
+                     'month': datetime.timedelta(days=5400),
+                     'quarter': datetime.timedelta(days=5400),
+                     'year': datetime.timedelta(days=5400)
+                     }
+
 
 # ========================================================= #
 
@@ -219,6 +233,213 @@ class BaseClient:
             return pages
 
         return container
+
+    def split_date_range(self, start, end, timespan: str) -> list:
+        """
+        Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
+        aggregate bars data. The chunks duration is supposed to be different for time spans.
+        For 1 minute bars, multiplier would be 1, timespan would be 'minute'
+
+        :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
+        :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
+        :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
+        :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
+        """
+
+        try:
+            delta = TIME_FRAME_CHUNKS[timespan]
+        except KeyError:
+            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
+                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
+                             '.enums.Timespan')
+
+        start = self.normalize_datetime(start)
+
+        end = self.normalize_datetime(end, _dir='end')
+
+        if end - start < int(delta.days) * 24 * 3600 * 1000:
+            return [(start, end)]
+
+        # The Time Travel begins
+        if timespan == 'min':
+            timespan = 'minute'
+
+        final_time_chunks, timespan, current = [], self._change_enum(timespan), start
+
+        while 1:
+            probable_next_date = current + delta
+
+            if probable_next_date >= end:
+                if current == probable_next_date:
+                    break
+
+                final_time_chunks.append((current, end))
+                break
+
+            final_time_chunks.append((current, probable_next_date))
+            current = probable_next_date + datetime.timedelta(days=1)
+
+        return final_time_chunks
+
+    def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_threaded: bool = True,
+                                  warnings: bool = True, **kwargs) -> list:
+        """
+        Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
+        Users should prefer the relevant aggregate function with additional parameters.
+
+        :param fn: The method to call in each chunked timeframe
+        :param symbol: The ticker symbol to get data for
+        :param time_chunks: The list of time chunks as returned by method ``split_datetime_range``
+        :param run_threaded: If true (the default), it will use an internal ``ThreadPool`` to get the responses in
+                             parallel. **Note That** since python has the GIL restrictions, it would mean that if you
+                             have a ThreadPool of your own, only one ThreadPool will be running at a time and the
+                             other pool will wait. set to False to get all responses in sequence (will take time)
+        :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
+        :param kwargs: The keyword arguments to be supplied to fn
+        :return: A single merged list of ALL candles/bars
+        """
+
+        if run_threaded and warnings:
+            print(f'WARNING: Running with threading will spawn an internal ThreadPool to get responses in parallel. '
+                  f'It is fine if you are not running a ThreadPool of your own. But If you are, know that only one '
+                  f'pool will run at a time due to python GIL restriction. Other pool will wait. You can pass '
+                  f'warnings=False to disable this warning OR pass run_threaded=False to disable running internal '
+                  f'thread pool')
+        if (not run_threaded) and warnings:
+            print(f'WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour '
+                  f'aggs on a BIG time frame. You can pass warnings=False to disable this warning OR '
+                  f'pass run_threaded=True to run an internal thread pool if you are not running a thread pool of '
+                  f'your own')
+
+        # The aggregation begins
+        dupe_handler, final_results = 0, []
+
+        if run_threaded:
+            from concurrent.futures import ThreadPoolExecutor
+            import os
+
+            futures = []
+
+            with ThreadPoolExecutor(max_workers=os.cpu_count() * 5) as pool:
+                for chunk in time_chunks:
+                    chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
+                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], **kwargs))
+
+            for future in futures:
+                try:
+                    data = future.result()['results']
+                except KeyError:
+                    if warnings:
+                        print(f'No data returned for request ID: {future.result()["request_id"]}')
+                    continue
+
+                if len(data) < 1:
+                    if warnings:
+                        print(f'No data returned for request ID: {future.result()["request_id"]}')
+                    continue
+
+                final_results += [candle for candle in data if candle['t'] > dupe_handler]
+                dupe_handler = final_results[-1]['t']
+
+            return final_results
+
+        else:
+            current_dt = self.normalize_datetime(time_chunks[0])
+            end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
+
+            print(f'end_dt: {end_dt}')
+            dupe_handler = current_dt
+
+            while 1:
+                if current_dt >= end_dt:
+                    break
+
+                res = fn(symbol, current_dt, end_dt, **kwargs)
+
+                try:
+                    data = res['results']
+                except KeyError:
+                    if warnings:
+                        print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
+                              f'request ID: {res["request_id"]}. Terminating loop...')
+                    break
+
+                if len(data) < 1:
+                    if warnings:
+                        print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
+                              f'request ID: {res["request_id"]}. Terminating loop...')
+                    break
+
+                final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
+                current_dt = final_results[-1]['t']
+                dupe_handler = current_dt
+
+        return final_results
+
+    @staticmethod
+    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
+                           unit: str = 'ms'):
+        """
+        a core method to perform some specific datetime operations before/after interaction with the API
+
+        :param dt: The datetime input
+        :param output_type: what to return. defaults to timestamp (utc if unaware obj)
+        :param _dir: whether the input is meant for start of a range or end of it
+        :param _format: The format string to use IFF expected to return as string
+        :param unit: the timestamp units to work with. defaults to ms (milliseconds)
+        :return: The output timestamp or formatted string
+        """
+
+        if unit == 'ms':
+            factor = 1000
+        elif unit == 'ns':
+            factor = 1000000000
+        else:
+            factor = 1
+
+        if isinstance(dt, str):
+            dt = datetime.datetime.strptime(dt, _format).date()
+
+        if isinstance(dt, datetime.date):
+            if output_type == 'ts' and _dir == 'start':
+                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type == 'ts' and _dir == 'end':
+                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type in ['str', 'nts']:
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
+            elif output_type == 'date':
+                return dt
+
+        elif isinstance(dt, (int, float)):
+            if output_type in ['ts', 'nts']:
+                return dt
+
+            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
+
+            if output_type == 'str':
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return dt
+            elif output_type == 'date':
+                return dt.date()
+
+        elif isinstance(dt, datetime.datetime):
+            if output_type == 'date':
+                return dt.date()
+
+            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+                else dt
+
+            if output_type == 'datetime':
+                return dt
+            elif output_type in ['ts', 'nts']:
+                return int(dt.timestamp() * factor)
+            elif output_type == 'str':
+                return dt.strftime(_format)
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
@@ -471,6 +692,71 @@ class BaseAsyncClient:
             return pages
 
         return container
+
+    @staticmethod
+    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
+                           unit: str = 'ms'):
+        """
+        a core method to perform some specific datetime operations before/after interaction with the API
+
+        :param dt: The datetime input
+        :param output_type: what to return. defaults to timestamp (utc if unaware obj)
+        :param _dir: whether the input is meant for start of a range or end of it
+        :param _format: The format string to use IFF expected to return as string
+        :param unit: the timestamp units to work with. defaults to ms (milliseconds)
+        :return: The output timestamp or formatted string
+        """
+
+        if unit == 'ms':
+            factor = 1000
+        elif unit == 'ns':
+            factor = 1000000000
+        else:
+            factor = 1
+
+        if isinstance(dt, str):
+            dt = datetime.datetime.strptime(dt, _format).date()
+
+        if isinstance(dt, datetime.date):
+            if output_type == 'ts' and _dir == 'start':
+                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type == 'ts' and _dir == 'end':
+                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type in ['str', 'nts']:
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
+            elif output_type == 'date':
+                return dt
+
+        elif isinstance(dt, (int, float)):
+            if output_type in ['ts', 'nts']:
+                return dt
+
+            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
+
+            if output_type == 'str':
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return dt
+            elif output_type == 'date':
+                return dt.date()
+
+        elif isinstance(dt, datetime.datetime):
+            if output_type == 'date':
+                return dt.date()
+
+            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+                else dt
+
+            if output_type == 'datetime':
+                return dt
+            elif output_type in ['ts', 'nts']:
+                return int(dt.timestamp() * factor)
+            elif output_type == 'str':
+                return dt.strftime(_format)
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):

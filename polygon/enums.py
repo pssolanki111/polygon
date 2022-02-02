@@ -395,6 +395,7 @@ class Timespan(enum.Enum):
     any value on an endpoint.
     """
     MINUTE = 'minute'
+    MIN = 'minute'
     HOUR = 'hour'
     DAY = 'day'
     WEEK = 'week'

@@ -1,7 +1,6 @@
 # ========================================================= #
 from .. import base_client
 from typing import Union
-import datetime
 
 # ========================================================= #
 
@@ -76,8 +75,8 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.datetime, datetime.date)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        offset = self.normalize_datetime(offset)
 
         _path = f'/v1/historic/forex/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
 
@@ -106,13 +105,14 @@ class SyncForexClient(base_client.BaseClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.ForexQuotesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -132,20 +132,15 @@ class SyncForexClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/quotes/{ensure_prefix(symbol)}'
 
@@ -214,11 +209,12 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.datetime, datetime.date)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.datetime, datetime.date)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
@@ -250,8 +246,7 @@ class SyncForexClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.datetime, datetime.date)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v2/aggs/grouped/locale/global/market/fx/{date}'
 
@@ -431,8 +426,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.datetime, datetime.date)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
+        offset = self.normalize_datetime(offset)
 
         _path = f'/v1/historic/forex/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
 
@@ -461,13 +456,14 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param sort: field key to sort against. Defaults to None. see :class:`polygon.enums.ForexQuotesSort` for
                      choices
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
         :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
-                              string.
+                              string or nanosecond timestamp
         :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
-                             string.
+                             string or nanosecond timestamp
         :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
-                              date string.
+                              date string or nanosecond timestamp
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
                           it will try to paginate through all pages and merge all pages internally for you.
         :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
@@ -487,20 +483,15 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        if isinstance(timestamp, (datetime.date, datetime.datetime)):
-            timestamp = timestamp.strftime('%Y-%m-%d')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lt, (datetime.date, datetime.datetime)):
-            timestamp_lt = timestamp_lt.strftime('%Y-%m-%d')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_lte, (datetime.date, datetime.datetime)):
-            timestamp_lte = timestamp_lte.strftime('%Y-%m-%d')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gt, (datetime.date, datetime.datetime)):
-            timestamp_gt = timestamp_gt.strftime('%Y-%m-%d')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
 
-        if isinstance(timestamp_gte, (datetime.date, datetime.datetime)):
-            timestamp_gte = timestamp_gte.strftime('%Y-%m-%d')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/quotes/{ensure_prefix(symbol)}'
 
@@ -570,11 +561,12 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(from_date, (datetime.datetime, datetime.date)):
-            from_date = from_date.strftime('%Y-%m-%d')
+        from_date = self.normalize_datetime(from_date)
 
-        if isinstance(to_date, (datetime.datetime, datetime.date)):
-            to_date = to_date.strftime('%Y-%m-%d')
+        to_date = self.normalize_datetime(to_date, _dir='end')
+
+        if timespan == 'min':
+            timespan = 'minute'
 
         timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
@@ -607,8 +599,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        if isinstance(date, (datetime.datetime, datetime.date)):
-            date = date.strftime('%Y-%m-%d')
+        date = self.normalize_datetime(date, output_type='str')
 
         _path = f'/v2/aggs/grouped/locale/global/market/fx/{date}'
 

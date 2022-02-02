@@ -163,8 +163,8 @@ class TestOptions(unittest.TestCase):
         bos4 = polygon.convert_from_tda_to_polygon_format('MSFT_101521P7.345')
         bos5 = polygon.convert_from_tda_to_polygon_format('WPGGQ_101521C134.0')
         bos6 = polygon.convert_from_tda_to_polygon_format('PPPPPP_101521P134.345')
-        bos7 = polygon.convert_from_tda_to_polygon_format('.PPPPPP101521P134.345')
-        bos8 = polygon.convert_from_tda_to_polygon_format('.X101521P134.02')
+        bos7 = polygon.convert_from_tda_to_polygon_format('.PPPPPP211015P134.345')
+        bos8 = polygon.convert_from_tda_to_polygon_format('.X211015P134.02')
 
         self.assertEqual(bos1, 'X211015C00134000')
         self.assertEqual(bos2, 'O:AA211015C00134400')

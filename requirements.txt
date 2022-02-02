@@ -12,3 +12,4 @@ sphinx_rtd_theme
 
 # Only needed for tests
 asynctest
+pytz

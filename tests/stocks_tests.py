@@ -5,6 +5,7 @@ from polygon import cred
 import datetime
 from requests.models import Response
 import asyncio
+import pytz
 from httpx import Response as HttpxResponse
 
 # ========================================================= #
@@ -29,7 +30,7 @@ def async_test(coro):
 # ========================================================= #
 
 
-class TestChangeEnums(unittest.TestCase):
+class TestCommonMethods(unittest.TestCase):
     def test_change_enum_sync_base(self):
         from polygon import enums
         base_client = polygon.BaseClient('LoL')
@@ -53,6 +54,61 @@ class TestChangeEnums(unittest.TestCase):
         self.assertEqual(test7, 'TA')
         self.assertEqual(test8, 5)
         self.assertEqual(test9, 68.6)
+
+    def test_datetime_normalizer(self):
+        client = polygon.StocksClient('LoL')
+
+        test1 = client.normalize_datetime('2021-06-28')
+        test2 = client.normalize_datetime(datetime.date(2021, 6, 28), output_type='str')
+        test3 = client.normalize_datetime(datetime.datetime(2021, 6, 28), output_type='str')
+        test4 = client.normalize_datetime('2021-06-28', _dir='end')
+        test5 = client.normalize_datetime(datetime.datetime(2021, 6, 28, 13, 27, 34))
+        test6 = client.normalize_datetime(pytz.timezone('Asia/Kolkata').localize(datetime.datetime(2021,
+                                                                                                   6, 28, 13, 27, 34)))
+        test7 = client.normalize_datetime(datetime.datetime(2021, 6, 28, 13, 27, 34), unit='ns')
+        test8 = client.normalize_datetime(1643816472, output_type='datetime', unit='s')
+        test9 = client.normalize_datetime(1643816472000, output_type='datetime')
+        test10 = client.normalize_datetime(1643816472000000000, output_type='datetime', unit='ns')
+
+        self.assertEqual(test1, 1624838400000)
+        self.assertEqual(test2, '2021-06-28')
+        self.assertEqual(test3, '2021-06-28')
+        self.assertEqual(test4, 1624924740000)
+        self.assertEqual(test5, 1624886854000)
+        self.assertEqual(test6, 1624867054000)
+        self.assertEqual(test7, 1624886854000000000)
+        self.assertEqual(test8, datetime.datetime(2022, 2, 2, 15, 41, 12, tzinfo=pytz.utc))
+        self.assertEqual(test9, datetime.datetime(2022, 2, 2, 15, 41, 12, tzinfo=pytz.utc))
+        self.assertEqual(test10, datetime.datetime(2022, 2, 2, 15, 41, 12, tzinfo=pytz.utc))
+
+    def test_date_split(self):
+        client = polygon.StocksClient('KEY')
+
+        test1 = client.split_date_range('2021-06-01', '2021-12-01', 'min')
+        test2 = client.split_date_range(datetime.date(2021, 6, 4), datetime.date(2021, 12, 3), 'min')
+        test3 = client.split_date_range(datetime.date(2021, 6, 5), datetime.date(2021, 12, 3), 'hour')
+        test4 = client.split_date_range('2021-06-05', datetime.date(2021, 12, 3), 'year')
+
+        self.assertEqual(test1, [(datetime.datetime(2021, 6, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 7, 31, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 8, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 9, 30, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 10, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 11, 30, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test2, [(datetime.datetime(2021, 6, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 8, 3, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 8, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 10, 3, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 10, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test3, [(datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 9, 3, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 9, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test4, [(datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
 
 
 # ========================================================= #

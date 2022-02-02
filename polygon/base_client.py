@@ -25,6 +25,52 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
+    def split_date_range(self, start, end, timespan: str) -> list:
+        """
+        Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
+        aggregate bars data. The chunks duration is supposed to be different for time spans.
+        For 1 minute bars, multiplier would be 1, timespan would be 'minute'
+
+        :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
+        :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
+        :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
+        :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
+        """
+        # The Time Travel begins
+        if timespan == 'min':
+            timespan = 'minute'
+
+        try:
+            delta = TIME_FRAME_CHUNKS[timespan]
+        except KeyError:
+            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
+                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
+                             '.enums.Timespan')
+
+        start = self.normalize_datetime(start, output_type='datetime')
+
+        end = self.normalize_datetime(end, _dir='end', output_type='datetime')
+
+        if (end - start).days < delta.days:
+            return [(start, end)]
+
+        final_time_chunks, timespan, current = [], self._change_enum(timespan), start
+
+        while 1:
+            probable_next_date = current + delta
+
+            if probable_next_date >= end:
+                if current == probable_next_date:
+                    break
+
+                final_time_chunks.append((current, end))
+                break
+
+            final_time_chunks.append((current, probable_next_date))
+            current = probable_next_date + datetime.timedelta(days=1)
+
+        return final_time_chunks
+
     @staticmethod
     def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
                            unit: str = 'ms'):
@@ -45,6 +91,20 @@ class Base:
             factor = 1000000000
         else:
             factor = 1
+
+        if isinstance(dt, datetime.datetime):
+            if output_type == 'date':
+                return dt.date()
+
+            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+                else dt
+
+            if output_type == 'datetime':
+                return dt
+            elif output_type in ['ts', 'nts']:
+                return int(dt.timestamp() * factor)
+            elif output_type == 'str':
+                return dt.strftime(_format)
 
         if isinstance(dt, str):
             dt = datetime.datetime.strptime(dt, _format).date()
@@ -75,20 +135,6 @@ class Base:
                 return dt
             elif output_type == 'date':
                 return dt.date()
-
-        elif isinstance(dt, datetime.datetime):
-            if output_type == 'date':
-                return dt.date()
-
-            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
-                else dt
-
-            if output_type == 'datetime':
-                return dt
-            elif output_type in ['ts', 'nts']:
-                return int(dt.timestamp() * factor)
-            elif output_type == 'str':
-                return dt.strftime(_format)
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
@@ -326,53 +372,6 @@ class BaseClient(Base):
             return pages
 
         return container
-
-    def split_date_range(self, start, end, timespan: str) -> list:
-        """
-        Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
-        aggregate bars data. The chunks duration is supposed to be different for time spans.
-        For 1 minute bars, multiplier would be 1, timespan would be 'minute'
-
-        :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
-        :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
-        :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
-        :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
-        """
-
-        try:
-            delta = TIME_FRAME_CHUNKS[timespan]
-        except KeyError:
-            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
-                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
-                             '.enums.Timespan')
-
-        start = self.normalize_datetime(start)
-
-        end = self.normalize_datetime(end, _dir='end')
-
-        if end - start < int(delta.days) * 24 * 3600 * 1000:
-            return [(start, end)]
-
-        # The Time Travel begins
-        if timespan == 'min':
-            timespan = 'minute'
-
-        final_time_chunks, timespan, current = [], self._change_enum(timespan), start
-
-        while 1:
-            probable_next_date = current + delta
-
-            if probable_next_date >= end:
-                if current == probable_next_date:
-                    break
-
-                final_time_chunks.append((current, end))
-                break
-
-            final_time_chunks.append((current, probable_next_date))
-            current = probable_next_date + datetime.timedelta(days=1)
-
-        return final_time_chunks
 
     def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_threaded: bool = True,
                                   warnings: bool = True, **kwargs) -> list:

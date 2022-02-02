@@ -132,7 +132,7 @@ class SyncForexClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type='str')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -483,7 +483,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type='str')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 

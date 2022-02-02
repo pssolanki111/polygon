@@ -4,7 +4,9 @@
 Getting Help
 ============
 
-I see you're stuck at something. don't worry, everyone does. Need a hand? Here is how you can get help.
+Generally, feel free to join our `Discord Server <https://discord.gg/jPkARduU6N>`__ for help/discussions.
+
+If you're stuck at something. don't worry, everyone does. Need a hand? Here is how you can get help.
 
 * See if you can find the relevant info in :ref:`faq_header` or :ref:`wikis_header`
 * See if there is an `Open Issue <https://github.com/pssolanki111/polygon/issues>`__ or a `Pull Request <https://github.com/pssolanki111/polygon/pulls>`__ related to your concern already.

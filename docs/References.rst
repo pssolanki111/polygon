@@ -41,11 +41,6 @@ Get Ticker Types
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_types
    :noindex:
 
-Get Ticker Details
-------------------
-
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details
-   :noindex:
 
 Get Ticker Details v3
 ---------------------

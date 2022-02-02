@@ -183,6 +183,20 @@ All enums are available in the module ``polygon.enums`` and can be imported the 
 
 If you're still unsure about enums, see our dedicated section: :ref:`enums_header`
 
+Passing dates, datetime values or timestamps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The library allows you to specify your datetime or date values as ``datetime.date``, ``datetime.datetime`` objects or as
+string ``YYYY-MM-DD``. Some endpoints also accept millisecond/nanosecond timestamps (docs will mention this wherever necessary)
+
+If an endpoint accepts a timestamp, you can either pass a timestamp or a datetime or date object. The lib will do the conversions for you
+internally
+
+When you pass a timestamp, library will NOT do any conversions and pass it as is. So make sure you are passing the correct timestamps.
+
+If you pass a ``datetime`` object, and the endpoint accepts a timestamp, the lib will convert internally to a timestamp. If there is no
+timezone info attached to the object, ``UTC`` will be used.
+
 Return Values
 -------------
 
@@ -361,8 +375,6 @@ Here is how you can use it grab the current price of a symbol
 Special Points
 --------------
 
-* All the date parameters in any method/function in the library can be supplied as ``datetime.date`` or ``datetime.datetime``
-  You may also pass in a string in format: ``YYYY-MM-DD``.
 * Any method/endpoint having ``vX`` in its name is deemed experimental by polygon and its name and underlying URL path will be changed to a
   version number in the future. If you do use one of these, be aware of that name change which is reflected in the docs. If you find the lib
   doesn't have the changes reflected, let me know through any means mentioned in the help page.

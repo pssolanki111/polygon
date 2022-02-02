@@ -38,7 +38,7 @@ pip install polygon
 
 **and You're good to Go!** A few quick examples.
 
-### Getting a stock's current market price
+### Getting a stock's previous day OCHLV
 
 ```python
 import polygon
@@ -47,12 +47,12 @@ api_key = 'YOUR_KEY'
 
 stocks_client = polygon.StocksClient(api_key)
 
-current_price = stocks_client.get_current_price('AMD')
+previous_close = stocks_client.get_previous_close('AMD')
 
-print(current_price)
+print(previous_close)
 ```
 
-### An Async example for REST endpoints - current price
+### An Async example for REST endpoints - previous close
 
 ```python
 import polygon
@@ -63,9 +63,9 @@ async def main():
     
     stocks_client = polygon.StocksClient(api_key, True)
     
-    current_price = await stocks_client.get_current_price('AMD')
+    previous_close = await stocks_client.get_previous_close('AMD')
     await stocks_client.close()  # Recommended to close the httpx session when it's not needed. 
-    print(current_price)
+    print(previous_close)
 
 if __name__ == '__main__':
     asyncio.run(main())

@@ -23,7 +23,100 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
 # ========================================================= #
 
 
-class BaseClient:
+# Just a very basic method to house methods which are common to both sync and async clients
+class Base:
+    @staticmethod
+    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
+                           unit: str = 'ms'):
+        """
+        a core method to perform some specific datetime operations before/after interaction with the API
+
+        :param dt: The datetime input
+        :param output_type: what to return. defaults to timestamp (utc if unaware obj)
+        :param _dir: whether the input is meant for start of a range or end of it
+        :param _format: The format string to use IFF expected to return as string
+        :param unit: the timestamp units to work with. defaults to ms (milliseconds)
+        :return: The output timestamp or formatted string
+        """
+
+        if unit == 'ms':
+            factor = 1000
+        elif unit == 'ns':
+            factor = 1000000000
+        else:
+            factor = 1
+
+        if isinstance(dt, str):
+            dt = datetime.datetime.strptime(dt, _format).date()
+
+        if isinstance(dt, datetime.date):
+            if output_type == 'ts' and _dir == 'start':
+                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type == 'ts' and _dir == 'end':
+                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
+                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+            elif output_type in ['str', 'nts']:
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
+            elif output_type == 'date':
+                return dt
+
+        elif isinstance(dt, (int, float)):
+            if output_type in ['ts', 'nts']:
+                return dt
+
+            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
+
+            if output_type == 'str':
+                return dt.strftime(_format)
+            elif output_type == 'datetime':
+                return dt
+            elif output_type == 'date':
+                return dt.date()
+
+        elif isinstance(dt, datetime.datetime):
+            if output_type == 'date':
+                return dt.date()
+
+            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+                else dt
+
+            if output_type == 'datetime':
+                return dt
+            elif output_type in ['ts', 'nts']:
+                return int(dt.timestamp() * factor)
+            elif output_type == 'str':
+                return dt.strftime(_format)
+
+    @staticmethod
+    def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
+        if isinstance(val, Enum):
+            try:
+                return val.value
+
+            except AttributeError:
+                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                                 f'Please consider using the  specified enum in the docs for this function or recheck '
+                                 f'the value supplied.')
+
+        if isinstance(allowed_type, list):
+            if type(val) in allowed_type:
+                return val
+
+            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                             f'Please consider using the  specified enum in the docs for this function or recheck '
+                             f'the value supplied.')
+
+        if isinstance(val, allowed_type) or val is None:
+            return val
+
+
+# ========================================================= #
+
+
+class BaseClient(Base):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
@@ -376,97 +469,10 @@ class BaseClient:
 
         return final_results
 
-    @staticmethod
-    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
-                           unit: str = 'ms'):
-        """
-        a core method to perform some specific datetime operations before/after interaction with the API
-
-        :param dt: The datetime input
-        :param output_type: what to return. defaults to timestamp (utc if unaware obj)
-        :param _dir: whether the input is meant for start of a range or end of it
-        :param _format: The format string to use IFF expected to return as string
-        :param unit: the timestamp units to work with. defaults to ms (milliseconds)
-        :return: The output timestamp or formatted string
-        """
-
-        if unit == 'ms':
-            factor = 1000
-        elif unit == 'ns':
-            factor = 1000000000
-        else:
-            factor = 1
-
-        if isinstance(dt, str):
-            dt = datetime.datetime.strptime(dt, _format).date()
-
-        if isinstance(dt, datetime.date):
-            if output_type == 'ts' and _dir == 'start':
-                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type == 'ts' and _dir == 'end':
-                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type in ['str', 'nts']:
-                return dt.strftime(_format)
-            elif output_type == 'datetime':
-                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
-            elif output_type == 'date':
-                return dt
-
-        elif isinstance(dt, (int, float)):
-            if output_type in ['ts', 'nts']:
-                return dt
-
-            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
-
-            if output_type == 'str':
-                return dt.strftime(_format)
-            elif output_type == 'datetime':
-                return dt
-            elif output_type == 'date':
-                return dt.date()
-
-        elif isinstance(dt, datetime.datetime):
-            if output_type == 'date':
-                return dt.date()
-
-            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
-                else dt
-
-            if output_type == 'datetime':
-                return dt
-            elif output_type in ['ts', 'nts']:
-                return int(dt.timestamp() * factor)
-            elif output_type == 'str':
-                return dt.strftime(_format)
-
-    @staticmethod
-    def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
-        if isinstance(val, Enum):
-            try:
-                return val.value
-
-            except AttributeError:
-                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                                 f'Please consider using the  specified enum in the docs for this function or recheck '
-                                 f'the value supplied.')
-
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
-
 
 # ========================================================= #
 
-class BaseAsyncClient:
+class BaseAsyncClient(Base):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
@@ -692,93 +698,6 @@ class BaseAsyncClient:
             return pages
 
         return container
-
-    @staticmethod
-    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
-                           unit: str = 'ms'):
-        """
-        a core method to perform some specific datetime operations before/after interaction with the API
-
-        :param dt: The datetime input
-        :param output_type: what to return. defaults to timestamp (utc if unaware obj)
-        :param _dir: whether the input is meant for start of a range or end of it
-        :param _format: The format string to use IFF expected to return as string
-        :param unit: the timestamp units to work with. defaults to ms (milliseconds)
-        :return: The output timestamp or formatted string
-        """
-
-        if unit == 'ms':
-            factor = 1000
-        elif unit == 'ns':
-            factor = 1000000000
-        else:
-            factor = 1
-
-        if isinstance(dt, str):
-            dt = datetime.datetime.strptime(dt, _format).date()
-
-        if isinstance(dt, datetime.date):
-            if output_type == 'ts' and _dir == 'start':
-                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type == 'ts' and _dir == 'end':
-                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type in ['str', 'nts']:
-                return dt.strftime(_format)
-            elif output_type == 'datetime':
-                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
-            elif output_type == 'date':
-                return dt
-
-        elif isinstance(dt, (int, float)):
-            if output_type in ['ts', 'nts']:
-                return dt
-
-            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
-
-            if output_type == 'str':
-                return dt.strftime(_format)
-            elif output_type == 'datetime':
-                return dt
-            elif output_type == 'date':
-                return dt.date()
-
-        elif isinstance(dt, datetime.datetime):
-            if output_type == 'date':
-                return dt.date()
-
-            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
-                else dt
-
-            if output_type == 'datetime':
-                return dt
-            elif output_type in ['ts', 'nts']:
-                return int(dt.timestamp() * factor)
-            elif output_type == 'str':
-                return dt.strftime(_format)
-
-    @staticmethod
-    def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
-        if isinstance(val, Enum):
-            try:
-                return val.value
-
-            except AttributeError:
-                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                                 f'Please consider using the  specified enum in the docs for this function or recheck '
-                                 f'the value supplied.')
-
-        if isinstance(allowed_type, list):
-            if type(val) in allowed_type:
-                return val
-
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
-
-        if isinstance(val, allowed_type) or val is None:
-            return val
 
 
 # ========================================================= #

@@ -1,5 +1,6 @@
 # ========================================================= #
 from .. import base_client
+from os import cpu_count
 
 # ========================================================= #
 
@@ -339,8 +340,9 @@ class SyncStocksClient(base_client.BaseClient):
         return _res.json()
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                           raw_response: bool = False):
+                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
+                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
+                           warnings: bool = True, raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -359,33 +361,59 @@ class SyncStocksClient(base_client.BaseClient):
         :param multiplier: The size of the timespan multiplier. Must be a positive whole number.
         :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
                          ``day``
+        :param full_range: Default False. If set to True, it will get the ENTIRE range you specify and **merge** all
+                           the responses and return ONE single list with all data in it. You can control its behavior
+                           with the next few arguments.
+        :param run_parallel: Only considered if ``full_range=True``. If set to true (default True), it will run an
+                             internal ThreadPool to get the responses. This is fine to do if you are not running your
+                             own ThreadPool. If you have many tickers to get aggs for, it's better to either use the
+                             async version of it OR set this to False and spawn threads for each ticker yourself.
+        :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
+                                       controls how many worker threads to use in internal ThreadPool
+        :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. Will be ignored if ``full_range=True``
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If ``full_range=True``, will return a single list with all the candles in it.
         """
 
-        from_date = self.normalize_datetime(from_date)
+        if not full_range:
 
-        to_date = self.normalize_datetime(to_date, _dir='end')
+            from_date = self.normalize_datetime(from_date)
 
-        if timespan == 'min':
-            timespan = 'minute'
+            to_date = self.normalize_datetime(to_date, _dir='end')
 
-        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            if timespan == 'min':
+                timespan = 'minute'
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _data = {'adjusted': 'true' if adjusted else 'false',
-                 'sort': sort,
-                 'limit': limit}
+            _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
-        _res = self._get_response(_path, params=_data)
+            _data = {'adjusted': 'true' if adjusted else 'false',
+                     'sort': sort,
+                     'limit': limit}
 
-        if raw_response:
-            return _res
+            _res = self._get_response(_path, params=_data)
 
-        return _res.json()
+            if raw_response:
+                return _res
+
+            return _res.json()
+
+        # The full range agg begins
+        if run_parallel:  # Parallel Run
+            time_chunks = self.split_date_range(from_date, to_date, timespan)
+            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                  max_concurrent_workers, warnings, adjusted=adjusted,
+                                                  multiplier=multiplier, sort=sort, limit=limit)
+
+        # Sequential Run
+        time_chunks = [from_date, to_date]
+        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                              max_concurrent_workers, warnings, adjusted=adjusted,
+                                              multiplier=multiplier, sort=sort, limit=limit)
 
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -838,12 +866,12 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                                 sort='asc', limit: int = 5000, multiplier: int = 1,
-                                 timespan='day', raw_response: bool = False):
+                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
+                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
+                           warnings: bool = True, raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
-        For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned - Async
-        method
+        For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
         `Official Docs
         <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__range__multiplier___timespan___from___to__anchor>`__
 
@@ -859,33 +887,59 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param multiplier: The size of the timespan multiplier. Must be a positive whole number.
         :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
                          ``day``
+        :param full_range: Default False. If set to True, it will get the ENTIRE range you specify and **merge** all
+                           the responses and return ONE single list with all data in it. You can control its behavior
+                           with the next few arguments.
+        :param run_parallel: Only considered if ``full_range=True``. If set to true (default True), it will run an
+                             internal ThreadPool to get the responses. This is fine to do if you are not running your
+                             own ThreadPool. If you have many tickers to get aggs for, it's better to either use the
+                             async version of it OR set this to False and spawn threads for each ticker yourself.
+        :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
+                                       controls how many worker threads to use in internal ThreadPool
+        :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+                             dictionary. Will be ignored if ``full_range=True``
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If ``full_range=True``, will return a single list with all the candles in it.
         """
 
-        from_date = self.normalize_datetime(from_date)
+        if not full_range:
 
-        to_date = self.normalize_datetime(to_date, _dir='end')
+            from_date = self.normalize_datetime(from_date)
 
-        if timespan == 'min':
-            timespan = 'minute'
+            to_date = self.normalize_datetime(to_date, _dir='end')
 
-        timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            if timespan == 'min':
+                timespan = 'minute'
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-        _data = {'adjusted': 'true' if adjusted else 'false',
-                 'sort': sort,
-                 'limit': limit}
+            _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
 
-        _res = await self._get_response(_path, params=_data)
+            _data = {'adjusted': 'true' if adjusted else 'false',
+                     'sort': sort,
+                     'limit': limit}
 
-        if raw_response:
-            return _res
+            _res = await self._get_response(_path, params=_data)
 
-        return _res.json()
+            if raw_response:
+                return _res
+
+            return _res.json()
+
+        # The full range agg begins
+        if run_parallel:  # Parallel Run
+            time_chunks = self.split_date_range(from_date, to_date, timespan)
+            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                        max_concurrent_workers, warnings, adjusted=adjusted,
+                                                        multiplier=multiplier, sort=sort, limit=limit)
+
+        # Sequential Run
+        time_chunks = [from_date, to_date]
+        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                    max_concurrent_workers, warnings, adjusted=adjusted,
+                                                    multiplier=multiplier, sort=sort, limit=limit)
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """

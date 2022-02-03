@@ -407,13 +407,15 @@ class SyncStocksClient(base_client.BaseClient):
             time_chunks = self.split_date_range(from_date, to_date, timespan)
             return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                   max_concurrent_workers, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit)
+                                                  multiplier=multiplier, sort=sort, limit=limit,
+                                                  timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                               max_concurrent_workers, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit)
+                                              multiplier=multiplier, sort=sort, limit=limit,
+                                              timespan=timespan)
 
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -866,9 +868,10 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return _res.json()
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           warnings: bool = True, raw_response: bool = False):
+                                 sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
+                                 full_range: bool = False, run_parallel: bool = True,
+                                 max_concurrent_workers: int = cpu_count() * 5,  warnings: bool = True,
+                                 raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -933,13 +936,15 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             time_chunks = self.split_date_range(from_date, to_date, timespan)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                         max_concurrent_workers, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit)
+                                                        multiplier=multiplier, sort=sort, limit=limit,
+                                                        timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                     max_concurrent_workers, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit)
+                                                    multiplier=multiplier, sort=sort, limit=limit,
+                                                    timespan=timespan)
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """

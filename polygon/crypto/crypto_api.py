@@ -285,13 +285,15 @@ class SyncCryptoClient(base_client.BaseClient):
             time_chunks = self.split_date_range(from_date, to_date, timespan)
             return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                   max_concurrent_workers, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit)
+                                                  multiplier=multiplier, sort=sort, limit=limit,
+                                                  timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                               max_concurrent_workers, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit)
+                                              multiplier=multiplier, sort=sort, limit=limit,
+                                              timespan=timespan)
 
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -690,13 +692,15 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
             time_chunks = self.split_date_range(from_date, to_date, timespan)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                         max_concurrent_workers, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit)
+                                                        multiplier=multiplier, sort=sort, limit=limit,
+                                                        timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                     max_concurrent_workers, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit)
+                                                    multiplier=multiplier, sort=sort, limit=limit,
+                                                    timespan=timespan)
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True,
                                      raw_response: bool = False):

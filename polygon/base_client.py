@@ -376,7 +376,8 @@ class BaseClient(Base):
 
     def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
                                   max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                  **kwargs) -> list:
+                                  adjusted: bool = True, sort='asc', limit: int = 5000,
+                                  multiplier: int = 1, timespan='day') -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
         Users should prefer the relevant aggregate function with additional parameters.
@@ -392,7 +393,14 @@ class BaseClient(Base):
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        threads are spawned in the internal thread pool. Defaults to ``your cpu core
                                        count * 5``
-        :param kwargs: The keyword arguments to be supplied to fn
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
+        :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
+                      Default 5000.
+        :param multiplier: The size of the timespan multiplier. Must be a positive whole number.
+        :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
+                         ``day``
         :return: A single merged list of ALL candles/bars
         """
 
@@ -420,7 +428,8 @@ class BaseClient(Base):
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
                     chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
-                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], **kwargs))
+                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
+                                               limit=limit, multiplier=multiplier, timespan=timespan))
 
             for future in futures:
                 try:
@@ -444,14 +453,14 @@ class BaseClient(Base):
         current_dt = self.normalize_datetime(time_chunks[0])
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
 
-        print(f'end_dt: {end_dt}')
         dupe_handler = current_dt
 
         while 1:
             if current_dt >= end_dt:
                 break
 
-            res = fn(symbol, current_dt, end_dt, **kwargs)
+            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=limit, multiplier=multiplier,
+                     timespan=timespan)
 
             try:
                 data = res['results']
@@ -710,7 +719,8 @@ class BaseAsyncClient(Base):
 
     async def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
                                         max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                        **kwargs) -> list:
+                                        adjusted: bool = True, sort='asc', limit: int = 5000,
+                                        multiplier: int = 1, timespan='day') -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
         Users should prefer the relevant aggregate function with additional parameters.
@@ -726,7 +736,14 @@ class BaseAsyncClient(Base):
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        coroutines are spawned internally. Defaults to ``your cpu core
                                        count * 10``. An ``asyncio.Semaphore()` is used behind the scenes.
-        :param kwargs: The keyword arguments to be supplied to fn
+        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+                         to false to get results that are NOT adjusted for splits.
+        :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
+        :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
+                      Default 5000.
+        :param multiplier: The size of the timespan multiplier. Must be a positive whole number.
+        :param timespan: The size of the time window. See :class:`polygon.enums.Timespan` for choices. defaults to
+                         ``day``
         :return: A single merged list of ALL candles/bars
         """
 
@@ -747,7 +764,8 @@ class BaseAsyncClient(Base):
             for chunk in time_chunks:
                 chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
 
-                futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], **kwargs), semaphore))
+                futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
+                                               limit=limit, multiplier=multiplier, timespan=timespan), semaphore))
 
             futures = await asyncio.gather(*futures)
 
@@ -773,14 +791,14 @@ class BaseAsyncClient(Base):
         current_dt = self.normalize_datetime(time_chunks[0])
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
 
-        print(f'end_dt: {end_dt}')
         dupe_handler = current_dt
 
         while 1:
             if current_dt >= end_dt:
                 break
 
-            res = await fn(symbol, current_dt, end_dt, **kwargs)
+            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=limit,
+                           multiplier=multiplier, timespan=timespan)
 
             try:
                 data = res['results']

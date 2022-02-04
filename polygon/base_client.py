@@ -13,11 +13,11 @@ import datetime
 
 TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
                      'hour': datetime.timedelta(days=90),
-                     'day': datetime.timedelta(days=5400),
-                     'week': datetime.timedelta(days=5400),
-                     'month': datetime.timedelta(days=5400),
-                     'quarter': datetime.timedelta(days=5400),
-                     'year': datetime.timedelta(days=5400)
+                     'day': datetime.timedelta(days=3500),
+                     'week': datetime.timedelta(days=3500),
+                     'month': datetime.timedelta(days=3500),
+                     'quarter': datetime.timedelta(days=3500),
+                     'year': datetime.timedelta(days=3500)
                      }
 
 
@@ -26,7 +26,7 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
-    def split_date_range(self, start, end, timespan: str) -> list:
+    def split_date_range(self, start, end, timespan: str, multiplier: int = 1) -> list:
         """
         Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
         aggregate bars data. The chunks duration is supposed to be different for time spans.
@@ -35,6 +35,7 @@ class Base:
         :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
+        :param multiplier: the size of the timespan window
         :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
         """
         # The Time Travel begins
@@ -71,6 +72,20 @@ class Base:
             current = probable_next_date
 
         return final_time_chunks
+
+    # def snap_and_stretch(self, start, end, multiplier: int = 1, timespan: str = 'day'):
+    #     """
+    #     A method to manage the `snap and stretch behavior logic <https://polygon.io/blog/aggs-api-updates/>`__ on
+    #     the aggregates' endpoints
+    #
+    #     :param start: input start time of the aggregate window
+    #     :param end: input end time of the aggregate window
+    #     :param multiplier: size of the aggregate window
+    #     :param timespan: bars type to return in the aggregate window
+    #     :return: Corrected tuple (start, end) with snap and stretch logic applied.
+    #     """
+    #
+    #     # Snap First  # TODO: will pick up some other time
 
     @staticmethod
     def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
@@ -423,28 +438,30 @@ class BaseClient(Base):
         if run_parallel:
             from concurrent.futures import ThreadPoolExecutor
 
-            futures = []
+            futures, last_entry = [], self.normalize_datetime(time_chunks[-1][1], _dir='end')
+            first_entry = self.normalize_datetime(time_chunks[0][0])
 
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
                     chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
                     futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
-                                               limit=limit, multiplier=multiplier, timespan=timespan))
+                                               limit=500000, multiplier=multiplier, timespan=timespan))
 
             for future in futures:
                 try:
                     data = future.result()['results']
                 except KeyError:
                     if warnings:
-                        print(f'No data returned for request ID: {future.result()["request_id"]}')
+                        print(f'No data returned. response: {future}')
                     continue
 
                 if len(data) < 1:
                     if warnings:
-                        print(f'No data returned for request ID: {future.result()["request_id"]}')
+                        print(f'No data returned. response: {future}')
                     continue
 
-                final_results += [candle for candle in data if candle['t'] > dupe_handler]
+                final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
+                        candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
                 dupe_handler = final_results[-1]['t']
 
             return final_results
@@ -452,6 +469,7 @@ class BaseClient(Base):
         # Sequential
         current_dt = self.normalize_datetime(time_chunks[0])
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
+        first_entry = self.normalize_datetime(time_chunks[0])
 
         dupe_handler = current_dt
 
@@ -459,24 +477,25 @@ class BaseClient(Base):
             if current_dt >= end_dt:
                 break
 
-            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=limit, multiplier=multiplier,
-                     timespan=timespan)
+            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000, multiplier=multiplier,
+                     timespan=timespan, full_range=False)
 
             try:
                 data = res['results']
             except KeyError:
                 if warnings:
                     print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'request ID: {res["request_id"]}. Terminating loop...')
+                          f'response: {res}. Terminating loop...')
                 break
 
             if len(data) < 1:
                 if warnings:
                     print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'request ID: {res["request_id"]}. Terminating loop...')
+                          f'response: {res}. Terminating loop...')
                 break
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
+            final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
+                    candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
             current_dt = final_results[-1]['t']
             dupe_handler = current_dt
 
@@ -760,12 +779,15 @@ class BaseAsyncClient(Base):
             import asyncio
 
             futures, semaphore = [], asyncio.Semaphore(max_concurrent_workers)
+            last_entry = self.normalize_datetime(time_chunks[-1][1], _dir='end')
+            first_entry = self.normalize_datetime(time_chunks[0][0])
 
             for chunk in time_chunks:
                 chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
 
                 futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
-                                               limit=limit, multiplier=multiplier, timespan=timespan), semaphore))
+                                               limit=500000, multiplier=multiplier, timespan=timespan,
+                                               full_range=False), semaphore))
 
             futures = await asyncio.gather(*futures)
 
@@ -774,15 +796,16 @@ class BaseAsyncClient(Base):
                     data = future['results']
                 except KeyError:
                     if warnings:
-                        print(f'No data returned for request ID: {future["request_id"]}')
+                        print(f'No data returned. Response: {future}')
                     continue
 
                 if len(data) < 1:
                     if warnings:
-                        print(f'No data returned for request ID: {future["request_id"]}')
+                        print(f'No data returned. Response: {future}')
                     continue
 
-                final_results += [candle for candle in data if candle['t'] > dupe_handler]
+                final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
+                        candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
                 dupe_handler = final_results[-1]['t']
 
             return final_results
@@ -790,6 +813,7 @@ class BaseAsyncClient(Base):
         # Sequential
         current_dt = self.normalize_datetime(time_chunks[0])
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
+        first_entry = self.normalize_datetime(time_chunks[0])
 
         dupe_handler = current_dt
 
@@ -797,24 +821,25 @@ class BaseAsyncClient(Base):
             if current_dt >= end_dt:
                 break
 
-            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=limit,
-                           multiplier=multiplier, timespan=timespan)
+            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
+                           multiplier=multiplier, timespan=timespan, full_range=False)
 
             try:
                 data = res['results']
             except KeyError:
                 if warnings:
                     print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'request ID: {res["request_id"]}. Terminating loop...')
+                          f'response: {res}. Terminating loop...')
                 break
 
             if len(data) < 1:
                 if warnings:
                     print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'request ID: {res["request_id"]}. Terminating loop...')
+                          f'response: {res}. Terminating loop...')
                 break
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
+            final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
+                    candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
             current_dt = final_results[-1]['t']
             dupe_handler = current_dt
 

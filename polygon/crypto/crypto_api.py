@@ -662,6 +662,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                  If ``full_range=True``, will return a single list with all the candles in it.
         """
 
+        print('lolll')
         if not full_range:
 
             from_date = self.normalize_datetime(from_date)
@@ -676,11 +677,14 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
             _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
                     f'{to_date}'
 
+            print(_path)
+
             _data = {'adjusted': 'true' if adjusted else 'false',
                      'sort': sort,
                      'limit': limit}
 
             _res = await self._get_response(_path, params=_data)
+            print('got response crypto')
 
             if raw_response:
                 return _res
@@ -688,6 +692,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
             return _res.json()
 
         # The full range agg begins
+        print('lol')
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,

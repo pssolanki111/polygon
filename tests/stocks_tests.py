@@ -330,9 +330,15 @@ class TestStocks(unittest.TestCase):
                                               raw_response=True, timespan='minute', multiplier=5)
             data3 = client.get_aggregate_bars('NVDA', datetime.date(2020, 6, 28), '2021-06-28', limit=10,
                                               raw_response=False, timespan='minute', multiplier=1)
+            data4 = client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='min',
+                                              multiplier=1, full_range=True)
+            data5 = client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='minute',
+                                              multiplier=1, full_range=True, run_parallel=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
             self.assertIsInstance(data1, Response)
             self.assertIsInstance(data2, Response)
 
@@ -343,6 +349,8 @@ class TestStocks(unittest.TestCase):
             self.assertLessEqual(len(data1.json()['results']), 10)
             self.assertLessEqual(len(data2.json()['results']), 10)
             self.assertLessEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 104312)
+            self.assertEqual(len(data5), 104312)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
@@ -712,9 +720,15 @@ class TestStocks(unittest.TestCase):
                                                     raw_response=True, timespan='minute', multiplier=5)
             data3 = await client.get_aggregate_bars('NVDA', datetime.date(2020, 6, 28), '2021-06-28', limit=10,
                                                     raw_response=False, timespan='minute', multiplier=1)
+            data4 = await client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='min',
+                                                    multiplier=1, full_range=True)
+            data5 = await client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='minute',
+                                                    multiplier=1, full_range=True, run_parallel=False)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data3, dict)
+            self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
             self.assertIsInstance(data1, HttpxResponse)
             self.assertIsInstance(data2, HttpxResponse)
 
@@ -725,6 +739,8 @@ class TestStocks(unittest.TestCase):
             self.assertLessEqual(len(data1.json()['results']), 10)
             self.assertLessEqual(len(data2.json()['results']), 10)
             self.assertLessEqual(len(data3['results']), 10)
+            self.assertEqual(len(data4), 104312)
+            self.assertEqual(len(data5), 104312)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)

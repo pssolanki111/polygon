@@ -355,23 +355,27 @@ class TestCrypto(unittest.TestCase):
             data = await client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
             data2 = await client.get_aggregate_bars('X:BTCUSD', datetime.date(2021, 9, 10), '2021-10-01',
                                                           limit=30, raw_response=True)
-            print('lol1.5')
             data4 = await client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1),
                                                     full_range=True, run_parallel=False)
-            print('lol11')
             data3 = await client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1),
                                                     full_range=True, run_parallel=True)
-            print('lol2')
+            data5 = await client.get_aggregate_bars('X:BTCUSD', '2021-06-10', datetime.date(2021, 10, 1),
+                                                    full_range=True, run_parallel=False, timespan='min')
+            data6 = await client.get_aggregate_bars('X:BTCUSD', '2021-06-10', datetime.date(2021, 10, 1),
+                                                    full_range=True, run_parallel=True, timespan='minute')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
             self.assertIsInstance(data2.json(), dict)
             self.assertIsInstance(data3, list)
             self.assertIsInstance(data4, list)
+            self.assertIsInstance(data5, list)
+            self.assertIsInstance(data6, list)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
             self.assertEqual(len(data3), len(data4))
+            self.assertEqual(len(data5), len(data6))
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)

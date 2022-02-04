@@ -11,8 +11,9 @@ import datetime
 # ========================================================= #
 
 
-TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
-                     'hour': datetime.timedelta(days=90),
+TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
+                     'min': datetime.timedelta(days=45),
+                     'hour': datetime.timedelta(days=60),
                      'day': datetime.timedelta(days=3500),
                      'week': datetime.timedelta(days=3500),
                      'month': datetime.timedelta(days=3500),
@@ -26,7 +27,7 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=60),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
-    def split_date_range(self, start, end, timespan: str, multiplier: int = 1) -> list:
+    def split_date_range(self, start, end, timespan: str) -> list:
         """
         Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
         aggregate bars data. The chunks duration is supposed to be different for time spans.
@@ -35,7 +36,6 @@ class Base:
         :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
-        :param multiplier: the size of the timespan window
         :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
         """
         # The Time Travel begins
@@ -471,6 +471,25 @@ class BaseClient(Base):
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
         first_entry = self.normalize_datetime(time_chunks[0])
 
+        try:
+            delta = TIME_FRAME_CHUNKS[timespan]
+        except KeyError:
+            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
+                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
+                             '.enums.Timespan')
+
+        if (self.normalize_datetime(end_dt, 'datetime', 'end') - self.normalize_datetime(
+                first_entry, 'datetime')).days <= delta.days:
+            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
+                     multiplier=multiplier, timespan=timespan, full_range=False)
+            try:
+                return res['results']
+            except KeyError:
+                if warnings:
+                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                          f'{res}')
+                return []
+
         dupe_handler = current_dt
 
         while 1:
@@ -814,6 +833,25 @@ class BaseAsyncClient(Base):
         current_dt = self.normalize_datetime(time_chunks[0])
         end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
         first_entry = self.normalize_datetime(time_chunks[0])
+
+        try:
+            delta = TIME_FRAME_CHUNKS[timespan]
+        except KeyError:
+            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
+                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
+                             '.enums.Timespan')
+
+        if (self.normalize_datetime(end_dt, 'datetime', 'end') - self.normalize_datetime(
+                first_entry, 'datetime')).days <= delta.days:
+            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
+                           multiplier=multiplier, timespan=timespan, full_range=False)
+            try:
+                return res['results']
+            except KeyError:
+                if warnings:
+                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                          f'{res}')
+                return []
 
         dupe_handler = current_dt
 

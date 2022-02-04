@@ -27,7 +27,7 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
-    def split_date_range(self, start, end, timespan: str) -> list:
+    def split_date_range(self, start, end, timespan: str, high_volatility: bool = False) -> list:
         """
         Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
         aggregate bars data. The chunks duration is supposed to be different for time spans.
@@ -36,6 +36,9 @@ class Base:
         :param start: start of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param end: end of the time frame. accepts date, datetime objects or a string ``YYYY-MM-DD``
         :param timespan: The frequency type. like day or minute. see :class:`polygon.enums.Timespan` for choices
+        :param high_volatility: Specifies whether the symbol/security in question is highly volatile. If set to True,
+                                the lib will use a smaller chunk of time to ensure we don't miss any data due to 50k
+                                candle limit. Defaults to False.
         :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
         """
         # The Time Travel begins
@@ -48,6 +51,12 @@ class Base:
             raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
                              'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
                              '.enums.Timespan')
+
+        if high_volatility:
+            if timespan in ['minute', 'hour']:
+                delta = datetime.timedelta(days=delta.days - 20)
+            else:
+                delta = datetime.timedelta(days=delta.days - 1500)
 
         start, end = self.normalize_datetime(start), self.normalize_datetime(end, _dir='end')
 
@@ -452,12 +461,12 @@ class BaseClient(Base):
                     data = future.result()['results']
                 except KeyError:
                     if warnings:
-                        print(f'No data returned. response: {future}')
+                        print(f'No data returned. response: {future.result()}')
                     continue
 
                 if len(data) < 1:
                     if warnings:
-                        print(f'No data returned. response: {future}')
+                        print(f'No data returned. response: {future.result()}')
                     continue
 
                 final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
@@ -513,8 +522,15 @@ class BaseClient(Base):
                           f'response: {res}. Terminating loop...')
                 break
 
+            temp_len = len(final_results)
+
             final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
                     candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
+
+            if len(final_results) == temp_len:
+                if data[-1]['t'] <= dupe_handler:
+                    break
+
             current_dt = final_results[-1]['t']
             dupe_handler = current_dt
 
@@ -876,8 +892,15 @@ class BaseAsyncClient(Base):
                           f'response: {res}. Terminating loop...')
                 break
 
+            temp_len = len(final_results)
+
             final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
                     candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
+
+            if len(final_results) == temp_len:
+                if data[-1]['t'] <= dupe_handler:
+                    break
+
             current_dt = final_results[-1]['t']
             dupe_handler = current_dt
 

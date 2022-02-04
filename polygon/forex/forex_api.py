@@ -184,7 +184,7 @@ class SyncForexClient(base_client.BaseClient):
     def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                            adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
                            run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           warnings: bool = True, raw_response: bool = False):
+                           warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
         """
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
@@ -215,6 +215,10 @@ class SyncForexClient(base_client.BaseClient):
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
+        :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
+                                miss any data due to 50k candle limit. Defaults to False.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
@@ -249,7 +253,7 @@ class SyncForexClient(base_client.BaseClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan)
+            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                   max_concurrent_workers, warnings, adjusted=adjusted,
                                                   multiplier=multiplier, sort=sort, limit=limit,
@@ -565,7 +569,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                                  adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
                                  run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                                 warnings: bool = True, raw_response: bool = False):
+                                 warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
         """
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
@@ -596,6 +600,10 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
+        :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
+                                miss any data due to 50k candle limit. Defaults to False.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
@@ -630,7 +638,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan)
+            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                         max_concurrent_workers, warnings, adjusted=adjusted,
                                                         multiplier=multiplier, sort=sort, limit=limit,

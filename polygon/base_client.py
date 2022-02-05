@@ -27,7 +27,7 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
-    def split_date_range(self, start, end, timespan: str, high_volatility: bool = False) -> list:
+    def split_date_range(self, start, end, timespan: str, high_volatility: bool = False, reverse: bool = True) -> list:
         """
         Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
         aggregate bars data. The chunks duration is supposed to be different for time spans.
@@ -39,6 +39,7 @@ class Base:
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile. If set to True,
                                 the lib will use a smaller chunk of time to ensure we don't miss any data due to 50k
                                 candle limit. Defaults to False.
+        :param reverse: If True (the default), will reverse the order of chunks (chronologically)
         :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
         """
         # The Time Travel begins
@@ -79,6 +80,9 @@ class Base:
 
             final_time_chunks.append((current, probable_next_date))
             current = probable_next_date
+
+        if reverse:
+            final_time_chunks.reverse()
 
         return final_time_chunks
 
@@ -447,16 +451,17 @@ class BaseClient(Base):
         if run_parallel:
             from concurrent.futures import ThreadPoolExecutor
 
-            futures, last_entry = [], self.normalize_datetime(time_chunks[-1][1], _dir='end')
-            first_entry = self.normalize_datetime(time_chunks[0][0])
+            sort_order = self._change_enum(sort)
+            futures, last_entry = [], self.normalize_datetime(time_chunks[0][1], _dir='end')
+            first_entry = self.normalize_datetime(time_chunks[-1][0])
 
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
                     chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
-                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
+                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
                                                limit=500000, multiplier=multiplier, timespan=timespan))
 
-            for future in futures:
+            for future in reversed(futures):
                 try:
                     data = future.result()['results']
                 except KeyError:
@@ -472,6 +477,9 @@ class BaseClient(Base):
                 final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
                         candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
                 dupe_handler = final_results[-1]['t']
+
+            if sort_order in ['desc', 'descending']:
+                final_results.reverse()
 
             return final_results
 
@@ -813,20 +821,21 @@ class BaseAsyncClient(Base):
         if run_parallel:
             import asyncio
 
+            sort_order = self._change_enum(sort)
             futures, semaphore = [], asyncio.Semaphore(max_concurrent_workers)
-            last_entry = self.normalize_datetime(time_chunks[-1][1], _dir='end')
-            first_entry = self.normalize_datetime(time_chunks[0][0])
+            last_entry = self.normalize_datetime(time_chunks[0][1], _dir='end')
+            first_entry = self.normalize_datetime(time_chunks[-1][0])
 
             for chunk in time_chunks:
                 chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
 
-                futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort=sort,
+                futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
                                                limit=500000, multiplier=multiplier, timespan=timespan,
                                                full_range=False), semaphore))
 
             futures = await asyncio.gather(*futures)
 
-            for future in futures:
+            for future in reversed(futures):
                 try:
                     data = future['results']
                 except KeyError:
@@ -842,6 +851,9 @@ class BaseAsyncClient(Base):
                 final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
                         candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
                 dupe_handler = final_results[-1]['t']
+
+            if sort_order in ['desc', 'descending']:
+                final_results.reverse()
 
             return final_results
 

@@ -89,26 +89,36 @@ class TestCommonMethods(unittest.TestCase):
         test3 = client.split_date_range(datetime.date(2021, 6, 5), datetime.date(2021, 12, 3), 'hour')
         test4 = client.split_date_range('2021-06-05', datetime.date(2021, 12, 3), 'year')
 
-        self.assertEqual(test1, [(datetime.datetime(2021, 6, 1, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 7, 31, 0, 0, tzinfo=datetime.timezone.utc)),
-                                 (datetime.datetime(2021, 8, 1, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 9, 30, 0, 0, tzinfo=datetime.timezone.utc)),
-                                 (datetime.datetime(2021, 10, 1, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 11, 30, 0, 0, tzinfo=datetime.timezone.utc)),
-                                 (datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc))])
-        self.assertEqual(test2, [(datetime.datetime(2021, 6, 4, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 8, 3, 0, 0, tzinfo=datetime.timezone.utc)),
+        self.assertEqual(test1, [(datetime.datetime(2021, 11, 28, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 1, 23, 59, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 10, 14, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 11, 28, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 8, 30, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 10, 14, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 7, 16, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 8, 30, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 6, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 7, 16, 0, 0, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test2, [(datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 3, 23, 59, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 10, 17, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 1, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 9, 2, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 10, 17, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 7, 19, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 9, 2, 0, 0, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 6, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 7, 19, 0, 0, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test3, [(datetime.datetime(2021, 12, 2, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 3, 23, 59, tzinfo=datetime.timezone.utc)),
+                                 (datetime.datetime(2021, 10, 3, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 12, 2, 0, 0, tzinfo=datetime.timezone.utc)),
                                  (datetime.datetime(2021, 8, 4, 0, 0, tzinfo=datetime.timezone.utc),
                                   datetime.datetime(2021, 10, 3, 0, 0, tzinfo=datetime.timezone.utc)),
-                                 (datetime.datetime(2021, 10, 4, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
-        self.assertEqual(test3, [(datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 9, 3, 0, 0, tzinfo=datetime.timezone.utc)),
-                                 (datetime.datetime(2021, 9, 4, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
+                                 (datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
+                                  datetime.datetime(2021, 8, 4, 0, 0, tzinfo=datetime.timezone.utc))])
         self.assertEqual(test4, [(datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 12, 3, 0, 0, tzinfo=datetime.timezone.utc))])
+                                  datetime.datetime(2021, 12, 3, 23, 59, tzinfo=datetime.timezone.utc))])
 
 
 # ========================================================= #

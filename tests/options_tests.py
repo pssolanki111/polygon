@@ -315,8 +315,8 @@ class TestOptions(unittest.TestCase):
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
-            self.assertEqual(len(data3), 10)
-            self.assertEqual(len(data4), 2)
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data2.json()['status'], 'OK')
 
         # Testing without context manager
@@ -474,8 +474,8 @@ class TestOptions(unittest.TestCase):
             self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(data['status'], 'OK')
-            self.assertEqual(len(data3), 10)
-            self.assertEqual(len(data4), 2)
+            self.assertEqual(len(data3) <= 10, True)
+            self.assertEqual(len(data4) <= 2, True)
             self.assertEqual(data2.json()['status'], 'OK')
 
         # Testing without context manager

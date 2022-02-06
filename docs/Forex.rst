@@ -56,6 +56,12 @@ Get Last Quote
 Get Aggregate Bars (Candles)
 ----------------------------
 
+The library added a better aggregate function if you're looking to get data for large time frames at minute/hour granularity.
+
+(for example 15 years historical data , 1 minute candles)
+
+See :ref:`better_aggs_header` for complete details on how to use it well and control how it behaves.
+
 .. automethod:: polygon.forex.forex_api.SyncForexClient.get_aggregate_bars
    :noindex:
 

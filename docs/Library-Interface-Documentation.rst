@@ -13,6 +13,16 @@ Here is the Entire Library Interface reference.
 Base Clients
 ------------
 
+Base Client
+~~~~~~~~~~~
+
+.. autoclass:: polygon.base_client.Base
+   :members:
+   :special-members: __init__
+   :private-members:
+   :undoc-members:
+   :member-order: bysource
+
 Base Sync Client
 ~~~~~~~~~~~~~~~~
 

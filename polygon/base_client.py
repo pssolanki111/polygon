@@ -40,7 +40,7 @@ class Base:
                                 the lib will use a smaller chunk of time to ensure we don't miss any data due to 50k
                                 candle limit. Defaults to False.
         :param reverse: If True (the default), will reverse the order of chunks (chronologically)
-        :return: a list of tuples. each tuple is in format (start, end) and represents one chunk of time frame
+        :return: a list of tuples. each tuple is in format ``(start, end)`` and represents one chunk of time frame
         """
         # The Time Travel begins
         if timespan == 'min':
@@ -796,8 +796,8 @@ class BaseAsyncClient(Base):
                              other pool will wait. set to False to get all responses in sequence (will take time)
         :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
-                                       coroutines are spawned internally. Defaults to ``your cpu core
-                                       count * 10``. An ``asyncio.Semaphore()` is used behind the scenes.
+                                       coroutines are spawned internally. Defaults to ``your cpu core count * 5``.
+                                       An ``asyncio.Semaphore()`` is used behind the scenes.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.

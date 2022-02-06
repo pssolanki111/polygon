@@ -13,6 +13,7 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 -  Async support for REST endpoints
 -  Built In stream reconnection functionality (async streamer only, in progress for callback streamer)
 -  Complete Pagination support (with internal merging of responses)
+-  Better Aggregate Bars functionality (useful for historical OCHLV)
 
 and more...
 

@@ -1,7 +1,7 @@
 # ========================================================= #
 import asyncio
 import inspect
-import json
+import orjson as json
 import logging
 import sys
 from typing import Union
@@ -179,10 +179,9 @@ class AsyncStreamClient:
         try:
             _data = json.loads(_raw)
 
-        except json.decoder.JSONDecodeError as exc:
-            msg = f'Unable to decode message string: {_raw}.\nUsually happens with invalid symbols.\nException ' \
-                  f'Message: {str(exc)}'
-            raise ValueError(msg)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f'Unable to decode message string: {_raw}.\nUsually happens with invalid symbols.'
+                             f'\nException Message: {str(exc)}')
 
         return _data
 

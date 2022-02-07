@@ -34,7 +34,8 @@ setup(
         'requests',
         'websockets',
         'websocket-client',
-        'httpx'],
+        'httpx',
+        'orjson'],
     extras_require={'uvloop': ['uvloop']},
     keywords='finance trading equities bonds options research data',
 )

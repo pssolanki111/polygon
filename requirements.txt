@@ -2,6 +2,7 @@ requests
 websocket-client
 websockets
 httpx
+orjson
 
 # Only needed for uvloop implementation
 uvloop

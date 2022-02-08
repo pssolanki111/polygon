@@ -453,6 +453,26 @@ Here is how you can use it grab the current price of a symbol
       asyncio.run(main())
 
 
+UVLOOP integration
+------------------
+
+(for async streamer and async rest client)
+
+unix based Operating systems only, `uvloop doesn't have windows support yet <https://github.com/MagicStack/uvloop/issues/14>`__
+
+If your use case demands better performance on async streamer or async based applications using rest client than what the usual ``asyncio`` has to offer,
+consider using `uvloop <https://github.com/MagicStack/uvloop>`__, a ``libuv`` based event loop which provides faster execution.
+
+Using it is very simple, install using ``pip install uvloop`` and then **at the very top of your program**, right below your imports, add:
+
+.. code-block:: python
+
+  import uvloop
+
+  asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+That's it. asyncio will now uvloop's event loop policy instead of the default one.
+
 Special Points
 --------------
 
@@ -472,8 +492,6 @@ Special Points
 * You'll notice some type hints having ``Union`` in them followed by two or more types inside a square bracket. That simply means the parameter could be of any type from that list in bracket
   . For example: ``price: Union[str, float, int]`` means the parameter ``price`` could be either a string, a float or an integer. You'd notice Union type hints more on return types
   of the functions/methods.
-* For a better performance on :ref:`async_streaming_header`, you can make use of lib's built in ``uvloop`` integration. **Only meant for *nix based OS**.
-  Just do ``pip install uvloop`` and async streamer will make use of it without changing anything. See async streaming docs for better control options on this behavior
 
 **so far so good? Start by taking a look at the complete docs for endpoints you need. Here is a quick list**
 

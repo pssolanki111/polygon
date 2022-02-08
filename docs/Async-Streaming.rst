@@ -41,28 +41,6 @@ Example use:
 
 Note that you don't have to call login methods as the library does it internally itself.
 
-UVLOOP integration
-~~~~~~~~~~~~~~~~~~
-unix based Operating systems only, `uvloop doesn't have windows support yet <https://github.com/MagicStack/uvloop/issues/14>`__
-
-If your use case demands better performance on async streamer than what the usual ``asyncio`` has to offer, the lib has builtin integration for
-`uvloop <https://github.com/MagicStack/uvloop>`__, a ``libuv`` based event loop which provides faster execution.
-
-* By default, the async streamer will try to use uvloop if it's installed. If it's not installed, normal asyncio loop will be used.
-* Changing ``use_uvloop=False`` disables uvloop and it will NOT be used regardless of whether it's installed or not.
-* Changing ``use_uvloop=True`` enforces using uvloop. an ``ImportError`` with appropriate message will be raised if uvloop is not installed.
-
-
-You can pass that argument when you create the client.
-**for example**
-
-.. code-block:: python
-
-  import polygon
-  # by default, uvloop is used automatically if installed
-  client = polygon.AsyncStreamClient('KEY', 'stocks', use_uvloop=True)
-
-
 Starting the Stream
 -------------------
 

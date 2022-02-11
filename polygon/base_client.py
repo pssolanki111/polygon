@@ -47,7 +47,7 @@ class Base:
             timespan = 'minute'
 
         try:
-            delta = TIME_FRAME_CHUNKS[timespan]
+            delta, temp = TIME_FRAME_CHUNKS[timespan], (start, end)
         except KeyError:
             raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
                              'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
@@ -64,7 +64,7 @@ class Base:
         start, end = self.normalize_datetime(start, 'datetime'), self.normalize_datetime(end, 'datetime')
 
         if (end - start).days < delta.days:
-            return [(start, end)]
+            return [(self.normalize_datetime(temp[0], 'nts'), self.normalize_datetime(temp[1], 'nts'))]
 
         final_time_chunks, timespan, current = [], self._change_enum(timespan), start
 
@@ -457,7 +457,8 @@ class BaseClient(Base):
 
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
-                    chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
+                    chunk = (self.normalize_datetime(chunk[0], 'nts'),
+                             self.normalize_datetime(chunk[1], 'nts', _dir='end'))
                     futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
                                                limit=500000, multiplier=multiplier, timespan=timespan))
 
@@ -474,8 +475,7 @@ class BaseClient(Base):
                         print(f'No data returned. response: {future.result()}')
                     continue
 
-                final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
-                        candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
+                final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
                 dupe_handler = final_results[-1]['t']
 
             if sort_order in ['desc', 'descending']:
@@ -827,7 +827,7 @@ class BaseAsyncClient(Base):
             first_entry = self.normalize_datetime(time_chunks[-1][0])
 
             for chunk in time_chunks:
-                chunk = (self.normalize_datetime(chunk[0]), self.normalize_datetime(chunk[1], _dir='end'))
+                chunk = (self.normalize_datetime(chunk[0], 'nts'), self.normalize_datetime(chunk[1], 'nts', _dir='end'))
 
                 futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
                                                limit=500000, multiplier=multiplier, timespan=timespan,
@@ -848,8 +848,9 @@ class BaseAsyncClient(Base):
                         print(f'No data returned. Response: {future}')
                     continue
 
-                final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
-                        candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
+                # final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
+                #         candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
+                final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
                 dupe_handler = final_results[-1]['t']
 
             if sort_order in ['desc', 'descending']:

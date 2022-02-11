@@ -189,13 +189,19 @@ Passing dates, datetime values or timestamps
 The library allows you to specify your datetime or date values as ``datetime.date``, ``datetime.datetime`` objects or as
 string ``YYYY-MM-DD``. Some endpoints also accept millisecond/nanosecond timestamps (docs will mention this wherever necessary)
 
-If an endpoint accepts a timestamp, you can either pass a timestamp or a datetime or date object. The lib will do the conversions for you
-internally
+- If an endpoint accepts a timestamp, you can either pass a timestamp or a datetime or date object. The lib will do the conversions for you
+  internally
 
-When you pass a timestamp, library will NOT do any conversions and pass it as is. So make sure you are passing the correct timestamps.
+- When you pass a timestamp, library will NOT do any conversions and pass it as is. So make sure you are passing the correct timestamps.
 
-If you pass a ``datetime`` object, and the endpoint accepts a timestamp, the lib will convert internally to a timestamp. If there is no
-timezone info attached to the object, ``UTC`` will be used.
+- If you pass a ``datetime`` object, and the endpoint accepts a timestamp, the lib will convert internally to a timestamp. If there is no
+  timezone info attached to the object, ``UTC`` will be used.
+
+- If you come across situations where the returned data results are not complete or missing some values (for eg on aggregate bars endpoint),
+  just pass your values as ``datetime`` values (if possible as a timestamp or with timezone information at least)
+
+- The lib makes its best efforts parsing what the supplied datetime/timestamp/date could mean in context of the relevant endpoint. The behavior is of course
+  different between for example aggs and trades. If you want absolute control, just pass as a unix timestamp or a ``datetime`` object having timezone information
 
 Return Values
 -------------
@@ -471,7 +477,7 @@ Using it is very simple, install using ``pip install uvloop`` and then **at the 
 
   asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-That's it. asyncio will now uvloop's event loop policy instead of the default one.
+That's it. asyncio will now use uvloop's event loop policy instead of the default one.
 
 Special Points
 --------------

@@ -47,9 +47,9 @@ class AsyncStreamClient:
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
-    def __init__(self, api_key: str, cluster, host=HOST, ping_interval: int = 20,
-                 ping_timeout: bool = 19, max_message_size: int = 1048576, max_memory_queue: int = 32,
-                 read_limit: int = 65536, write_limit: int = 65536):
+    def __init__(self, api_key: str, cluster, host=HOST, ping_interval: Union[int, None] = 20,
+                 ping_timeout: Union[int, None] = 19, max_message_size: int = 1048576,
+                 max_memory_queue: Union[int, None] = 32, read_limit: int = 65536, write_limit: int = 65536):
         """
         Initializes the stream client for async streaming
         `Official Docs <https://polygon.io/docs/websockets/getting-started>`__

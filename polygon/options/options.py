@@ -211,7 +211,7 @@ def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 
                              implies
     :param max_connections: Max number of connections in the pool. Defaults to NO LIMITS. Do NOT change if you're
                             unsure of application
-    :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to no limit. Do NOT
+    :param max_keepalive: max number of allowable keep alive connections in the pool. Defaults to no limit.
                           Do NOT change if you're unsure of the applications.
     :param write_timeout: The write timeout in seconds. Defaults to 10. basically the number of seconds to wait for
                          data to be written/posted. Raises a ``WriteTimeout`` if unable to connect within the

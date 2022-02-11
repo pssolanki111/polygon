@@ -411,9 +411,9 @@ class SyncOptionsClient(base_client.BaseClient):
 
         if not full_range:
 
-            from_date = self.normalize_datetime(from_date)
+            from_date = self.normalize_datetime(from_date, output_type='nts')
 
-            to_date = self.normalize_datetime(to_date, _dir='end')
+            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
 
             if timespan == 'min':
                 timespan = 'minute'
@@ -705,9 +705,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         if not full_range:
 
-            from_date = self.normalize_datetime(from_date)
+            from_date = self.normalize_datetime(from_date, output_type='nts')
 
-            to_date = self.normalize_datetime(to_date, _dir='end')
+            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
 
             if timespan == 'min':
                 timespan = 'minute'

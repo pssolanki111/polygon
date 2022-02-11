@@ -452,8 +452,7 @@ class BaseClient(Base):
             from concurrent.futures import ThreadPoolExecutor
 
             sort_order = self._change_enum(sort)
-            futures, last_entry = [], self.normalize_datetime(time_chunks[0][1], _dir='end')
-            first_entry = self.normalize_datetime(time_chunks[-1][0])
+            futures = []
 
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
@@ -532,8 +531,7 @@ class BaseClient(Base):
 
             temp_len = len(final_results)
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
-                    candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
+            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
 
             if len(final_results) == temp_len:
                 if data[-1]['t'] <= dupe_handler:
@@ -823,8 +821,6 @@ class BaseAsyncClient(Base):
 
             sort_order = self._change_enum(sort)
             futures, semaphore = [], asyncio.Semaphore(max_concurrent_workers)
-            last_entry = self.normalize_datetime(time_chunks[0][1], _dir='end')
-            first_entry = self.normalize_datetime(time_chunks[-1][0])
 
             for chunk in time_chunks:
                 chunk = (self.normalize_datetime(chunk[0], 'nts'), self.normalize_datetime(chunk[1], 'nts', _dir='end'))
@@ -907,8 +903,7 @@ class BaseAsyncClient(Base):
 
             temp_len = len(final_results)
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
-                    candle['t'] <= end_dt) and (candle['t'] >= first_entry)]
+            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
 
             if len(final_results) == temp_len:
                 if data[-1]['t'] <= dupe_handler:

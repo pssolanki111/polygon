@@ -117,8 +117,7 @@ class TestCommonMethods(unittest.TestCase):
                                   datetime.datetime(2021, 10, 3, 0, 0, tzinfo=datetime.timezone.utc)),
                                  (datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
                                   datetime.datetime(2021, 8, 4, 0, 0, tzinfo=datetime.timezone.utc))])
-        self.assertEqual(test4, [(datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
-                                  datetime.datetime(2021, 12, 3, 23, 59, tzinfo=datetime.timezone.utc))])
+        self.assertEqual(test4, [('2021-06-05', '2021-12-03')])
 
 
 # ========================================================= #

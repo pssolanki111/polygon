@@ -2,7 +2,7 @@
 name: Submitting A Bug/Issue
 about: Please Tell us about the issue/bug to help us improve...
 title: "[Issue]"
-labels: bug
+labels: Potential Bug
 assignees: ''
 
 ---

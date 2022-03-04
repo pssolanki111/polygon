@@ -221,6 +221,33 @@ class TestOptions(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
+    def test_get_quotes(self):
+        with polygon.OptionsClient(cred.KEY) as client:
+            data = client.get_quotes('O:TSLA210903C00700000', limit=10)
+            data2 = client.get_quotes('O:TSLA210903C00700000', limit=10, raw_response=True)
+            data3 = client.get_quotes('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2)
+            data4 = client.get_quotes('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2,
+                                      merge_all_pages=False)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, Response)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY)
+        data = client.get_quotes('O:TSLA210903C00700000', limit=10)
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
     def test_get_last_trade(self):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_last_trade('O:TSLA210903C00700000')
@@ -370,6 +397,34 @@ class TestOptions(unittest.TestCase):
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, True)
         data = await client.get_trades('O:TSLA210903C00700000', limit=10)
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_quotes(self):
+        with polygon.OptionsClient(cred.KEY, True) as client:
+            data = await client.get_quotes('O:TSLA210903C00700000', limit=10)
+            data2 = await client.get_quotes('O:TSLA210903C00700000', limit=10, raw_response=True)
+            data3 = await client.get_quotes('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2)
+            data4 = await client.get_quotes('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2,
+                                            merge_all_pages=False)
+
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data2, HttpxResponse)
+            self.assertIsInstance(data3, list)
+            self.assertIsInstance(data4, list)
+
+            self.assertIsInstance(data2.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data2.json()['status'], 'OK')
+            self.assertEqual(len(data3), 10)
+            self.assertEqual(len(data4), 2)
+
+        # Testing without context manager
+        client = polygon.OptionsClient(cred.KEY, True)
+        data = await client.get_quotes('O:TSLA210903C00700000', limit=10)
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')

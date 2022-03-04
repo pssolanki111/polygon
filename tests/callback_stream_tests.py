@@ -200,6 +200,28 @@ class TestOptionsStream(unittest.TestCase):
             streamer.close_stream()
             raise
 
+        # subbing OPTIONS QUOTES
+        streamer.subscribe_option_quotes()
+        time.sleep(2)
+
+        try:
+            self.assertEqual(self._state, 'Q')
+
+        except AssertionError:
+            streamer.close_stream()
+            raise
+
+        # unsubbing OPTIONS QUOTES
+        streamer.unsubscribe_option_quotes()
+        time.sleep(3)
+
+        try:
+            self.assertTrue(self._state in ['status', 'Q'])
+
+        except AssertionError:
+            streamer.close_stream()
+            raise
+
         # subbing OPTIONS Second aggregates
         streamer.subscribe_option_second_aggregates()
         time.sleep(2)

@@ -212,6 +212,27 @@ class TestOptionsStream(unittest.TestCase):
             await streamer.close_stream()
             raise
 
+        # subbing OPTIONS QUOTES
+        await streamer.subscribe_option_quotes(handler_function=self.message_handler)
+
+        try:
+            await asyncio.sleep(3)
+            self.assertEqual(self._state, 'Q')
+        except AssertionError:
+            await streamer.close_stream()
+            raise
+
+        # unsubbing OPTIONS QUOTES
+        await streamer.unsubscribe_option_quotes()
+
+        try:
+            await asyncio.sleep(5)
+            self.assertEqual(self._state, 'status')
+
+        except AssertionError:
+            await streamer.close_stream()
+            raise
+
         # subbing OPTIONS SECOND AGGREGATES
         await streamer.subscribe_option_second_aggregates(handler_function=self.message_handler)
 

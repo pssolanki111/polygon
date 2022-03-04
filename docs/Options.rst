@@ -220,6 +220,14 @@ This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :r
 .. automethod:: polygon.options.options.SyncOptionsClient.get_trades
    :noindex:
 
+Get Quotes
+----------
+
+This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+
+.. automethod:: polygon.options.options.SyncOptionsClient.get_quotes
+   :noindex:
+
 Get Last Trade
 --------------
 

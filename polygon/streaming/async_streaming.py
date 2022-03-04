@@ -582,6 +582,36 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
+    async def subscribe_option_quotes(self, symbols: list = None, handler_function=None):
+        """
+        Get Real time options quotes for provided ticker(s)
+
+        :param symbols: A list of tickers to subscribe to. Defaults to ALL ticker. You can specify with or without
+                        the prefix ``O:``
+        :param handler_function: The function which you'd want to call to process messages received from this
+                                 subscription. Defaults to None which uses the default process message function.
+        :return: None
+        """
+
+        _prefix = 'Q'
+
+        self._handlers[_prefix] = handler_function
+
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+
+    async def unsubscribe_option_quotes(self, symbols: list = None):
+        """
+        Unsubscribe from the stream for the supplied option symbols.
+
+        :param symbols: A list of symbols to unsubscribe from. Defaults to ALL tickers. You can specify with or
+                        without the prefix ``O:``
+        :return: None
+        """
+
+        _prefix = 'Q'
+
+        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+
     async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None):
         """
         Get Real time options minute aggregates for given ticker(s)

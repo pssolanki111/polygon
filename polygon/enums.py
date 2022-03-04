@@ -268,6 +268,15 @@ class OptionTradesSort(enum.Enum):
     TIMESTAMP = 'timestamp'
 
 
+# Option Quotes Sort Type - Options
+class OptionQuotesSort(enum.Enum):
+    """
+    Sort field used for ordering option quotes. Used for method: ``OptionsClient.get_quotes``
+    """
+
+    TIMESTAMP = 'timestamp'
+
+
 # Stocks Trades Sort Type - Stocks
 class StocksTradesSort(enum.Enum):
     """
@@ -384,6 +393,7 @@ class StreamServicePrefix(enum.Enum):
     CRYPTO_MINUTE_AGGREGATES = 'XA'
     STATUS = 'status'
     OPTION_TRADES = 'T'
+    OPTION_QUOTES = 'Q'
     OPTION_MINUTE_AGGREGATES = 'AM'
     OPTION_SECOND_AGGREGATES = 'A'
 

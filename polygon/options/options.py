@@ -313,6 +313,78 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
 
+    def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
+                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
+                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                   raw_page_responses: bool = False, raw_response: bool = False):
+        """
+        Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
+        correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
+        using many filter parameters such as underlying symbol etc.
+        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+
+        :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
+                              pass the symbol with or without the prefix ``O:``
+        :param timestamp: Query by quote timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
+                          UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string or nanosecond timestamp
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string or nanosecond timestamp
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string or nanosecond timestamp
+        :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionQuotesSort`
+                     for available choices.
+        :param limit: Limit the number of results returned. Defaults to 5000. max is 50000.
+        :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
+                      available choices.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
+        """
+
+        timestamp = self.normalize_datetime(timestamp, output_type='str')
+
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+
+        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = self._get_response(_path, params=_data)
+
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
+
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
     def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
         Get the most recent trade for a given options contract.
@@ -591,6 +663,78 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
         _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
+                 'limit': limit}
+
+        _res = await self._get_response(_path, params=_data)
+
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
+
+            return _res.json()
+
+        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    async def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
+                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
+                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+                         raw_page_responses: bool = False, raw_response: bool = False):
+        """
+        Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
+        correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
+        using many filter parameters such as underlying symbol etc.
+        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+
+        :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
+                              pass the symbol with or without the prefix ``O:``
+        :param timestamp: Query by quote timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
+                          UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
+        :param timestamp_lt: return results where timestamp is less than the given value. Can be date or date string or
+                             nanosecond timestamp
+        :param timestamp_lte: return results where timestamp is less than/equal to the given value. Can be date or date
+                              string or nanosecond timestamp
+        :param timestamp_gt: return results where timestamp is greater than the given value. Can be date or date
+                             string or nanosecond timestamp
+        :param timestamp_gte: return results where timestamp is greater than/equal to the given value. Can be date or
+                              date string or nanosecond timestamp
+        :param sort: Sort field used for ordering. Defaults to timestamp. See :class:`polygon.enums.OptionQuotesSort`
+                     for available choices.
+        :param limit: Limit the number of results returned. Defaults to 5000. max is 50000.
+        :param order: order of the results. Defaults to ``asc``. See :class:`polygon.enums.SortOrder` for info and
+                      available choices.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary. This is ignored if pagination is set to True.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
+                 If pagination is set to True, will return a merged response of all pages for convenience.
+        """
+
+        timestamp = self.normalize_datetime(timestamp, output_type='str')
+
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+
+        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,

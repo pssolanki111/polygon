@@ -215,6 +215,14 @@ Options Trades
 .. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_option_trades
    :noindex:
 
+Options Quotes
+~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_option_quotes
+   :noindex:
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_option_quotes
+   :noindex:
+
 Options Minute Aggregates (OCHLV)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

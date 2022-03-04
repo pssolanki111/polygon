@@ -367,6 +367,32 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
+    def subscribe_option_quotes(self, symbols: list = None):
+        """
+        Stream real-time Options Quotes for given Options contract.
+
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
+        :return: None
+        """
+
+        _prefix = 'Q.'
+
+        self._modify_sub(symbols, 'subscribe', _prefix)
+
+    def unsubscribe_option_quotes(self, symbols: list = None):
+        """
+        Unsubscribe real-time Options Quotes for given Options contract.
+
+        :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
+                        **with or without** the prefix ``O:``
+        :return: None
+        """
+
+        _prefix = 'Q.'
+
+        self._modify_sub(symbols, 'unsubscribe', _prefix)
+
     def subscribe_option_minute_aggregates(self, symbols: list = None):
         """
         Stream real-time Options Minute Aggregates for given Options contract(s).

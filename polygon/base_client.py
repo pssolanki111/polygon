@@ -132,8 +132,9 @@ class Base:
                 return dt
             elif output_type in ['ts', 'nts']:
                 return int(dt.timestamp() * factor)
-            elif output_type == 'str':
-                return dt.strftime(_format)
+
+            # elif output_type == 'str':
+            return dt.strftime(_format)
 
         if isinstance(dt, str):
             dt = datetime.datetime.strptime(dt, _format).date()
@@ -149,8 +150,9 @@ class Base:
                 return dt.strftime(_format)
             elif output_type == 'datetime':
                 return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
-            elif output_type == 'date':
-                return dt
+
+            # elif output_type == 'date':
+            return dt
 
         elif isinstance(dt, (int, float)):
             if output_type in ['ts', 'nts']:
@@ -162,8 +164,9 @@ class Base:
                 return dt.strftime(_format)
             elif output_type == 'datetime':
                 return dt
-            elif output_type == 'date':
-                return dt.date()
+
+            # elif output_type == 'date':
+            return dt.date()
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):

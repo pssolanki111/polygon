@@ -403,7 +403,7 @@ class TestOptions(unittest.TestCase):
 
     @async_test
     async def test_async_get_quotes(self):
-        with polygon.OptionsClient(cred.KEY, True) as client:
+        async with polygon.OptionsClient(cred.KEY, True) as client:
             data = await client.get_quotes('O:TSLA210903C00700000', limit=10)
             data2 = await client.get_quotes('O:TSLA210903C00700000', limit=10, raw_response=True)
             data3 = await client.get_quotes('O:TSLA210903C00700000', limit=5, all_pages=True, max_pages=2)

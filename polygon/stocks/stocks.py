@@ -93,13 +93,13 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_trades_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+    def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                       all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                       raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__stockTicker__anchor>`__
 
         :param symbol: The ticker symbol you want trades for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -145,7 +145,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{symbol}'
+        _path = f'/v3/trades/{symbol}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
@@ -160,6 +160,18 @@ class SyncStocksClient(base_client.BaseClient):
             return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    @staticmethod
+    def get_trades_vx(*args, **kwargs):
+        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
+              f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
+              f'did not change :)')
+
+    @staticmethod
+    def get_quotes_vx(*args, **kwargs):
+        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
+              f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
+              f'did not change :)')
 
     def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
                    limit: int = 5000, raw_response: bool = False):
@@ -199,13 +211,13 @@ class SyncStocksClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_quotes_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+    def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                       all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                       raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_quotes__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_quotes__stockTicker__anchor>`__
 
         :param symbol: The ticker symbol you want quotes for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -251,7 +263,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/quotes/{symbol}'
+        _path = f'/v3/quotes/{symbol}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
@@ -624,13 +636,13 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_trades_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+    async def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                             all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                             raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__stockTicker__anchor>`__
 
         :param symbol: The ticker symbol you want trades for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -676,7 +688,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{symbol}'
+        _path = f'/v3/trades/{symbol}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
@@ -691,6 +703,18 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+
+    @staticmethod
+    async def get_trades_vx(*args, **kwargs):
+        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
+              f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
+              f'did not change :)')
+
+    @staticmethod
+    async def get_quotes_vx(*args, **kwargs):
+        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
+              f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
+              f'did not change :)')
 
     async def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None,
                          reverse: bool = True, limit: int = 5000,
@@ -731,13 +755,13 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_quotes_vx(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
+    async def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                             all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                             raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_quotes__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_quotes__stockTicker__anchor>`__
 
         :param symbol: The ticker symbol you want quotes for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -783,7 +807,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/quotes/{symbol}'
+        _path = f'/v3/quotes/{symbol}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,

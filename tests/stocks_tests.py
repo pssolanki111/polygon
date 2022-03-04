@@ -153,14 +153,14 @@ class TestStocks(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
 
-    def test_get_trades_vx(self):
+    def test_get_trades_v3(self):
         with polygon.StocksClient(cred.KEY) as client:
-            data = client.get_trades_vx('AMD', '2021-06-28', limit=10)
-            data1 = client.get_trades_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = client.get_trades_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
-            data3 = client.get_trades_vx('AMD', '2021-06-28', limit=10)
-            data4 = client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
-            data5 = client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+            data = client.get_trades_v3('AMD', '2021-06-28', limit=10)
+            data1 = client.get_trades_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = client.get_trades_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
+            data3 = client.get_trades_v3('AMD', '2021-06-28', limit=10)
+            data4 = client.get_trades_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = client.get_trades_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
                                          merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
@@ -184,7 +184,7 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
-        data = client.get_trades_vx('AMD', '2021-06-28', limit=10)
+        data = client.get_trades_v3('AMD', '2021-06-28', limit=10)
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
@@ -219,14 +219,14 @@ class TestStocks(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
 
-    def test_get_quotes_vx(self):
+    def test_get_quotes_v3(self):
         with polygon.StocksClient(cred.KEY) as client:
-            data = client.get_quotes_vx('AMD', '2021-06-28', limit=10)
-            data1 = client.get_quotes_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = client.get_quotes_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
-            data3 = client.get_quotes_vx('AMD', '2021-06-28', limit=10)
-            data4 = client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
-            data5 = client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+            data = client.get_quotes_v3('AMD', '2021-06-28', limit=10)
+            data1 = client.get_quotes_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = client.get_quotes_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
+            data3 = client.get_quotes_v3('AMD', '2021-06-28', limit=10)
+            data4 = client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
                                          merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
@@ -250,7 +250,7 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
-        data = client.get_quotes_vx('AMD', '2021-06-28', limit=10)
+        data = client.get_quotes_v3('AMD', '2021-06-28', limit=10)
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
@@ -536,14 +536,14 @@ class TestStocks(unittest.TestCase):
         self.assertEqual(len(data['results']), 10)
 
     @async_test
-    async def test_async_get_trades_vx(self):
+    async def test_async_get_trades_v3(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.get_trades_vx('AMD', '2021-06-28', limit=10)
-            data1 = await client.get_trades_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = await client.get_trades_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
-            data3 = await client.get_trades_vx('AMD', '2021-06-28', limit=10)
-            data4 = await client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
-            data5 = await client.get_trades_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+            data = await client.get_trades_v3('AMD', '2021-06-28', limit=10)
+            data1 = await client.get_trades_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = await client.get_trades_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
+            data3 = await client.get_trades_v3('AMD', '2021-06-28', limit=10)
+            data4 = await client.get_trades_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = await client.get_trades_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
                                                merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
@@ -567,7 +567,7 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.get_trades_vx('AMD', '2021-06-28', limit=10)
+        data = await client.get_trades_v3('AMD', '2021-06-28', limit=10)
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)
@@ -605,14 +605,14 @@ class TestStocks(unittest.TestCase):
         self.assertEqual(len(data['results']), 10)
 
     @async_test
-    async def test_async_get_quotes_vx(self):
+    async def test_async_get_quotes_v3(self):
         async with polygon.StocksClient(cred.KEY, True) as client:
-            data = await client.get_quotes_vx('AMD', '2021-06-28', limit=10)
-            data1 = await client.get_quotes_vx('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = await client.get_quotes_vx('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
-            data3 = await client.get_quotes_vx('AMD', '2021-06-28', limit=10)
-            data4 = await client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
-            data5 = await client.get_quotes_vx('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
+            data = await client.get_quotes_v3('AMD', '2021-06-28', limit=10)
+            data1 = await client.get_quotes_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
+            data2 = await client.get_quotes_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
+            data3 = await client.get_quotes_v3('AMD', '2021-06-28', limit=10)
+            data4 = await client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
+            data5 = await client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
                                                merge_all_pages=False)
 
             self.assertIsInstance(data, dict)
@@ -636,7 +636,7 @@ class TestStocks(unittest.TestCase):
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
-        data = await client.get_quotes_vx('AMD', '2021-06-28', limit=10)
+        data = await client.get_quotes_v3('AMD', '2021-06-28', limit=10)
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data['results']), 10)

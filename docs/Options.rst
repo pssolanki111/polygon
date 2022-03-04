@@ -215,7 +215,7 @@ you'd call the methods as ``client.get_trades`` and so on. Async methods will ne
 Get Trades
 ----------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.options.options.SyncOptionsClient.get_trades
    :noindex:
@@ -223,7 +223,7 @@ This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :r
 Get Quotes
 ----------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.options.options.SyncOptionsClient.get_quotes
    :noindex:
@@ -261,7 +261,7 @@ Get Previous Close
 Get Snapshot
 ------------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.options.options.SyncOptionsClient.get_snapshot
    :noindex:

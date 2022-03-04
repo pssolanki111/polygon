@@ -42,7 +42,7 @@ Get Historic Trades
 Get Trades
 ----------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
 .. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_trades
    :noindex:

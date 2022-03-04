@@ -97,7 +97,7 @@ class SyncForexClient(base_client.BaseClient):
                    raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_quotes__fxTicker__anchor>`__
 
         :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -143,7 +143,7 @@ class SyncForexClient(base_client.BaseClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/quotes/{ensure_prefix(symbol)}'
+        _path = f'/v3/quotes/{ensure_prefix(symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
@@ -481,7 +481,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                          raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_quotes__fxTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_quotes__fxTicker__anchor>`__
 
         :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -527,7 +527,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/quotes/{ensure_prefix(symbol)}'
+        _path = f'/v3/quotes/{ensure_prefix(symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,

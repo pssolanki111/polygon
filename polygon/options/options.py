@@ -249,7 +249,7 @@ class SyncOptionsClient(base_client.BaseClient):
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
 
         :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -297,7 +297,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
+        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
@@ -321,7 +321,7 @@ class SyncOptionsClient(base_client.BaseClient):
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
 
         :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -614,7 +614,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option
         symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
         contracts using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
 
         :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -662,7 +662,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{ensure_prefix(option_symbol)}'
+        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
@@ -686,7 +686,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
 
         :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``

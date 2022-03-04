@@ -163,7 +163,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_ticker_details_v3(self, symbol: str, date=None, raw_response: bool = False):
+    def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -192,9 +192,14 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
+    @staticmethod
+    def get_ticker_details_v3(*args, **kwargs):
+        print(f'This endpoint has been changed to "get_ticker_details" after a change by polygon.io. Just drop the '
+              f'"_v3". You can keep arguments exactly the same as before')
+
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
-                             expiration_date_gt=None, expiration_date_gte=None, order='asc', sort=None,
+                             expiration_date_gt=None, expiration_date_gte=None, order='asc', sort='expiration_date',
                              limit=1000, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                              raw_page_responses: bool = False, raw_response: bool = False):
         """
@@ -212,6 +217,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param expiration_date_gte: expiration_date greater than equal to given value
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
+                     defaults to expiration_date
         :param limit: Limit the size of the response, default is 1000.
                       ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -350,6 +356,7 @@ class SyncReferenceClient(base_client.BaseClient):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_dividends>`__
 
         :param ticker: Return the dividends that contain this ticker.
         :param ex_dividend_date: Query by ex-dividend date. could be a date, datetime object or a string ``YYYY-MM-DD``
@@ -577,6 +584,7 @@ class SyncReferenceClient(base_client.BaseClient):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_splits>`__
 
         :param ticker: Return the stock splits that contain this ticker. defaults to no ticker filter returning all.
         :param execution_date: query by execution date. could be a date, datetime object or a string ``YYYY-MM-DD``
@@ -903,7 +911,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_ticker_details_v3(self, symbol: str, date=None, raw_response: bool = False):
+    async def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -932,10 +940,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
+    @staticmethod
+    async def get_ticker_details_v3(*args, **kwargs):
+        print(f'This endpoint has been changed to "get_ticker_details" after a change by polygon.io. Just drop the '
+              f'"_v3". You can keep arguments exactly the same as before')
+
     async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
                                    contract_type=None, expiration_date=None,
                                    expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                                   expiration_date_gte=None, order='asc', sort=None, limit: int = 1000,
+                                   expiration_date_gte=None, order='asc', sort='expiration_date', limit: int = 1000,
                                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
                                    raw_page_responses: bool = False, raw_response: bool = False):
         """
@@ -953,6 +966,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param expiration_date_gte: expiration_date greater than equal to given value
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
+                     Defaults to expiration_date
         :param limit: Limit the size of the response, default is 1000.
                       ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -994,6 +1008,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
         _res = await self._get_response(_path, params=_data)
+
+        print('')
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
@@ -1092,6 +1108,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_dividends>`__
 
         :param ticker: Return the dividends that contain this ticker.
         :param ex_dividend_date: Query by ex-dividend date. could be a date, datetime object or a string ``YYYY-MM-DD``
@@ -1319,6 +1336,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_splits>`__
 
         :param ticker: Return the stock splits that contain this ticker. defaults to no ticker filter returning all.
         :param execution_date: query by execution date. could be a date, datetime object or a string ``YYYY-MM-DD``

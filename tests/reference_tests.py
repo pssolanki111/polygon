@@ -83,10 +83,10 @@ class TestReferences(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
-    def test_get_ticker_details_v3(self):
+    def test_get_ticker_details(self):
         with polygon.ReferenceClient(cred.KEY) as client:
-            data = client.get_ticker_details_v3('AMD')
-            data1 = client.get_ticker_details_v3('AMD', date='2021-06-28', raw_response=True)
+            data = client.get_ticker_details('AMD')
+            data1 = client.get_ticker_details('AMD', date='2021-06-28', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
@@ -97,7 +97,7 @@ class TestReferences(unittest.TestCase):
 
         # without context manager
         client = polygon.ReferenceClient(cred.KEY)
-        data = client.get_ticker_details_v3('AMD')
+        data = client.get_ticker_details('AMD')
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
@@ -363,10 +363,10 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(data['status'], 'OK')
 
     @async_test
-    async def test_async_get_ticker_details_v3(self):
+    async def test_async_get_ticker_details(self):
         async with polygon.ReferenceClient(cred.KEY, True) as client:
-            data = await client.get_ticker_details_v3('AMD')
-            data1 = await client.get_ticker_details_v3('AMD', date='2021-06-28', raw_response=True)
+            data = await client.get_ticker_details('AMD')
+            data1 = await client.get_ticker_details('AMD', date='2021-06-28', raw_response=True)
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
@@ -377,7 +377,7 @@ class TestReferences(unittest.TestCase):
 
         # without context manager
         client = polygon.ReferenceClient(cred.KEY, True)
-        data = await client.get_ticker_details_v3('AMD')
+        data = await client.get_ticker_details('AMD')
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')

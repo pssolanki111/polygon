@@ -98,7 +98,7 @@ class SyncCryptoClient(base_client.BaseClient):
                    raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__cryptoTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__cryptoTicker__anchor>`__
 
         :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
@@ -145,7 +145,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{ensure_prefix(symbol)}'
+        _path = f'/v3/trades/{ensure_prefix(symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
@@ -508,7 +508,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                          raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_vX_trades__cryptoTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/get_v3_trades__cryptoTicker__anchor>`__
 
         :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
@@ -555,7 +555,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
 
-        _path = f'/vX/trades/{ensure_prefix(symbol)}'
+        _path = f'/v3/trades/{ensure_prefix(symbol)}'
 
         _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,

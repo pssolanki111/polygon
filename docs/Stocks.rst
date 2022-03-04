@@ -34,12 +34,12 @@ Get Trades
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades
    :noindex:
 
-Get Trades vX
+Get Trades v3
 -------------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
-.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades_vx
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_trades_v3
    :noindex:
 
 Get Quotes
@@ -48,12 +48,12 @@ Get Quotes
 .. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes
    :noindex:
 
-Get Quotes vX
+Get Quotes v3
 -------------
 
-This endpoint supports pagination. Passing ``all_pages=True`` enabled it. See :ref:`pagination_header` for better info
+This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
 
-.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes_vx
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_quotes_v3
    :noindex:
 
 Get Last Trade

@@ -59,7 +59,7 @@ class SyncForexClient(base_client.BaseClient):
                                  limit: int = 500, raw_response: bool = False):
         """
         Get historic trade ticks for a forex currency pair.
-        `Official Docs <https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v1_historic_forex__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
@@ -94,10 +94,10 @@ class SyncForexClient(base_client.BaseClient):
     def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                    timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   raw_page_responses: bool = False, raw_response: bool = False):
+                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_quotes__fxTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v3_quotes__fxticker>`__
 
         :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -123,6 +123,7 @@ class SyncForexClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -133,7 +134,7 @@ class SyncForexClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -157,12 +158,13 @@ class SyncForexClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_last_quote(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
         Get the last trade tick for a forex currency pair.
-        `Official Docs <https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor>`__
+        `Official Docs <hhttps://polygon.io/docs/forex/get_v1_last_quote_currencies__from___to>`__
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
@@ -189,7 +191,7 @@ class SyncForexClient(base_client.BaseClient):
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix 
                        ``C:``
@@ -269,7 +271,7 @@ class SyncForexClient(base_client.BaseClient):
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_grouped_locale_global_market_fx__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
@@ -297,7 +299,7 @@ class SyncForexClient(base_client.BaseClient):
                            raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__prev>`__
 
         :param symbol: The ticker symbol of the forex pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -323,7 +325,7 @@ class SyncForexClient(base_client.BaseClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -350,7 +352,7 @@ class SyncForexClient(base_client.BaseClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded forex symbol.
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers__ticker>`__
 
         :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -371,7 +373,7 @@ class SyncForexClient(base_client.BaseClient):
     def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in forex markets.
-        `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor>`__
+        `Official docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex__direction>`__
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
@@ -395,7 +397,7 @@ class SyncForexClient(base_client.BaseClient):
         """
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
         For example USD to CAD or CAD to USD.
-        `Official Docs <https://polygon.io/docs/get_v1_conversion__from___to__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v1_conversion__from___to>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -443,7 +445,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                                        raw_response: bool = False):
         """
         Get historic trade ticks for a forex currency pair - Async method.
-        `Official Docs <https://polygon.io/docs/get_v1_historic_forex__from___to___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v1_historic_forex__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
@@ -468,6 +470,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         _data = {'offset': offset,
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -478,10 +482,10 @@ class AsyncForexClient(base_client.BaseAsyncClient):
     async def get_quotes(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                          timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                          all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         raw_page_responses: bool = False, raw_response: bool = False):
+                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a forex ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_quotes__fxTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v3_quotes__fxticker>`__
 
         :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -507,6 +511,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -517,7 +522,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -533,6 +538,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -541,13 +548,14 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_last_quote(self, from_symbol: str, to_symbol: str,
                              raw_response: bool = False):
         """
         Get the last trade tick for a forex currency pair - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_last_quote_currencies__from___to__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v1_last_quote_currencies__from___to>`__
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
@@ -574,7 +582,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         Get aggregate bars for a forex pair over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then ``5-minute`` bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix
                        ``C:``
@@ -629,6 +637,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                      'sort': sort,
                      'limit': limit}
 
+            _data = {key: value for key, value in _data.items() if value}
+
             _res = await self._get_response(_path, params=_data)
 
             if raw_response:
@@ -655,7 +665,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                                      raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire forex markets - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_fx__date__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_grouped_locale_global_market_fx__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
@@ -672,6 +682,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -683,7 +695,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                                  raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified forex pair - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__forexTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__prev>`__
 
         :param symbol: The ticker symbol of the forex pair.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -698,6 +710,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -709,7 +723,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         forex symbols - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -725,6 +739,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _data = {'tickers': ','.join([x.upper() for x in symbols])}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -736,7 +752,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded forex symbol - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers__ticker>`__
 
         :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -758,7 +774,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                                      raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in forex markets.
-        `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_forex__direction__anchor>`__
+        `Official docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex__direction>`__
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
@@ -783,7 +799,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         """
         Get currency conversions using the latest market conversion rates. Note than you can convert in both directions.
         For example USD to CAD or CAD to USD - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_conversion__from___to__anchor>`__
+        `Official Docs <https://polygon.io/docs/forex/get_v1_conversion__from___to>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -799,6 +815,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         _data = {'amount': amount,
                  'precision': precision}
+
+        _data = {key: value for key, value in _data.items() if value}
 
         _res = await self._get_response(_path, params=_data)
 

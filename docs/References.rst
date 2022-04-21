@@ -48,6 +48,13 @@ Get Ticker Details
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_ticker_details
    :noindex:
 
+
+Get Option Contract
+-------------------
+
+.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_option_contract
+   :noindex:
+
 Get Option Contracts
 --------------------
 
@@ -96,12 +103,6 @@ Get Market Status
 -----------------
 
 .. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_market_status
-   :noindex:
-
-Get Condition Mappings
-----------------------
-
-.. automethod:: polygon.reference_apis.reference_api.SyncReferenceClient.get_condition_mappings
    :noindex:
 
 Get Conditions

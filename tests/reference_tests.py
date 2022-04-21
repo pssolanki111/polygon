@@ -102,6 +102,25 @@ class TestReferences(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
 
+    def test_get_option_contract(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_option_contract('AMD1220520C00090000', as_of_date=datetime.date(2022, 4, 20))
+            data1 = client.get_option_contract('O:AMD1220520C00090000',
+                                               as_of_date=datetime.date(2022, 4, 20), raw_response=True)
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, Response)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_option_contract('AMD1220520C00090000', as_of_date=datetime.date(2022, 4, 20))
+        client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
     def test_get_option_contracts(self):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_option_contracts('AMD', limit=10)
@@ -254,21 +273,6 @@ class TestReferences(unittest.TestCase):
         client.close()
         self.assertIsInstance(data, dict)
 
-    def test_get_condition_mappings(self):
-        with polygon.ReferenceClient(cred.KEY) as client:
-            data = client.get_condition_mappings()
-            data1 = client.get_condition_mappings('quotes', raw_response=True)
-
-            self.assertIsInstance(data, dict)
-            self.assertIsInstance(data1, Response)
-            self.assertIsInstance(data1.json(), dict)
-
-        # without context manager
-        client = polygon.ReferenceClient(cred.KEY)
-        data = client.get_condition_mappings('trades')
-        client.close()
-        self.assertIsInstance(data, dict)
-
     def test_get_conditions(self):
         with polygon.ReferenceClient(cred.KEY) as client:
             data = client.get_conditions()
@@ -378,6 +382,26 @@ class TestReferences(unittest.TestCase):
         # without context manager
         client = polygon.ReferenceClient(cred.KEY, True)
         data = await client.get_ticker_details('AMD')
+        await client.close()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['status'], 'OK')
+
+    @async_test
+    async def test_async_get_option_contract(self):
+        async with polygon.ReferenceClient(cred.KEY, True) as client:
+            data = await client.get_option_contract('AMD1220520C00090000', as_of_date=datetime.date(2022, 4, 20))
+            data1 = await client.get_option_contract('O:AMD1220520C00090000',
+                                                     as_of_date=datetime.date(2022, 4, 20), raw_response=True)
+            self.assertIsInstance(data, dict)
+            self.assertIsInstance(data1, HttpxResponse)
+            self.assertIsInstance(data1.json(), dict)
+
+            self.assertEqual(data['status'], 'OK')
+            self.assertEqual(data1.json()['status'], 'OK')
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY, True)
+        data = await client.get_option_contract('AMD1220520C00090000', as_of_date=datetime.date(2022, 4, 20))
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
@@ -539,22 +563,6 @@ class TestReferences(unittest.TestCase):
         # without context manager
         client = polygon.ReferenceClient(cred.KEY, True)
         data = await client.get_market_status()
-        await client.close()
-        self.assertIsInstance(data, dict)
-
-    @async_test
-    async def test_async_get_condition_mappings(self):
-        async with polygon.ReferenceClient(cred.KEY, True) as client:
-            data = await client.get_condition_mappings()
-            data1 = await client.get_condition_mappings('quotes', raw_response=True)
-
-            self.assertIsInstance(data, dict)
-            self.assertIsInstance(data1, HttpxResponse)
-            self.assertIsInstance(data1.json(), dict)
-
-        # without context manager
-        client = polygon.ReferenceClient(cred.KEY, True)
-        data = await client.get_condition_mappings('trades')
         await client.close()
         self.assertIsInstance(data, dict)
 

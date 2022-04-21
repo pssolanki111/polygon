@@ -244,12 +244,12 @@ class SyncOptionsClient(base_client.BaseClient):
     def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                    timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   raw_page_responses: bool = False, raw_response: bool = False):
+                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_trades__optionsticker>`__
 
         :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -277,6 +277,7 @@ class SyncOptionsClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -287,7 +288,7 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -311,17 +312,18 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                    timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   raw_page_responses: bool = False, raw_response: bool = False):
+                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_quotes__optionsticker>`__
 
         :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -349,6 +351,7 @@ class SyncOptionsClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -359,7 +362,7 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -383,12 +386,13 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
         Get the most recent trade for a given options contract.
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v2_last_trade__optionsticker>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -410,7 +414,7 @@ class SyncOptionsClient(base_client.BaseClient):
                              raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
-        `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
 
         :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
                        without the prefix ``O:``
@@ -445,7 +449,7 @@ class SyncOptionsClient(base_client.BaseClient):
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
                        the prefix ``O:``
@@ -520,11 +524,11 @@ class SyncOptionsClient(base_client.BaseClient):
                                               multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
 
     def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                     max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False, 
-                     raw_response: bool = False):
+                     max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
+                     raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the snapshot of an option contract for a stock equity.
-        `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
 
         :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
@@ -538,6 +542,7 @@ class SyncOptionsClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -558,13 +563,14 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_previous_close(self, ticker: str, adjusted: bool = True,
                            raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
@@ -609,12 +615,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                          timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000,
                          order='asc', all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         raw_page_responses: bool = False, raw_response: bool = False):
+                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option
         symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
         contracts using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_trades__optionsticker>`__
 
         :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -642,6 +648,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -652,7 +659,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -668,6 +675,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -676,17 +685,18 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
                          timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
                          all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         raw_page_responses: bool = False, raw_response: bool = False):
+                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
         using many filter parameters such as underlying symbol etc.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_quotes__optionsticker>`__
 
         :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
@@ -714,6 +724,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -724,7 +735,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -740,6 +751,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -748,12 +761,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
         Get the most recent trade for a given options contract - Async
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__optionsTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v2_last_trade__optionsticker>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
@@ -775,7 +789,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                                    raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
-        `Official Docs <https://polygon.io/docs/get_v1_open-close__optionsTicker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
 
         :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
                        without the prefix ``O:``
@@ -795,6 +809,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -811,7 +827,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
                        the prefix ``O:``
@@ -865,6 +881,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                      'sort': sort,
                      'limit': limit}
 
+            _data = {key: value for key, value in _data.items() if value}
+
             _res = await self._get_response(_path, params=_data)
 
             if raw_response:
@@ -888,11 +906,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                                                     timespan=timespan)
 
     async def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                           max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
-                           raw_response: bool = False):
+                           max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
+                           raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the snapshot of an option contract for a stock equity.
-        `Official Docs <https://polygon.io/docs/get_v3_snapshot_options__underlyingAsset___optionContract__anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
 
         :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
@@ -906,6 +924,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -926,13 +945,14 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_previous_close(self, ticker: str, adjusted: bool = True,
                                  raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__optionsTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
@@ -946,6 +966,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
+
+        _data = {key: value for key, value in _data.items() if value}
 
         _res = await self._get_response(_path, params=_data)
 

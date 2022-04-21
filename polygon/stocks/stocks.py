@@ -59,7 +59,7 @@ class SyncStocksClient(base_client.BaseClient):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
-        `Official Docs <https://polygon.io/docs/get_v2_ticks_stocks_trades__ticker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_ticks_stocks_trades__ticker___date>`__
 
         :param symbol: The ticker symbol we want trades for.
         :param date: The date/day of the trades to retrieve. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
@@ -96,10 +96,10 @@ class SyncStocksClient(base_client.BaseClient):
     def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                       all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                      raw_page_responses: bool = False, raw_response: bool = False):
+                      verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_trades__stockticker>`__
 
         :param symbol: The ticker symbol you want trades for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -125,6 +125,7 @@ class SyncStocksClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -135,7 +136,7 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -159,7 +160,8 @@ class SyncStocksClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     @staticmethod
     def get_trades_vx(*args, **kwargs):
@@ -178,7 +180,7 @@ class SyncStocksClient(base_client.BaseClient):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
-        `Official Docs <https://polygon.io/docs/get_v2_ticks_stocks_nbbo__ticker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_ticks_stocks_nbbo__ticker___date>`__
 
         :param symbol: The ticker symbol we want quotes for.
         :param date: The date/day of the quotes to retrieve. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
@@ -214,10 +216,10 @@ class SyncStocksClient(base_client.BaseClient):
     def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                       all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                      raw_page_responses: bool = False, raw_response: bool = False):
+                      verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_quotes__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_quotes__stockticker>`__
 
         :param symbol: The ticker symbol you want quotes for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -243,6 +245,7 @@ class SyncStocksClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -253,7 +256,7 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -277,12 +280,13 @@ class SyncStocksClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent trade for a given stock.
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -303,7 +307,7 @@ class SyncStocksClient(base_client.BaseClient):
     def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent NBBO (Quote) tick for a given stock.
-        `Official Docs <https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -325,7 +329,7 @@ class SyncStocksClient(base_client.BaseClient):
                              raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date.
-        `Official Docs <https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date>`__
 
         :param symbol: The ticker symbol we want daily-OCHLV for.
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
@@ -359,7 +363,7 @@ class SyncStocksClient(base_client.BaseClient):
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
@@ -436,7 +440,7 @@ class SyncStocksClient(base_client.BaseClient):
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily OCHLV for the entire stocks/equities markets.
-        `Official docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor>`__
+        `Official docs <https://polygon.io/docs/stocks/get_v2_aggs_grouped_locale_us_market_stocks__date>`__
 
         :param date: The date to get the data for. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -464,7 +468,7 @@ class SyncStocksClient(base_client.BaseClient):
                            raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -491,7 +495,7 @@ class SyncStocksClient(base_client.BaseClient):
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker.
         `Official Docs
-        <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksTicker__anchor>`__
+        <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -514,7 +518,7 @@ class SyncStocksClient(base_client.BaseClient):
         get current market price for the ticker symbol specified.
 
         Uses :meth:`get_last_trade` under the hood
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :return: The current price. A ``KeyError`` indicates the request wasn't successful.
@@ -532,7 +536,7 @@ class SyncStocksClient(base_client.BaseClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols.
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers>`__
 
         :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -558,7 +562,7 @@ class SyncStocksClient(base_client.BaseClient):
     def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets.
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks__direction>`__
 
         :param direction: The direction of results. Defaults to gainers. See :class:`polygon.enums.SnapshotDirection`
                           for choices
@@ -602,7 +606,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_ticks_stocks_trades__ticker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_ticks_stocks_trades__ticker___date>`__
 
         :param symbol: The ticker symbol we want trades for.
         :param date: The date/day of the trades to retrieve. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
@@ -629,6 +633,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  'reverse': 'true' if reverse else 'false',
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -639,10 +645,10 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     async def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                             all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            raw_page_responses: bool = False, raw_response: bool = False):
+                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_trades__stockticker>`__
 
         :param symbol: The ticker symbol you want trades for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -668,6 +674,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -678,7 +685,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -694,6 +701,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -702,7 +711,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     @staticmethod
     async def get_trades_vx(*args, **kwargs):
@@ -722,7 +732,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_ticks_stocks_nbbo__ticker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_ticks_stocks_nbbo__ticker___date>`__
 
         :param symbol: The ticker symbol we want quotes for.
         :param date: The date/day of the quotes to retrieve. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
@@ -748,6 +758,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  'reverse': 'true' if reverse else 'false',
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -758,10 +770,10 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     async def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                             all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            raw_page_responses: bool = False, raw_response: bool = False):
+                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_quotes__stockTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_quotes__stockticker>`__
 
         :param symbol: The ticker symbol you want quotes for.
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
@@ -787,6 +799,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -797,7 +810,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -813,6 +826,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -821,12 +836,13 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent trade for a given stock - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -847,7 +863,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     async def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
         Get the most recent NBBO (Quote) tick for a given stock - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_last_nbbo__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -869,7 +885,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                                    raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_open-close__stocksTicker___date__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date>`__
 
         :param symbol: The ticker symbol we want daily-OCHLV for.
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
@@ -888,6 +904,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -904,7 +922,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___tor>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
@@ -956,6 +974,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                      'sort': sort,
                      'limit': limit}
 
+            _data = {key: value for key, value in _data.items() if value}
+
             _res = await self._get_response(_path, params=_data)
 
             if raw_response:
@@ -981,7 +1001,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily OCHLV for the entire stocks/equities markets - Async method
-        `Official docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_us_market_stocks__date__anchor>`__
+        `Official docs <https://polygon.io/docs/stocks/get_v2_aggs_grouped_locale_us_market_stocks__date>`__
 
         :param date: The date to get the data for. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -997,6 +1017,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -1008,7 +1030,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                                  raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__stocksTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
@@ -1023,6 +1045,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -1035,7 +1059,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded stock ticker - Async method
         `Official Docs
-        <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksTicker__anchor>`__
+        <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -1058,7 +1082,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         get current market price for the ticker symbol specified - Async method
 
         Uses :meth:`get_last_trade` under the hood
-        `Official Docs <https://polygon.io/docs/get_v2_last_trade__stocksTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
         :return: The current price. A ``KeyError`` indicates the request wasn't successful.
@@ -1072,7 +1096,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         stock symbols - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers>`__
 
         :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -1088,6 +1112,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         else:
             _data = {'tickers': None}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -1099,7 +1125,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                                      raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_us_markets_stocks__direction__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks__direction>`__
 
         :param direction: The direction of results. Defaults to gainers. See :class:`polygon.enums.SnapshotDirection`
                           for choices

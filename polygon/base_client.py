@@ -132,9 +132,8 @@ class Base:
                 return dt
             elif output_type in ['ts', 'nts']:
                 return int(dt.timestamp() * factor)
-
-            # elif output_type == 'str':
-            return dt.strftime(_format)
+            elif output_type == 'str':
+                return dt.strftime(_format)
 
         if isinstance(dt, str):
             dt = datetime.datetime.strptime(dt, _format).date()
@@ -150,9 +149,8 @@ class Base:
                 return dt.strftime(_format)
             elif output_type == 'datetime':
                 return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
-
-            # elif output_type == 'date':
-            return dt
+            elif output_type == 'date':
+                return dt
 
         elif isinstance(dt, (int, float)):
             if output_type in ['ts', 'nts']:
@@ -164,9 +162,8 @@ class Base:
                 return dt.strftime(_format)
             elif output_type == 'datetime':
                 return dt
-
-            # elif output_type == 'date':
-            return dt.date()
+            elif output_type == 'date':
+                return dt.date()
 
     @staticmethod
     def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
@@ -327,7 +324,7 @@ class BaseClient(Base):
         except KeyError:
             return False
 
-    def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next',
+    def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next', verbose: bool = False,
                       raw_responses: bool = False):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
@@ -338,6 +335,7 @@ class BaseClient(Base):
                           available pages
         :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
                           :class:`polygon.enums.PaginationDirection` for choices
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
                               instead of the json formatted dict/list. Only use if you need to check status codes or
                               headers. Defaults to False, which makes it return decoded data in list.
@@ -347,6 +345,8 @@ class BaseClient(Base):
 
         direction, container, _res = self._change_enum(direction, str), [], old_response
         if not max_pages:
+            if verbose:
+                print(f'No max limit specified. Initiating pagination for ALL available pages...')
             max_pages = float('inf')
 
         if direction in ['prev', 'previous']:
@@ -357,12 +357,19 @@ class BaseClient(Base):
         # Start paginating
         while 1:
             if len(container) >= max_pages:
+                if verbose:
+                    print(f'Max number of pages ({max_pages}) reached. Stopping and aggregating results...')
                 break
 
             _res = fn(_res, raw_response=True)
 
             if not _res:
+                if verbose:
+                    print(f'No more pages remain. Stopping and aggregating results...')
                 break
+
+            if verbose:
+                print(f'Fetched another page... total pages so far: {len(container)}')
 
             if raw_responses:
                 container.append(_res)
@@ -372,13 +379,15 @@ class BaseClient(Base):
 
         return container
 
-    def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, raw_page_responses: bool = False):
+    def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, verbose: bool = False,
+                  raw_page_responses: bool = False):
         """
         Internal function to call the core pagination methods to build the response object to be parsed by individual
         methods.
 
         :param merge_all_pages: whether to merge all the pages into one response. defaults to True
         :param max_pages: number of pages to fetch. defaults to all available pages.
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: whether to keep raw response objects or decode them. Only considered if
                                    merge_all_pages is set to False. Defaults to False.
         :return:
@@ -389,11 +398,11 @@ class BaseClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages)
+            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
-            return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages)
+            return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages)
+            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []
@@ -701,7 +710,7 @@ class BaseAsyncClient(Base):
         except KeyError:
             return False
 
-    async def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next',
+    async def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next', verbose: bool = False,
                             raw_responses: bool = False):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
@@ -712,6 +721,7 @@ class BaseAsyncClient(Base):
                           available pages
         :param direction: The direction to paginate in. Defaults to next which grabs all next_pages. see
                           :class:`polygon.enums.PaginationDirection` for choices
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_responses: If set to True, the elements in container list, you will get underlying Response object
                               instead of the json formatted dict/list. Only use if you need to check status codes or
                               headers. Defaults to False, which makes it return decoded data in list.
@@ -721,6 +731,8 @@ class BaseAsyncClient(Base):
 
         direction, container, _res = self._change_enum(direction, str), [], old_response
         if not max_pages:
+            if verbose:
+                print(f'No max limit specified. Initiating pagination for ALL available pages...')
             max_pages = float('inf')
 
         if direction in ['prev', 'previous']:
@@ -731,12 +743,19 @@ class BaseAsyncClient(Base):
         # Start paginating
         while 1:
             if len(container) >= max_pages:
+                if verbose:
+                    print(f'Max number of pages ({max_pages}) reached. Stopping and aggregating results...')
                 break
 
             _res = await fn(_res, raw_response=True)
 
             if not _res:
+                if verbose:
+                    print(f'No more pages remain. Stopping and aggregating results...')
                 break
+
+            if verbose:
+                print(f'Fetched another page... total pages so far: {len(container)}')
 
             if raw_responses:
                 container.append(_res)
@@ -746,7 +765,7 @@ class BaseAsyncClient(Base):
 
         return container
 
-    async def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None,
+    async def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, verbose: bool = False,
                         raw_page_responses: bool = False):
         """
         Internal function to call the core pagination methods to build the response object to be parsed by individual
@@ -754,6 +773,7 @@ class BaseAsyncClient(Base):
 
         :param merge_all_pages: whether to merge all the pages into one response. defaults to True
         :param max_pages: number of pages to fetch. defaults to all available pages.
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: whether to keep raw response objects or decode them. Only considered if
                                    merge_all_pages is set to False. Defaults to False.
         :return:
@@ -764,11 +784,11 @@ class BaseAsyncClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages)
+            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
-            return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages)
+            return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages)
+            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []

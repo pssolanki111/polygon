@@ -60,7 +60,7 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         Get historic trade ticks for a cryptocurrency pair.
         `Official Docs
-        <https://polygon.io/docs/get_v1_historic_crypto__from___to___date__anchor>`__
+        <https://polygon.io/docs/crypto/get_v1_historic_crypto__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the crypto pair.
         :param to_symbol: The "to" symbol of the crypto pair.
@@ -95,10 +95,10 @@ class SyncCryptoClient(base_client.BaseClient):
     def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                    timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                    all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   raw_page_responses: bool = False, raw_response: bool = False):
+                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__cryptoTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
 
         :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
@@ -125,6 +125,7 @@ class SyncCryptoClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -135,7 +136,7 @@ class SyncCryptoClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -159,13 +160,14 @@ class SyncCryptoClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
         Get the last trade tick for a cryptocurrency pair.
         `Official Docs
-        <https://polygon.io/docs/get_v1_last_crypto__from___to__anchor>`__
+        <https://polygon.io/docs/crypto/get_v1_last_crypto__from___to>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -188,7 +190,7 @@ class SyncCryptoClient(base_client.BaseClient):
                              raw_response: bool = False):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day.
-        `Official Docs: <https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor>`__
+        `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -222,7 +224,7 @@ class SyncCryptoClient(base_client.BaseClient):
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
@@ -302,7 +304,7 @@ class SyncCryptoClient(base_client.BaseClient):
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
@@ -330,7 +332,7 @@ class SyncCryptoClient(base_client.BaseClient):
                            raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
 
         :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
                        prefix ``X:``
@@ -357,7 +359,7 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers_anchor>`__
+        `Official Docs <hhttps://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -384,7 +386,7 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded cryptocurrency symbol.
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker>`__
 
         :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -405,7 +407,7 @@ class SyncCryptoClient(base_client.BaseClient):
     def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
-        `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
+        `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
@@ -428,7 +430,7 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         Get the current level 2 book of a single ticker. This is the combined book from all of the exchanges.
         `Official Docs
-        <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor>`__
+        <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book>`__
 
         :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:``
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -470,7 +472,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         Get historic trade ticks for a cryptocurrency pair - Async method.
         `Official Docs
-        <https://polygon.io/docs/get_v1_historic_crypto__from___to___date__anchor>`__
+        <https://polygon.io/docs/crypto/get_v1_historic_crypto__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the crypto pair.
         :param to_symbol: The "to" symbol of the crypto pair.
@@ -495,6 +497,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         _data = {'offset': offset,
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -505,10 +509,10 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     async def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                          timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
                          all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         raw_page_responses: bool = False, raw_response: bool = False):
+                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get trades for a crypto ticker symbol in a given time range.
-        `Official Docs <https://polygon.io/docs/get_v3_trades__cryptoTicker__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
 
         :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
@@ -535,6 +539,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -545,7 +550,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='str')
+        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
 
         timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
 
@@ -561,6 +566,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
                  'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -569,14 +576,15 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_last_trade(self, from_symbol: str, to_symbol: str,
                              raw_response: bool = False):
         """
         Get the last trade tick for a cryptocurrency pair - Async method
         `Official Docs
-        <https://polygon.io/docs/get_v1_last_crypto__from___to__anchor>`__
+        <https://polygon.io/docs/crypto/get_v1_last_crypto__from___to>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -599,7 +607,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                                    raw_response: bool = False):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - Async method
-        `Official Docs: <https://polygon.io/docs/get_v1_open-close_crypto__from___to___date__anchor>`__
+        `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
@@ -618,6 +626,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -633,7 +643,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
         `Official Docs
-        <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__range__multiplier___timespan___from___to__anchor>`__
+        <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
         :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
@@ -688,6 +698,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                      'sort': sort,
                      'limit': limit}
 
+            _data = {key: value for key, value in _data.items() if value}
+
             _res = await self._get_response(_path, params=_data)
 
             if raw_response:
@@ -714,7 +726,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                                      raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_grouped_locale_global_market_crypto__date__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
         :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
@@ -731,6 +743,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -742,7 +756,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                                  raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_aggs_ticker__cryptoTicker__prev_anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
 
         :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
                        prefix ``X:``
@@ -758,6 +772,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -769,7 +785,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for all traded
         cryptocurrency symbols - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
@@ -785,6 +801,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         _data = {'tickers': ','.join([x.upper() for x in symbols])}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -796,7 +814,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         Get the current minute, day, and previous day’s aggregate, as well as the last trade and quote for a single
         traded cryptocurrency symbol - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker>`__
 
         :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
         :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
@@ -818,7 +836,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                                      raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
-        `Official docs <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto__direction__anchor>`__
+        `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
@@ -841,7 +859,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         Get the current level 2 book of a single ticker. combined book from all of the exchanges - Async method
         `Official Docs
-        <https://polygon.io/docs/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book_anchor>`__
+        <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book>`__
 
         :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:``.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the

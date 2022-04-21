@@ -175,12 +175,12 @@ class TestStocks(unittest.TestCase):
 
             self.assertEqual(len(data['results']), 10)
             self.assertEqual(len(data1.json()['results']), 10)
-            self.assertEqual(len(data2.json()['results']), 10)
+            self.assertEqual(len(data2.json()['results']), 0)
             self.assertEqual(len(data3['results']), 10)
             self.assertEqual(len(data4), 10)
             self.assertEqual(len(data5), 2)
 
-            self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
+            self.assertTrue(data['results'] == data1.json()['results'])
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
@@ -223,7 +223,6 @@ class TestStocks(unittest.TestCase):
         with polygon.StocksClient(cred.KEY) as client:
             data = client.get_quotes_v3('AMD', '2021-06-28', limit=10)
             data1 = client.get_quotes_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = client.get_quotes_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = client.get_quotes_v3('AMD', '2021-06-28', limit=10)
             data4 = client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
             data5 = client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
@@ -231,22 +230,19 @@ class TestStocks(unittest.TestCase):
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
-            self.assertIsInstance(data2, Response)
             self.assertIsInstance(data3, dict)
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
-            self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(len(data['results']), 10)
             self.assertEqual(len(data1.json()['results']), 10)
-            self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
             self.assertEqual(len(data4), 10)
             self.assertEqual(len(data5), 2)
 
-            self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
+            self.assertTrue(data['results'] == data1.json()['results'])
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
@@ -558,12 +554,12 @@ class TestStocks(unittest.TestCase):
 
             self.assertEqual(len(data['results']), 10)
             self.assertEqual(len(data1.json()['results']), 10)
-            self.assertEqual(len(data2.json()['results']), 10)
+            self.assertEqual(len(data2.json()['results']), 0)
             self.assertEqual(len(data3['results']), 10)
             self.assertEqual(len(data4), 10)
             self.assertEqual(len(data5), 2)
 
-            self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
+            self.assertTrue(data['results'] == data1.json()['results'])
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)
@@ -609,7 +605,6 @@ class TestStocks(unittest.TestCase):
         async with polygon.StocksClient(cred.KEY, True) as client:
             data = await client.get_quotes_v3('AMD', '2021-06-28', limit=10)
             data1 = await client.get_quotes_v3('AMD', datetime.date(2021, 6, 28), limit=10, raw_response=True)
-            data2 = await client.get_quotes_v3('AMD', datetime.datetime(2021, 6, 28), limit=10, raw_response=True)
             data3 = await client.get_quotes_v3('AMD', '2021-06-28', limit=10)
             data4 = await client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2)
             data5 = await client.get_quotes_v3('AMD', '2021-06-28', limit=5, all_pages=True, max_pages=2,
@@ -617,22 +612,19 @@ class TestStocks(unittest.TestCase):
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, HttpxResponse)
-            self.assertIsInstance(data2, HttpxResponse)
             self.assertIsInstance(data3, dict)
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
 
             self.assertIsInstance(data1.json(), dict)
-            self.assertIsInstance(data2.json(), dict)
 
             self.assertEqual(len(data['results']), 10)
             self.assertEqual(len(data1.json()['results']), 10)
-            self.assertEqual(len(data2.json()['results']), 10)
             self.assertEqual(len(data3['results']), 10)
             self.assertEqual(len(data4), 10)
             self.assertEqual(len(data5), 2)
 
-            self.assertTrue(data['results'] == data1.json()['results'] == data2.json()['results'])
+            self.assertTrue(data['results'] == data1.json()['results'])
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)

@@ -203,6 +203,14 @@ string ``YYYY-MM-DD``. Some endpoints also accept millisecond/nanosecond timesta
 - The lib makes its best efforts parsing what the supplied datetime/timestamp/date could mean in context of the relevant endpoint. The behavior is of course
   different between for example aggs and trades. If you want absolute control, just pass as a unix timestamp or a ``datetime`` object having timezone information
 
+Here are some **best practices when passing datetime or dates or timestamps**
+
+-  If you want complete control over what's passed, pass a timestamp since epoch. The accuracy (i.e milli second or nano second)
+   depends on the endpoint itself (mentioned in the docs of course). Default timestamp accuracy is ``ms``
+-  Passing ``datetime`` objects is also a good way to pass absolute values and is recommended. Even better if the object has timezone info.
+   If no timezone info is provided, lib assumes UTC. It doesn't make a difference in most cases, but should be taken care of in fine tuning and accurate filtering scenarios
+
+
 Return Values
 -------------
 
@@ -235,6 +243,9 @@ the functions and parameters once is enough for all endpoints.
 
     you simply need to pass ``all_pages=True`` to enable pagination for the concerned endpoint. You can also pass ``max_pages=an integer`` to limit how many pages the lib will fetch
     internally. The default behavior is to fetch all available pages.
+
+You can pass ``verbose=True`` if you want to know what's happening behind the scenes. It will print out status
+messages about the pagination process.
 
 You can further customize what kinda output you want to get. **you have three possible options to make use of pagination abilities** in the
 library

@@ -95,6 +95,12 @@ Get Snapshot
 .. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_snapshot
    :noindex:
 
+Get Gainers and Losers
+----------------------
+
+.. automethod:: polygon.crypto.crypto_api.SyncCryptoClient.get_gainers_and_losers
+   :noindex:
+
 Get Level 2 Book
 ----------------
 

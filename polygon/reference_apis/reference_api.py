@@ -57,12 +57,12 @@ class SyncReferenceClient(base_client.BaseClient):
                     symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
                     date=None, search: str = None,
                     active: bool = True, sort='ticker', order='asc', limit: int = 1000, all_pages: bool = False,
-                    max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
-                    raw_response: bool = False):
+                    max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
+                    raw_page_responses: bool = False, raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers>`__
 
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
         :param ticker_lt: Return results where this field is less than the value given
@@ -71,7 +71,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param ticker_gte: Return results where this field is greater than or equal to the value given
         :param symbol_type: Specify the type of the tickers. See :class:`polygon.enums.TickerType` for common choices.
                             Find all supported types via the `Ticker Types API
-                            <https://polygon.io/docs/get_v2_reference_types_anchor>`__
+                            <https://polygon.io/docs/stocks/get_v3_reference_tickers_types>`__
                             Defaults to empty string which queries all types.
         :param market: Filter by market type. By default all markets are included. See
                        :class:`polygon.enums.TickerMarketType` for available choices.
@@ -104,6 +104,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -134,12 +135,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         Get a mapping of ticker types to their descriptive names.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers_types>`__
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices
@@ -167,7 +169,7 @@ class SyncReferenceClient(base_client.BaseClient):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers__ticker>`__
 
         :param symbol: The ticker symbol of the asset.
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
@@ -192,19 +194,43 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    @staticmethod
-    def get_ticker_details_v3(*args, **kwargs):
-        print(f'This endpoint has been changed to "get_ticker_details" after a change by polygon.io. Just drop the '
-              f'"_v3". You can keep arguments exactly the same as before')
+    def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
+        """
+        get Info about an option contract
+        `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts__options_ticker>`__
+
+        :param ticker: An option ticker in standard format. The lib provides `easy functions
+                       <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
+                       to build and work with option symbols
+        :param as_of_date: Specify a point in time for the contract. You can pass a ``datetime`` or ``date`` object or
+                           a string in format ``YYYY-MM-DD``. Defaults to today's date
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+
+        _path = f'/v3/reference/options/contracts/{ensure_prefix(ticker)}'
+
+        _data = {'as_of': as_of_date}
+
+        _res = self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
 
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
                              expiration_date_gt=None, expiration_date_gte=None, order='asc', sort='expiration_date',
                              limit=1000, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                             raw_page_responses: bool = False, raw_response: bool = False):
+                             verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         List currently active options contracts
-        `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
 
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
@@ -229,6 +255,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -251,7 +278,7 @@ class SyncReferenceClient(base_client.BaseClient):
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
-        _path = f'/vX/reference/options/contracts'
+        _path = f'/v3/reference/options/contracts'
 
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
@@ -266,17 +293,18 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc', sort='published_utc',
                         ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
                         published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                        raw_page_responses: bool = False, raw_response: bool = False):
+                        verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source.
-        `Official Docs <https://polygon.io/docs/get_v2_reference_news_anchor>`__
+        `Official Docs <https://polygon.io/docs/options/get_v2_reference_news>`__
 
         :param symbol: To get news mentioning the name given. Defaults to empty string which doesn't filter tickers
         :param limit: Limit the size of the response, default is 1000 which is also the max.
@@ -301,6 +329,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -339,7 +368,8 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                             declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
@@ -352,7 +382,7 @@ class SyncReferenceClient(base_client.BaseClient):
                             pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
                             cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
                             all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            raw_page_responses: bool = False, raw_response: bool = False):
+                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -404,6 +434,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -482,7 +513,8 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
                                 company_name_search: str = None, sic: str = None, filing_date=None,
@@ -495,7 +527,7 @@ class SyncReferenceClient(base_client.BaseClient):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__
-        `Official Docs <https://polygon.io/docs/get_vX_reference_financials_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_vx_reference_financials>`__
 
         This API is experimental and will replace :meth:`get_stock_financials` in future.
 
@@ -579,7 +611,7 @@ class SyncReferenceClient(base_client.BaseClient):
                          sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,
                          ticker_gt=None, ticker_gte=None, execution_date_lt=None, execution_date_lte=None,
                          execution_date_gt=None, execution_date_gte=None, all_pages: bool = False,
-                         max_pages: int = None, merge_all_pages: bool = True,
+                         max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
                          raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
@@ -613,6 +645,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -651,12 +684,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_market_holidays(self, raw_response: bool = False):
         """
         Get upcoming market holidays and their open/close times.
-        `Official Docs <https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_upcoming>`__
 
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -676,7 +710,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets.
-        `Official Docs <https://polygon.io/docs/get_v1_marketstatus_now_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_now>`__
 
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -693,38 +727,11 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_condition_mappings(self, tick_type='trades', raw_response: bool = False):
-        """
-        Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
-        codes to identify conditions, so the same condition may have a different code depending on the originator of
-        the data. Polygon.io defines its own mapping to allow for uniformly identifying a condition across
-        feeds/exchanges.
-        `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
-
-        :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'. See
-                          :class:`polygon.enums.ConditionMappingTickType` for choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        tick_type = self._change_enum(tick_type)
-
-        _path = f'/v1/meta/conditions/{tick_type.lower()}'
-
-        _res = self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
     def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                        limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses.
-        `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_conditions>`__
 
         :param asset_class: Filter for conditions within a given asset class. See :class:`polygon.enums.AssetClass`
                             for choices. Defaults to all assets.
@@ -745,7 +752,7 @@ class SyncReferenceClient(base_client.BaseClient):
         asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/vX/reference/conditions'
+        _path = f'/v3/reference/conditions'
 
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
@@ -760,7 +767,7 @@ class SyncReferenceClient(base_client.BaseClient):
     def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         List all exchanges that Polygon.io knows about.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_exchanges_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_exchanges>`__
 
         :param asset_class: filter by asset class. See :class:`polygon.enums.AssetClass` for choices.
         :param locale: Filter by locale name. See :class:`polygon.enums.Locale`
@@ -805,12 +812,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                           ticker_gte=None, symbol_type='', market='', exchange: str = '',
                           cusip: str = None, cik: str = '', date=None, search: str = None, active: bool = True,
                           sort='ticker', order: str = 'asc', limit: int = 1000, all_pages: bool = False,
-                          max_pages: int = None, merge_all_pages: bool = True, raw_page_responses: bool = False,
-                          raw_response: bool = False):
+                          max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
+                          raw_page_responses: bool = False, raw_response: bool = False):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers>`__
 
         :param symbol: Specify a ticker symbol. Defaults to empty string which queries all tickers.
         :param ticker_lt: Return results where this field is less than the value given
@@ -852,6 +859,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -874,6 +882,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'cusip': cusip, 'cik': cik, 'date': date, 'search': search, 'active': active, 'sort': sort,
                  'order': order, 'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -882,12 +892,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         Get a mapping of ticker types to their descriptive names - Async method
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers_types_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers_types>`__
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices
@@ -904,6 +915,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _data = {'asset_class': asset_class,
                  'locale': locale}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -915,7 +928,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
-        `Official Docs <https://polygon.io/docs/get_v3_reference_tickers__ticker__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers__ticker>`__
 
         :param symbol: The ticker symbol of the asset.
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
@@ -933,6 +946,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'date': date}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -940,20 +955,46 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    @staticmethod
-    async def get_ticker_details_v3(*args, **kwargs):
-        print(f'This endpoint has been changed to "get_ticker_details" after a change by polygon.io. Just drop the '
-              f'"_v3". You can keep arguments exactly the same as before')
+    async def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
+        """
+        get Info about an option contract
+        `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts__options_ticker>`__
 
-    async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None,
-                                   contract_type=None, expiration_date=None,
-                                   expiration_date_lt=None, expiration_date_lte=None, expiration_date_gt=None,
-                                   expiration_date_gte=None, order='asc', sort='expiration_date', limit: int = 1000,
-                                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
+        :param ticker: An option ticker in standard format. The lib provides `easy functions
+                       <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
+                       to build and work with option symbols
+        :param as_of_date: Specify a point in time for the contract. You can pass a ``datetime`` or ``date`` object or
+                           a string in format ``YYYY-MM-DD``. Defaults to today's date
+        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
+        """
+
+        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+
+        _path = f'/v3/reference/options/contracts/{ensure_prefix(ticker)}'
+
+        _data = {'as_of': as_of_date}
+
+        _data = {key: value for key, value in _data.items() if value}
+
+        _res = await self._get_response(_path, params=_data)
+
+        if raw_response:
+            return _res
+
+        return _res.json()
+
+    async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
+                                   expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
+                                   expiration_date_gt=None, expiration_date_gte=None, order='asc',
+                                   sort='expiration_date', limit=1000, all_pages: bool = False,
+                                   max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
                                    raw_page_responses: bool = False, raw_response: bool = False):
         """
-        List currently active options contracts - Async method
-        `Official Docs <https://polygon.io/docs/get_vX_reference_options_contracts_anchor>`__
+        List currently active options contracts
+        `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
 
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
@@ -966,7 +1007,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param expiration_date_gte: expiration_date greater than equal to given value
         :param order: Order of results. See :class:`polygon.enums.SortOrder` for choices.
         :param sort: Sort field for ordering. See :class:`polygon.enums.OptionsContractsSortType` for choices.
-                     Defaults to expiration_date
+                     defaults to expiration_date
         :param limit: Limit the size of the response, default is 1000.
                       ``Pagination`` is supported by the pagination function below
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -978,6 +1019,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -1000,16 +1042,18 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
-        _path = f'/vX/reference/options/contracts'
+        _path = f'/v3/reference/options/contracts'
 
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
                  'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
                  'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
-        _res = await self._get_response(_path, params=_data)
+        _data = {key: value for key, value in _data.items() if value}
 
-        print('')
+        _data = {key: value for key, value in _data.items() if value}
+
+        _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
@@ -1017,18 +1061,19 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc',
                               sort='published_utc', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
                               published_utc=None, published_utc_lt=None, published_utc_lte=None,
                               published_utc_gt=None, published_utc_gte=None, all_pages: bool = False,
-                              max_pages: int = None, merge_all_pages: bool = True,
+                              max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
                               raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - Async method
-        `Official Docs <https://polygon.io/docs/get_v2_reference_news_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v2_reference_news>`__
 
         :param symbol: To get news mentioning the name given. Defaults to empty string which doesn't filter tickers
         :param limit: Limit the size of the response, default is 1000 which is also the max.
@@ -1053,6 +1098,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -1083,6 +1129,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'published_utc.lte': published_utc_lte, 'published_utc.gt': published_utc_gt,
                  'published_utc.gte': published_utc_gte}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -1091,7 +1139,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
                                   declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
@@ -1104,7 +1153,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                   pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
                                   cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
                                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                                  raw_page_responses: bool = False, raw_response: bool = False):
+                                  verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -1156,6 +1205,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -1226,6 +1276,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
                  'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -1234,7 +1286,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
                                       company_name_search: str = None, sic: str = None, filing_date=None,
@@ -1247,7 +1300,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__ - Async method
-        `Official Docs <https://polygon.io/docs/get_vX_reference_financials_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_vx_reference_financials>`__
 
         This API is experimental and will replace :meth:`get_stock_financials` in future.
 
@@ -1320,6 +1373,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
                  'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -1332,7 +1387,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                ticker_lte=None, ticker_gt=None, ticker_gte=None, execution_date_lt=None,
                                execution_date_lte=None, execution_date_gt=None, execution_date_gte=None,
                                all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                               raw_page_responses: bool = False, raw_response: bool = False):
+                               verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
@@ -1365,6 +1420,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                 returns a list of all pages received. The list can be either a list of response
                                 objects or decoded data itself, controlled by parameter ``raw_page_responses``.
                                 This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
@@ -1395,6 +1451,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
                  'sort': sort, 'limit': limit}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
@@ -1403,12 +1461,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, raw_page_responses)
+        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                                    raw_page_responses=raw_page_responses)
 
     async def get_market_holidays(self, raw_response: bool = False):
         """
         Get upcoming market holidays and their open/close times - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_marketstatus_upcoming_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_upcoming>`__
 
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -1428,7 +1487,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     async def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_marketstatus_now_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_now>`__
 
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -1445,39 +1504,11 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_condition_mappings(self, tick_type='trades',
-                                     raw_response: bool = False):
-        """
-        Get a unified numerical mapping for conditions on trades and quotes. Each feed/exchange uses its own set of
-        codes to identify conditions, so the same condition may have a different code depending on the originator of
-        the data. Polygon.io defines its own mapping to allow for uniformly identifying a condition across
-        feeds/exchanges - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
-
-        :param tick_type: The type of ticks to return mappings for. Defaults to 'trades'. See
-                          :class:`polygon.enums.ConditionMappingTickType` for choices.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded
-                             dictionary.
-        :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
-        """
-
-        tick_type = self._change_enum(tick_type)
-
-        _path = f'/v1/meta/conditions/{tick_type.lower()}'
-
-        _res = await self._get_response(_path)
-
-        if raw_response:
-            return _res
-
-        return _res.json()
-
     async def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                              limit: int = 50, sort='name', raw_response: bool = False):
         """
         List all conditions that Polygon.io uses - Async method
-        `Official Docs <https://polygon.io/docs/get_v1_meta_conditions__ticktype__anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_conditions>`__
 
         :param asset_class: Filter for conditions within a given asset class. See :class:`polygon.enums.AssetClass`
                             for choices. Defaults to all assets.
@@ -1497,10 +1528,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/vX/reference/conditions'
+        _path = f'/v3/reference/conditions'
 
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
+
+        _data = {key: value for key, value in _data.items() if value}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1512,7 +1545,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     async def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
         List all exchanges that Polygon.io knows about - Async method
-        `Official Docs <https://polygon.io/docs/get_v3_reference_exchanges_anchor>`__
+        `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_exchanges>`__
 
         :param asset_class: filter by asset class. See :class:`polygon.enums.AssetClass` for choices.
         :param locale: Filter by locale name. See :class:`polygon.enums.Locale`
@@ -1528,12 +1561,35 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'asset_class': asset_class, 'locale': locale}
 
+        _data = {key: value for key, value in _data.items() if value}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
         return _res.json()
+
+
+# ========================================================= #
+
+
+def ensure_prefix(symbol: str):
+    """
+    Ensure that the option symbol has the prefix ``O:`` as needed by polygon endpoints. If it does, make no changes. If
+    it doesn't, add the prefix and return the new value.
+
+    :param symbol: the option symbol to check
+    """
+    if len(symbol) < 15:
+        raise ValueError('Option symbol length must at least be 15 letters. See documentation on option symbols for '
+                         'more info')
+
+    if symbol.upper().startswith('O:'):
+        return symbol.upper()
+
+    return f'O:{symbol.upper()}'
+
 
 
 # ========================================================= #

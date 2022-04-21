@@ -60,3 +60,6 @@ This is a handpicked collection of common questions and answers about the lib an
 A must read if you're looking for answers.
 
 FAQs are added here as soon I have any solid conclusions about a useful question.
+
+Feel free to join our `Discord Server <https://discord.gg/jPkARduU6N>`__ if you suggestions for questions to add.
+You don't necessarily need to know the answer :D

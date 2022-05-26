@@ -4,9 +4,16 @@ from .. import base_client
 # ========================================================= #
 
 
-def ReferenceClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                    pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                    write_timeout: int = 10):
+def ReferenceClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST References endpoints.
 
@@ -33,8 +40,15 @@ def ReferenceClient(api_key: str, use_async: bool = False, connect_timeout: int 
     if not use_async:
         return SyncReferenceClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncReferenceClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                                max_keepalive, write_timeout)
+    return AsyncReferenceClient(
+        api_key,
+        connect_timeout,
+        read_timeout,
+        pool_timeout,
+        max_connections,
+        max_keepalive,
+        write_timeout,
+    )
 
 
 # ========================================================= #
@@ -53,12 +67,31 @@ class SyncReferenceClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                    symbol_type='', market='', exchange: str = '', cusip: str = None, cik: str = '',
-                    date=None, search: str = None,
-                    active: bool = True, sort='ticker', order='asc', limit: int = 1000, all_pages: bool = False,
-                    max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                    raw_page_responses: bool = False, raw_response: bool = False):
+    def get_tickers(
+        self,
+        symbol: str = "",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        symbol_type="",
+        market="",
+        exchange: str = "",
+        cusip: str = None,
+        cik: str = "",
+        date=None,
+        search: str = None,
+        active: bool = True,
+        sort="ticker",
+        order="asc",
+        limit: int = 1000,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
@@ -115,17 +148,34 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(
+            market, str
+        )
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = '/v3/reference/tickers'
+        _path = "/v3/reference/tickers"
 
-        _data = {'ticker': symbol, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'type': symbol_type, 'market': market, 'exchange': exchange,
-                 'cusip': cusip, 'cik': cik, 'date': date, 'search': search, 'active': active, 'sort': sort,
-                 'order': order, 'limit': limit}
+        _data = {
+            "ticker": symbol,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "type": symbol_type,
+            "market": market,
+            "exchange": exchange,
+            "cusip": cusip,
+            "cik": cik,
+            "date": date,
+            "search": search,
+            "active": active,
+            "sort": sort,
+            "order": order,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -135,10 +185,17 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
+    def get_ticker_types(
+        self, asset_class=None, locale=None, raw_response: bool = False
+    ):
         """
         Get a mapping of ticker types to their descriptive names.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers_types>`__
@@ -151,12 +208,13 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(locale, str)
+        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(
+            locale, str
+        )
 
-        _path = '/v3/reference/tickers/types'
+        _path = "/v3/reference/tickers/types"
 
-        _data = {'asset_class': asset_class,
-                 'locale': locale}
+        _data = {"asset_class": asset_class, "locale": locale}
 
         _res = self._get_response(_path, params=_data)
 
@@ -181,11 +239,11 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v3/reference/tickers/{symbol.upper()}'
+        _path = f"/v3/reference/tickers/{symbol.upper()}"
 
-        _data = {'date': date}
+        _data = {"date": date}
 
         _res = self._get_response(_path, params=_data)
 
@@ -194,7 +252,9 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
+    def get_option_contract(
+        self, ticker: str, as_of_date=None, raw_response: bool = False
+    ):
         """
         get Info about an option contract
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts__options_ticker>`__
@@ -210,11 +270,11 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+        as_of_date = self.normalize_datetime(as_of_date, output_type="str")
 
-        _path = f'/v3/reference/options/contracts/{ensure_prefix(ticker)}'
+        _path = f"/v3/reference/options/contracts/{ensure_prefix(ticker)}"
 
-        _data = {'as_of': as_of_date}
+        _data = {"as_of": as_of_date}
 
         _res = self._get_response(_path, params=_data)
 
@@ -223,11 +283,26 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
-                             expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
-                             expiration_date_gt=None, expiration_date_gte=None, order='asc', sort='expiration_date',
-                             limit=1000, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                             verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_option_contracts(
+        self,
+        underlying_ticker: str = None,
+        ticker: str = None,
+        contract_type=None,
+        expiration_date=None,
+        expiration_date_lt=None,
+        expiration_date_lte=None,
+        expiration_date_gt=None,
+        expiration_date_gte=None,
+        order="asc",
+        sort="expiration_date",
+        limit=1000,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
@@ -265,25 +340,44 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
-        expiration_date = self.normalize_datetime(expiration_date, output_type='str')
+        expiration_date = self.normalize_datetime(
+            expiration_date, output_type="str")
 
-        expiration_date_lt = self.normalize_datetime(expiration_date_lt, output_type='str')
+        expiration_date_lt = self.normalize_datetime(
+            expiration_date_lt, output_type="str"
+        )
 
-        expiration_date_lte = self.normalize_datetime(expiration_date_lte, output_type='str')
+        expiration_date_lte = self.normalize_datetime(
+            expiration_date_lte, output_type="str"
+        )
 
-        expiration_date_gt = self.normalize_datetime(expiration_date_gt, output_type='str')
+        expiration_date_gt = self.normalize_datetime(
+            expiration_date_gt, output_type="str"
+        )
 
-        expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
+        expiration_date_gte = self.normalize_datetime(
+            expiration_date_gte, output_type="str"
+        )
 
         contract_type = self._change_enum(contract_type, str)
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = f'/v3/reference/options/contracts'
+        _path = f"/v3/reference/options/contracts"
 
-        _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
-                 'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
-                 'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
-                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "underlying_ticker": underlying_ticker,
+            "contract_type": contract_type,
+            "expiration_date": expiration_date,
+            "expiration_date.lt": expiration_date_lt,
+            "expiration_date.lte": expiration_date_lte,
+            "expiration_date.gt": expiration_date_gt,
+            "expiration_date.gte": expiration_date_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -293,14 +387,36 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc', sort='published_utc',
-                        ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None, published_utc=None,
-                        published_utc_lt=None, published_utc_lte=None, published_utc_gt=None, published_utc_gte=None,
-                        all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                        verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_ticker_news(
+        self,
+        symbol: str = None,
+        limit: int = 1000,
+        order="desc",
+        sort="published_utc",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        published_utc=None,
+        published_utc_lt=None,
+        published_utc_lte=None,
+        published_utc_gt=None,
+        published_utc_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source.
@@ -340,7 +456,8 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        published_utc = self.normalize_datetime(published_utc, output_type='str')
+        published_utc = self.normalize_datetime(
+            published_utc, output_type="str")
 
         published_utc_lt = self.normalize_datetime(published_utc_lt)
 
@@ -350,15 +467,26 @@ class SyncReferenceClient(base_client.BaseClient):
 
         published_utc_gte = self.normalize_datetime(published_utc_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = '/v2/reference/news'
+        _path = "/v2/reference/news"
 
-        _data = {'limit': limit, 'order': order, 'sort': sort, 'ticker': symbol, 'ticker.lt': ticker_lt,
-                 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt, 'ticker.gte': ticker_gte,
-                 'published_utc': published_utc, 'published_utc.lt': published_utc_lt,
-                 'published_utc.lte': published_utc_lte, 'published_utc.gt': published_utc_gt,
-                 'published_utc.gte': published_utc_gte}
+        _data = {
+            "limit": limit,
+            "order": order,
+            "sort": sort,
+            "ticker": symbol,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "published_utc": published_utc,
+            "published_utc.lt": published_utc_lt,
+            "published_utc.lte": published_utc_lte,
+            "published_utc.gt": published_utc_gt,
+            "published_utc.gte": published_utc_gte,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -368,21 +496,58 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
-                            declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
-                            cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
-                            ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                            ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
-                            ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,
-                            record_date_gt=None, record_date_gte=None, declaration_date_lt=None,
-                            declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
-                            pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
-                            cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
-                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_stock_dividends(
+        self,
+        ticker: str = None,
+        ex_dividend_date=None,
+        record_date=None,
+        declaration_date=None,
+        pay_date=None,
+        frequency: int = None,
+        limit: int = 1000,
+        cash_amount=None,
+        dividend_type=None,
+        sort: str = "pay_date",
+        order: str = "asc",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        ex_dividend_date_lt=None,
+        ex_dividend_date_lte=None,
+        ex_dividend_date_gt=None,
+        ex_dividend_date_gte=None,
+        record_date_lt=None,
+        record_date_lte=None,
+        record_date_gt=None,
+        record_date_gte=None,
+        declaration_date_lt=None,
+        declaration_date_lte=None,
+        declaration_date_gt=None,
+        declaration_date_gte=None,
+        pay_date_lt=None,
+        pay_date_lte=None,
+        pay_date_gt=None,
+        pay_date_gte=None,
+        cash_amount_lt=None,
+        cash_amount_lte=None,
+        cash_amount_gt=None,
+        cash_amount_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -445,13 +610,15 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        ex_dividend_date = self.normalize_datetime(ex_dividend_date, output_type='str')
+        ex_dividend_date = self.normalize_datetime(
+            ex_dividend_date, output_type="str")
 
-        record_date = self.normalize_datetime(record_date, output_type='str')
+        record_date = self.normalize_datetime(record_date, output_type="str")
 
-        declaration_date = self.normalize_datetime(declaration_date, output_type='str')
+        declaration_date = self.normalize_datetime(
+            declaration_date, output_type="str")
 
-        pay_date = self.normalize_datetime(pay_date, output_type='str')
+        pay_date = self.normalize_datetime(pay_date, output_type="str")
 
         ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
 
@@ -485,25 +652,51 @@ class SyncReferenceClient(base_client.BaseClient):
 
         pay_date_gte = self.normalize_datetime(pay_date_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
-        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
+        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(
+            dividend_type, str
+        )
 
-        _path = f'/v3/reference/dividends'
+        _path = f"/v3/reference/dividends"
 
-        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'ex_dividend_date': ex_dividend_date,
-                 'ex_dividend_date.lt': ex_dividend_date_lt, 'ex_dividend_date.lte': ex_dividend_date_lte,
-                 'ex_dividend_date.gt': ex_dividend_date_gt, 'ex_dividend_date.gte': ex_dividend_date_gte,
-                 'record_date': record_date, 'record_date.lt': record_date_lt, 'record_date.lte': record_date_lte,
-                 'record_date.gt': record_date_gt, 'record_date.gte': record_date_gte,
-                 'declaration_date': declaration_date, 'declaration_date.lt': declaration_date_lt,
-                 'declaration_date.lte': declaration_date_lte, 'declaration_date.gt': declaration_date_gt,
-                 'declaration_date.gte': declaration_date_gte, 'pay_date': pay_date, 'pay_date.lt': pay_date_lt,
-                 'pay_date.lte': pay_date_lte, 'pay_date.gt': pay_date_gt, 'pay_date.gte': pay_date_gte,
-                 'frequency': frequency, 'cash_amount': cash_amount, 'cash_amount.lt': cash_amount_lt,
-                 'cash_amount.lte': cash_amount_lte, 'cash_amount.gt': cash_amount_gt,
-                 'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "ex_dividend_date": ex_dividend_date,
+            "ex_dividend_date.lt": ex_dividend_date_lt,
+            "ex_dividend_date.lte": ex_dividend_date_lte,
+            "ex_dividend_date.gt": ex_dividend_date_gt,
+            "ex_dividend_date.gte": ex_dividend_date_gte,
+            "record_date": record_date,
+            "record_date.lt": record_date_lt,
+            "record_date.lte": record_date_lte,
+            "record_date.gt": record_date_gt,
+            "record_date.gte": record_date_gte,
+            "declaration_date": declaration_date,
+            "declaration_date.lt": declaration_date_lt,
+            "declaration_date.lte": declaration_date_lte,
+            "declaration_date.gt": declaration_date_gt,
+            "declaration_date.gte": declaration_date_gte,
+            "pay_date": pay_date,
+            "pay_date.lt": pay_date_lt,
+            "pay_date.lte": pay_date_lte,
+            "pay_date.gt": pay_date_gt,
+            "pay_date.gte": pay_date_gte,
+            "frequency": frequency,
+            "cash_amount": cash_amount,
+            "cash_amount.lt": cash_amount_lt,
+            "cash_amount.lte": cash_amount_lte,
+            "cash_amount.gt": cash_amount_gt,
+            "cash_amount.gte": cash_amount_gte,
+            "dividend_type": dividend_type,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -513,17 +706,38 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
-                                company_name_search: str = None, sic: str = None, filing_date=None,
-                                filing_date_lt=None, filing_date_lte=None, filing_date_gt=None, filing_date_gte=None,
-                                period_of_report_date=None, period_of_report_date_lt=None,
-                                period_of_report_date_lte=None, period_of_report_date_gt=None,
-                                period_of_report_date_gte=None, time_frame=None, include_sources: bool = False,
-                                order='asc', limit: int = 50, sort='filing_date',
-                                raw_response: bool = False):
+    def get_stock_financials_vx(
+        self,
+        ticker: str = None,
+        cik: str = None,
+        company_name: str = None,
+        company_name_search: str = None,
+        sic: str = None,
+        filing_date=None,
+        filing_date_lt=None,
+        filing_date_lte=None,
+        filing_date_gt=None,
+        filing_date_gte=None,
+        period_of_report_date=None,
+        period_of_report_date_lt=None,
+        period_of_report_date_lte=None,
+        period_of_report_date_gt=None,
+        period_of_report_date_gte=None,
+        time_frame=None,
+        include_sources: bool = False,
+        order="asc",
+        limit: int = 50,
+        sort="filing_date",
+        raw_response: bool = False,
+    ):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__
@@ -565,9 +779,11 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        filing_date = self.normalize_datetime(filing_date, output_type='str')
+        filing_date = self.normalize_datetime(filing_date, output_type="str")
 
-        period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
+        period_of_report_date = self.normalize_datetime(
+            period_of_report_date, output_type="str"
+        )
 
         filing_date_lt = self.normalize_datetime(filing_date_lt)
 
@@ -577,28 +793,45 @@ class SyncReferenceClient(base_client.BaseClient):
 
         filing_date_gte = self.normalize_datetime(filing_date_gte)
 
-        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+        period_of_report_date_lt = self.normalize_datetime(
+            period_of_report_date_lt)
 
-        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+        period_of_report_date_lte = self.normalize_datetime(
+            period_of_report_date_lte)
 
-        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+        period_of_report_date_gt = self.normalize_datetime(
+            period_of_report_date_gt)
 
-        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+        period_of_report_date_gte = self.normalize_datetime(
+            period_of_report_date_gte)
 
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/vX/reference/financials'
+        _path = f"/vX/reference/financials"
 
-        _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
-                 'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
-                 'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
-                 'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
-                 'period_of_report_date': period_of_report_date, 'period_of_report_date.lt': period_of_report_date_lt,
-                 'period_of_report_date.lte': period_of_report_date_lte,
-                 'period_of_report_date.gt': period_of_report_date_gt,
-                 'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
-                 'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
+        _data = {
+            "ticker": ticker,
+            "cik": cik,
+            "company_name": company_name,
+            "company_name_search": company_name_search,
+            "sic": sic,
+            "filing_date": filing_date,
+            "filing_date.lt": filing_date_lt,
+            "filing_date.lte": filing_date_lte,
+            "filing_date.gt": filing_date_gt,
+            "filing_date.gte": filing_date_gte,
+            "period_of_report_date": period_of_report_date,
+            "period_of_report_date.lt": period_of_report_date_lt,
+            "period_of_report_date.lte": period_of_report_date_lte,
+            "period_of_report_date.gt": period_of_report_date_gt,
+            "period_of_report_date.gte": period_of_report_date_gte,
+            "timeframe": time_frame,
+            "order": order,
+            "include_sources": "true" if include_sources else "false",
+            "limit": limit,
+            "sort": sort,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -607,12 +840,29 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
-                         sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,
-                         ticker_gt=None, ticker_gte=None, execution_date_lt=None, execution_date_lte=None,
-                         execution_date_gt=None, execution_date_gte=None, all_pages: bool = False,
-                         max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                         raw_page_responses: bool = False, raw_response: bool = False):
+    def get_stock_splits(
+        self,
+        ticker: str = None,
+        execution_date=None,
+        reverse_split: bool = None,
+        order: str = "asc",
+        sort: str = "execution_date",
+        limit: int = 1000,
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        execution_date_lt=None,
+        execution_date_lte=None,
+        execution_date_gt=None,
+        execution_date_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
@@ -656,7 +906,8 @@ class SyncReferenceClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        execution_date = self.normalize_datetime(execution_date, output_type='str')
+        execution_date = self.normalize_datetime(
+            execution_date, output_type="str")
 
         execution_date_lt = self.normalize_datetime(execution_date_lt)
 
@@ -666,15 +917,27 @@ class SyncReferenceClient(base_client.BaseClient):
 
         execution_date_gte = self.normalize_datetime(execution_date_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = f'/v3/reference/splits'
+        _path = f"/v3/reference/splits"
 
-        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'execution_date': execution_date, 'execution_date.lt': execution_date_lt,
-                 'execution_date.lte': execution_date_lte, 'execution_date.gt': execution_date_gt,
-                 'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
-                 'sort': sort, 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "execution_date": execution_date,
+            "execution_date.lt": execution_date_lt,
+            "execution_date.lte": execution_date_lte,
+            "execution_date.gt": execution_date_gt,
+            "execution_date.gte": execution_date_gte,
+            "reverse_split": reverse_split,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -684,8 +947,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
     def get_market_holidays(self, raw_response: bool = False):
         """
@@ -698,7 +966,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = '/v1/marketstatus/upcoming'
+        _path = "/v1/marketstatus/upcoming"
 
         _res = self._get_response(_path)
 
@@ -718,7 +986,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = '/v1/marketstatus/now'
+        _path = "/v1/marketstatus/now"
 
         _res = self._get_response(_path)
 
@@ -727,8 +995,17 @@ class SyncReferenceClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
-                       limit: int = 50, sort='name', raw_response: bool = False):
+    def get_conditions(
+        self,
+        asset_class=None,
+        data_type=None,
+        condition_id=None,
+        sip=None,
+        order=None,
+        limit: int = 50,
+        sort="name",
+        raw_response: bool = False,
+    ):
         """
         List all conditions that Polygon.io uses.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_conditions>`__
@@ -749,13 +1026,22 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
+        asset_class, data_type = self._change_enum(asset_class), self._change_enum(
+            data_type
+        )
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/v3/reference/conditions'
+        _path = f"/v3/reference/conditions"
 
-        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
-                 'limit': limit, 'sort': sort}
+        _data = {
+            "asset_class": asset_class,
+            "data_type": data_type,
+            "id": condition_id,
+            "sip": sip,
+            "order": order,
+            "limit": limit,
+            "sort": sort,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -777,11 +1063,12 @@ class SyncReferenceClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        asset_class, locale = self._change_enum(asset_class), self._change_enum(locale)
+        asset_class, locale = self._change_enum(
+            asset_class), self._change_enum(locale)
 
-        _path = f'/v3/reference/exchanges'
+        _path = f"/v3/reference/exchanges"
 
-        _data = {'asset_class': asset_class, 'locale': locale}
+        _data = {"asset_class": asset_class, "locale": locale}
 
         _res = self._get_response(_path, params=_data)
 
@@ -793,6 +1080,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
 # ========================================================= #
 
+
 class AsyncReferenceClient(base_client.BaseAsyncClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
@@ -802,18 +1090,52 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key,
+            connect_timeout,
+            read_timeout,
+            pool_timeout,
+            max_connections,
+            max_keepalive,
+            write_timeout,
+        )
 
     # Endpoints
-    async def get_tickers(self, symbol: str = '', ticker_lt=None, ticker_lte=None, ticker_gt=None,
-                          ticker_gte=None, symbol_type='', market='', exchange: str = '',
-                          cusip: str = None, cik: str = '', date=None, search: str = None, active: bool = True,
-                          sort='ticker', order: str = 'asc', limit: int = 1000, all_pages: bool = False,
-                          max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                          raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_tickers(
+        self,
+        symbol: str = "",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        symbol_type="",
+        market="",
+        exchange: str = "",
+        cusip: str = None,
+        cik: str = "",
+        date=None,
+        search: str = None,
+        active: bool = True,
+        sort="ticker",
+        order: str = "asc",
+        limit: int = 1000,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Query all ticker symbols which are supported by Polygon.io. This API currently includes Stocks/Equities, Crypto,
         and Forex.
@@ -870,17 +1192,34 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(market, str)
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        symbol_type, market = self._change_enum(symbol_type, str), self._change_enum(
+            market, str
+        )
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = '/v3/reference/tickers'
+        _path = "/v3/reference/tickers"
 
-        _data = {'ticker': symbol, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'type': symbol_type, 'market': market, 'exchange': exchange,
-                 'cusip': cusip, 'cik': cik, 'date': date, 'search': search, 'active': active, 'sort': sort,
-                 'order': order, 'limit': limit}
+        _data = {
+            "ticker": symbol,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "type": symbol_type,
+            "market": market,
+            "exchange": exchange,
+            "cusip": cusip,
+            "cik": cik,
+            "date": date,
+            "search": search,
+            "active": active,
+            "sort": sort,
+            "order": order,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -892,10 +1231,17 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_ticker_types(self, asset_class=None, locale=None, raw_response: bool = False):
+    async def get_ticker_types(
+        self, asset_class=None, locale=None, raw_response: bool = False
+    ):
         """
         Get a mapping of ticker types to their descriptive names - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers_types>`__
@@ -908,12 +1254,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(locale, str)
+        asset_class, locale = self._change_enum(asset_class, str), self._change_enum(
+            locale, str
+        )
 
-        _path = '/v3/reference/tickers/types'
+        _path = "/v3/reference/tickers/types"
 
-        _data = {'asset_class': asset_class,
-                 'locale': locale}
+        _data = {"asset_class": asset_class, "locale": locale}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -924,7 +1271,9 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
+    async def get_ticker_details(
+        self, symbol: str, date=None, raw_response: bool = False
+    ):
         """
         Get a single ticker supported by Polygon.io. This response will have detailed information about the ticker and
         the company behind it.
@@ -940,11 +1289,11 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v3/reference/tickers/{symbol.upper()}'
+        _path = f"/v3/reference/tickers/{symbol.upper()}"
 
-        _data = {'date': date}
+        _data = {"date": date}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -955,7 +1304,9 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
+    async def get_option_contract(
+        self, ticker: str, as_of_date=None, raw_response: bool = False
+    ):
         """
         get Info about an option contract
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts__options_ticker>`__
@@ -971,11 +1322,11 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+        as_of_date = self.normalize_datetime(as_of_date, output_type="str")
 
-        _path = f'/v3/reference/options/contracts/{ensure_prefix(ticker)}'
+        _path = f"/v3/reference/options/contracts/{ensure_prefix(ticker)}"
 
-        _data = {'as_of': as_of_date}
+        _data = {"as_of": as_of_date}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -986,12 +1337,26 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
-                                   expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
-                                   expiration_date_gt=None, expiration_date_gte=None, order='asc',
-                                   sort='expiration_date', limit=1000, all_pages: bool = False,
-                                   max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                                   raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_option_contracts(
+        self,
+        underlying_ticker: str = None,
+        ticker: str = None,
+        contract_type=None,
+        expiration_date=None,
+        expiration_date_lt=None,
+        expiration_date_lte=None,
+        expiration_date_gt=None,
+        expiration_date_gte=None,
+        order="asc",
+        sort="expiration_date",
+        limit=1000,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
@@ -1029,25 +1394,44 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
-        expiration_date = self.normalize_datetime(expiration_date, output_type='str')
+        expiration_date = self.normalize_datetime(
+            expiration_date, output_type="str")
 
-        expiration_date_lt = self.normalize_datetime(expiration_date_lt, output_type='str')
+        expiration_date_lt = self.normalize_datetime(
+            expiration_date_lt, output_type="str"
+        )
 
-        expiration_date_lte = self.normalize_datetime(expiration_date_lte, output_type='str')
+        expiration_date_lte = self.normalize_datetime(
+            expiration_date_lte, output_type="str"
+        )
 
-        expiration_date_gt = self.normalize_datetime(expiration_date_gt, output_type='str')
+        expiration_date_gt = self.normalize_datetime(
+            expiration_date_gt, output_type="str"
+        )
 
-        expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
+        expiration_date_gte = self.normalize_datetime(
+            expiration_date_gte, output_type="str"
+        )
 
         contract_type = self._change_enum(contract_type, str)
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = f'/v3/reference/options/contracts'
+        _path = f"/v3/reference/options/contracts"
 
-        _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
-                 'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
-                 'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
-                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "underlying_ticker": underlying_ticker,
+            "contract_type": contract_type,
+            "expiration_date": expiration_date,
+            "expiration_date.lt": expiration_date_lt,
+            "expiration_date.lte": expiration_date_lte,
+            "expiration_date.gt": expiration_date_gt,
+            "expiration_date.gte": expiration_date_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1061,15 +1445,36 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_ticker_news(self, symbol: str = None, limit: int = 1000, order='desc',
-                              sort='published_utc', ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                              published_utc=None, published_utc_lt=None, published_utc_lte=None,
-                              published_utc_gt=None, published_utc_gte=None, all_pages: bool = False,
-                              max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                              raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_ticker_news(
+        self,
+        symbol: str = None,
+        limit: int = 1000,
+        order="desc",
+        sort="published_utc",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        published_utc=None,
+        published_utc_lt=None,
+        published_utc_lte=None,
+        published_utc_gt=None,
+        published_utc_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the most recent news articles relating to a stock ticker symbol, including a summary of the article and a
         link to the original source - Async method
@@ -1109,7 +1514,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        published_utc = self.normalize_datetime(published_utc, output_type='str')
+        published_utc = self.normalize_datetime(
+            published_utc, output_type="str")
 
         published_utc_lt = self.normalize_datetime(published_utc_lt)
 
@@ -1119,15 +1525,26 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         published_utc_gte = self.normalize_datetime(published_utc_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = '/v2/reference/news'
+        _path = "/v2/reference/news"
 
-        _data = {'limit': limit, 'order': order, 'sort': sort, 'ticker': symbol, 'ticker.lt': ticker_lt,
-                 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt, 'ticker.gte': ticker_gte,
-                 'published_utc': published_utc, 'published_utc.lt': published_utc_lt,
-                 'published_utc.lte': published_utc_lte, 'published_utc.gt': published_utc_gt,
-                 'published_utc.gte': published_utc_gte}
+        _data = {
+            "limit": limit,
+            "order": order,
+            "sort": sort,
+            "ticker": symbol,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "published_utc": published_utc,
+            "published_utc.lt": published_utc_lt,
+            "published_utc.lte": published_utc_lte,
+            "published_utc.gt": published_utc_gt,
+            "published_utc.gte": published_utc_gte,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1139,21 +1556,58 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_stock_dividends(self, ticker: str = None, ex_dividend_date=None, record_date=None,
-                                  declaration_date=None, pay_date=None, frequency: int = None, limit: int = 1000,
-                                  cash_amount=None, dividend_type=None, sort: str = 'pay_date', order: str = 'asc',
-                                  ticker_lt=None, ticker_lte=None, ticker_gt=None, ticker_gte=None,
-                                  ex_dividend_date_lt=None, ex_dividend_date_lte=None, ex_dividend_date_gt=None,
-                                  ex_dividend_date_gte=None, record_date_lt=None, record_date_lte=None,
-                                  record_date_gt=None, record_date_gte=None, declaration_date_lt=None,
-                                  declaration_date_lte=None, declaration_date_gt=None, declaration_date_gte=None,
-                                  pay_date_lt=None, pay_date_lte=None, pay_date_gt=None, pay_date_gte=None,
-                                  cash_amount_lt=None, cash_amount_lte=None, cash_amount_gt=None, cash_amount_gte=None,
-                                  all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                                  verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_stock_dividends(
+        self,
+        ticker: str = None,
+        ex_dividend_date=None,
+        record_date=None,
+        declaration_date=None,
+        pay_date=None,
+        frequency: int = None,
+        limit: int = 1000,
+        cash_amount=None,
+        dividend_type=None,
+        sort: str = "pay_date",
+        order: str = "asc",
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        ex_dividend_date_lt=None,
+        ex_dividend_date_lte=None,
+        ex_dividend_date_gt=None,
+        ex_dividend_date_gte=None,
+        record_date_lt=None,
+        record_date_lte=None,
+        record_date_gt=None,
+        record_date_gte=None,
+        declaration_date_lt=None,
+        declaration_date_lte=None,
+        declaration_date_gt=None,
+        declaration_date_gte=None,
+        pay_date_lt=None,
+        pay_date_lte=None,
+        pay_date_gt=None,
+        pay_date_gte=None,
+        cash_amount_lt=None,
+        cash_amount_lte=None,
+        cash_amount_gt=None,
+        cash_amount_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get a list of historical cash dividends, including the ticker symbol, declaration date, ex-dividend date,
         record date, pay date, frequency, and amount.
@@ -1216,13 +1670,15 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        ex_dividend_date = self.normalize_datetime(ex_dividend_date, output_type='str')
+        ex_dividend_date = self.normalize_datetime(
+            ex_dividend_date, output_type="str")
 
-        record_date = self.normalize_datetime(record_date, output_type='str')
+        record_date = self.normalize_datetime(record_date, output_type="str")
 
-        declaration_date = self.normalize_datetime(declaration_date, output_type='str')
+        declaration_date = self.normalize_datetime(
+            declaration_date, output_type="str")
 
-        pay_date = self.normalize_datetime(pay_date, output_type='str')
+        pay_date = self.normalize_datetime(pay_date, output_type="str")
 
         ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
 
@@ -1256,25 +1712,51 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         pay_date_gte = self.normalize_datetime(pay_date_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
-        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
+        frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(
+            dividend_type, str
+        )
 
-        _path = f'/v3/reference/dividends'
+        _path = f"/v3/reference/dividends"
 
-        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'ex_dividend_date': ex_dividend_date,
-                 'ex_dividend_date.lt': ex_dividend_date_lt, 'ex_dividend_date.lte': ex_dividend_date_lte,
-                 'ex_dividend_date.gt': ex_dividend_date_gt, 'ex_dividend_date.gte': ex_dividend_date_gte,
-                 'record_date': record_date, 'record_date.lt': record_date_lt, 'record_date.lte': record_date_lte,
-                 'record_date.gt': record_date_gt, 'record_date.gte': record_date_gte,
-                 'declaration_date': declaration_date, 'declaration_date.lt': declaration_date_lt,
-                 'declaration_date.lte': declaration_date_lte, 'declaration_date.gt': declaration_date_gt,
-                 'declaration_date.gte': declaration_date_gte, 'pay_date': pay_date, 'pay_date.lt': pay_date_lt,
-                 'pay_date.lte': pay_date_lte, 'pay_date.gt': pay_date_gt, 'pay_date.gte': pay_date_gte,
-                 'frequency': frequency, 'cash_amount': cash_amount, 'cash_amount.lt': cash_amount_lt,
-                 'cash_amount.lte': cash_amount_lte, 'cash_amount.gt': cash_amount_gt,
-                 'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "ex_dividend_date": ex_dividend_date,
+            "ex_dividend_date.lt": ex_dividend_date_lt,
+            "ex_dividend_date.lte": ex_dividend_date_lte,
+            "ex_dividend_date.gt": ex_dividend_date_gt,
+            "ex_dividend_date.gte": ex_dividend_date_gte,
+            "record_date": record_date,
+            "record_date.lt": record_date_lt,
+            "record_date.lte": record_date_lte,
+            "record_date.gt": record_date_gt,
+            "record_date.gte": record_date_gte,
+            "declaration_date": declaration_date,
+            "declaration_date.lt": declaration_date_lt,
+            "declaration_date.lte": declaration_date_lte,
+            "declaration_date.gt": declaration_date_gt,
+            "declaration_date.gte": declaration_date_gte,
+            "pay_date": pay_date,
+            "pay_date.lt": pay_date_lt,
+            "pay_date.lte": pay_date_lte,
+            "pay_date.gt": pay_date_gt,
+            "pay_date.gte": pay_date_gte,
+            "frequency": frequency,
+            "cash_amount": cash_amount,
+            "cash_amount.lt": cash_amount_lt,
+            "cash_amount.lte": cash_amount_lte,
+            "cash_amount.gt": cash_amount_gt,
+            "cash_amount.gte": cash_amount_gte,
+            "dividend_type": dividend_type,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1286,17 +1768,38 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_stock_financials_vx(self, ticker: str = None, cik: str = None, company_name: str = None,
-                                      company_name_search: str = None, sic: str = None, filing_date=None,
-                                      filing_date_lt=None, filing_date_lte=None, filing_date_gt=None,
-                                      filing_date_gte=None, period_of_report_date=None,
-                                      period_of_report_date_lt=None, period_of_report_date_lte=None,
-                                      period_of_report_date_gt=None, period_of_report_date_gte=None,
-                                      time_frame=None, include_sources: bool = False, order='asc',
-                                      limit: int = 50, sort='filing_date', raw_response: bool = False):
+    async def get_stock_financials_vx(
+        self,
+        ticker: str = None,
+        cik: str = None,
+        company_name: str = None,
+        company_name_search: str = None,
+        sic: str = None,
+        filing_date=None,
+        filing_date_lt=None,
+        filing_date_lte=None,
+        filing_date_gt=None,
+        filing_date_gte=None,
+        period_of_report_date=None,
+        period_of_report_date_lt=None,
+        period_of_report_date_lte=None,
+        period_of_report_date_gt=None,
+        period_of_report_date_gte=None,
+        time_frame=None,
+        include_sources: bool = False,
+        order="asc",
+        limit: int = 50,
+        sort="filing_date",
+        raw_response: bool = False,
+    ):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__ - Async method
@@ -1338,9 +1841,11 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        filing_date = self.normalize_datetime(filing_date, output_type='str')
+        filing_date = self.normalize_datetime(filing_date, output_type="str")
 
-        period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
+        period_of_report_date = self.normalize_datetime(
+            period_of_report_date, output_type="str"
+        )
 
         filing_date_lt = self.normalize_datetime(filing_date_lt)
 
@@ -1350,28 +1855,45 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         filing_date_gte = self.normalize_datetime(filing_date_gte)
 
-        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+        period_of_report_date_lt = self.normalize_datetime(
+            period_of_report_date_lt)
 
-        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+        period_of_report_date_lte = self.normalize_datetime(
+            period_of_report_date_lte)
 
-        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+        period_of_report_date_gt = self.normalize_datetime(
+            period_of_report_date_gt)
 
-        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+        period_of_report_date_gte = self.normalize_datetime(
+            period_of_report_date_gte)
 
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/vX/reference/financials'
+        _path = f"/vX/reference/financials"
 
-        _data = {'ticker': ticker, 'cik': cik, 'company_name': company_name,
-                 'company_name_search': company_name_search, 'sic': sic, 'filing_date': filing_date,
-                 'filing_date.lt': filing_date_lt, 'filing_date.lte': filing_date_lte,
-                 'filing_date.gt': filing_date_gt, 'filing_date.gte': filing_date_gte,
-                 'period_of_report_date': period_of_report_date, 'period_of_report_date.lt': period_of_report_date_lt,
-                 'period_of_report_date.lte': period_of_report_date_lte,
-                 'period_of_report_date.gt': period_of_report_date_gt,
-                 'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
-                 'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
+        _data = {
+            "ticker": ticker,
+            "cik": cik,
+            "company_name": company_name,
+            "company_name_search": company_name_search,
+            "sic": sic,
+            "filing_date": filing_date,
+            "filing_date.lt": filing_date_lt,
+            "filing_date.lte": filing_date_lte,
+            "filing_date.gt": filing_date_gt,
+            "filing_date.gte": filing_date_gte,
+            "period_of_report_date": period_of_report_date,
+            "period_of_report_date.lt": period_of_report_date_lt,
+            "period_of_report_date.lte": period_of_report_date_lte,
+            "period_of_report_date.gt": period_of_report_date_gt,
+            "period_of_report_date.gte": period_of_report_date_gte,
+            "timeframe": time_frame,
+            "order": order,
+            "include_sources": "true" if include_sources else "false",
+            "limit": limit,
+            "sort": sort,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1382,12 +1904,29 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None,
-                               order: str = 'asc', sort: str = 'execution_date', limit: int = 1000, ticker_lt=None,
-                               ticker_lte=None, ticker_gt=None, ticker_gte=None, execution_date_lt=None,
-                               execution_date_lte=None, execution_date_gt=None, execution_date_gte=None,
-                               all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                               verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_stock_splits(
+        self,
+        ticker: str = None,
+        execution_date=None,
+        reverse_split: bool = None,
+        order: str = "asc",
+        sort: str = "execution_date",
+        limit: int = 1000,
+        ticker_lt=None,
+        ticker_lte=None,
+        ticker_gt=None,
+        ticker_gte=None,
+        execution_date_lt=None,
+        execution_date_lte=None,
+        execution_date_gt=None,
+        execution_date_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get a list of historical stock splits, including the ticker symbol, the execution date, and the factors of
         the split ratio.
@@ -1431,7 +1970,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        execution_date = self.normalize_datetime(execution_date, output_type='str')
+        execution_date = self.normalize_datetime(
+            execution_date, output_type="str")
 
         execution_date_lt = self.normalize_datetime(execution_date_lt)
 
@@ -1441,15 +1981,27 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         execution_date_gte = self.normalize_datetime(execution_date_gte)
 
-        sort, order = self._change_enum(sort, str), self._change_enum(order, str)
+        sort, order = self._change_enum(
+            sort, str), self._change_enum(order, str)
 
-        _path = f'/v3/reference/splits'
+        _path = f"/v3/reference/splits"
 
-        _data = {'ticker': ticker, 'ticker.lt': ticker_lt, 'ticker.lte': ticker_lte, 'ticker.gt': ticker_gt,
-                 'ticker.gte': ticker_gte, 'execution_date': execution_date, 'execution_date.lt': execution_date_lt,
-                 'execution_date.lte': execution_date_lte, 'execution_date.gt': execution_date_gt,
-                 'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
-                 'sort': sort, 'limit': limit}
+        _data = {
+            "ticker": ticker,
+            "ticker.lt": ticker_lt,
+            "ticker.lte": ticker_lte,
+            "ticker.gt": ticker_gt,
+            "ticker.gte": ticker_gte,
+            "execution_date": execution_date,
+            "execution_date.lt": execution_date_lt,
+            "execution_date.lte": execution_date_lte,
+            "execution_date.gt": execution_date_gt,
+            "execution_date.gte": execution_date_gte,
+            "reverse_split": reverse_split,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1461,8 +2013,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
     async def get_market_holidays(self, raw_response: bool = False):
         """
@@ -1475,7 +2032,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = '/v1/marketstatus/upcoming'
+        _path = "/v1/marketstatus/upcoming"
 
         _res = await self._get_response(_path)
 
@@ -1495,7 +2052,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = '/v1/marketstatus/now'
+        _path = "/v1/marketstatus/now"
 
         _res = await self._get_response(_path)
 
@@ -1504,8 +2061,17 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
-                             limit: int = 50, sort='name', raw_response: bool = False):
+    async def get_conditions(
+        self,
+        asset_class=None,
+        data_type=None,
+        condition_id=None,
+        sip=None,
+        order=None,
+        limit: int = 50,
+        sort="name",
+        raw_response: bool = False,
+    ):
         """
         List all conditions that Polygon.io uses - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_conditions>`__
@@ -1525,13 +2091,22 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        asset_class, data_type = self._change_enum(asset_class), self._change_enum(data_type)
+        asset_class, data_type = self._change_enum(asset_class), self._change_enum(
+            data_type
+        )
         order, sort = self._change_enum(order), self._change_enum(sort)
 
-        _path = f'/v3/reference/conditions'
+        _path = f"/v3/reference/conditions"
 
-        _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
-                 'limit': limit, 'sort': sort}
+        _data = {
+            "asset_class": asset_class,
+            "data_type": data_type,
+            "id": condition_id,
+            "sip": sip,
+            "order": order,
+            "limit": limit,
+            "sort": sort,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1542,7 +2117,9 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
+    async def get_exchanges(
+        self, asset_class=None, locale=None, raw_response: bool = False
+    ):
         """
         List all exchanges that Polygon.io knows about - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_exchanges>`__
@@ -1555,11 +2132,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        asset_class, locale = self._change_enum(asset_class), self._change_enum(locale)
+        asset_class, locale = self._change_enum(
+            asset_class), self._change_enum(locale)
 
-        _path = f'/v3/reference/exchanges'
+        _path = f"/v3/reference/exchanges"
 
-        _data = {'asset_class': asset_class, 'locale': locale}
+        _data = {"asset_class": asset_class, "locale": locale}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -1582,20 +2160,21 @@ def ensure_prefix(symbol: str):
     :param symbol: the option symbol to check
     """
     if len(symbol) < 15:
-        raise ValueError('Option symbol length must at least be 15 letters. See documentation on option symbols for '
-                         'more info')
+        raise ValueError(
+            "Option symbol length must at least be 15 letters. See documentation on option symbols for "
+            "more info"
+        )
 
-    if symbol.upper().startswith('O:'):
+    if symbol.upper().startswith("O:"):
         return symbol.upper()
 
-    return f'O:{symbol.upper()}'
-
+    return f"O:{symbol.upper()}"
 
 
 # ========================================================= #
 
 
-if __name__ == '__main__':
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

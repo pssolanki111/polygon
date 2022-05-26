@@ -10,7 +10,10 @@ import datetime
 
 # Functions for option symbol parsing and creation
 
-def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price, prefix_o: bool = False):
+
+def build_option_symbol(
+    underlying_symbol: str, expiry, call_or_put, strike_price, prefix_o: bool = False
+):
     """
     Build the option symbol from the details provided.
 
@@ -28,26 +31,31 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     """
 
     if isinstance(expiry, (datetime.datetime, datetime.date)):
-        expiry = expiry.strftime('%y%m%d')
+        expiry = expiry.strftime("%y%m%d")
 
     elif isinstance(expiry, str) and len(expiry) != 6:
-        raise ValueError('Expiry string must have 6 characters. Format is: YYMMDD')
+        raise ValueError(
+            "Expiry string must have 6 characters. Format is: YYMMDD")
 
-    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+    call_or_put = "C" if call_or_put.lower() in ["c", "call"] else "P"
 
-    if '.' in str(strike_price):
-        strike, strike_dec = str(strike_price).split('.')[0].rjust(5, '0'), str(
-            strike_price).split('.')[1].ljust(3, '0')[:3]
+    if "." in str(strike_price):
+        strike, strike_dec = (
+            str(strike_price).split(".")[0].rjust(5, "0"),
+            str(strike_price).split(".")[1].ljust(3, "0")[:3],
+        )
     else:
-        strike, strike_dec = str(int(strike_price)).rjust(5, '0'), '000'
+        strike, strike_dec = str(int(strike_price)).rjust(5, "0"), "000"
 
     if prefix_o:
-        return f'O:{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+        return f"O:{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}"
 
-    return f'{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+    return f"{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}"
 
 
-def parse_option_symbol(option_symbol: str, output_format='object', expiry_format='date'):
+def parse_option_symbol(
+    option_symbol: str, output_format="object", expiry_format="date"
+):
     """
     Function to parse an option symbol.
 
@@ -60,21 +68,34 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
 
     _obj = OptionSymbol(option_symbol, expiry_format)
 
-    if output_format in ['list', list]:
-        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
+    if output_format in ["list", list]:
+        _obj = [
+            _obj.underlying_symbol,
+            _obj.expiry,
+            _obj.call_or_put,
+            _obj.strike_price,
+            _obj.option_symbol,
+        ]
 
-    elif output_format in ['dict', dict]:
-        _obj = {'underlying_symbol': _obj.underlying_symbol,
-                'strike_price': _obj.strike_price,
-                'expiry': _obj.expiry,
-                'call_or_put': _obj.call_or_put,
-                'option_symbol': _obj.option_symbol}
+    elif output_format in ["dict", dict]:
+        _obj = {
+            "underlying_symbol": _obj.underlying_symbol,
+            "strike_price": _obj.strike_price,
+            "expiry": _obj.expiry,
+            "call_or_put": _obj.call_or_put,
+            "option_symbol": _obj.option_symbol,
+        }
 
     return _obj
 
 
-def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, strike_price,
-                                format_: str = 'underscore'):
+def build_option_symbol_for_tda(
+    underlying_symbol: str,
+    expiry,
+    call_or_put,
+    strike_price,
+    format_: str = "underscore",
+):
     """
     Only use this function if you need to create option symbol for TD ameritrade API. This function is just a bonus.
 
@@ -93,19 +114,25 @@ def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, str
     """
 
     if isinstance(expiry, (datetime.date, datetime.datetime)):
-        expiry = expiry.strftime('%m%d%y')
+        expiry = expiry.strftime("%m%d%y")
 
-    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+    call_or_put = "C" if call_or_put.lower() in ["c", "call"] else "P"
 
-    strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
+    strike_price = (
+        int(float(strike_price))
+        if int(float(strike_price)) == float(strike_price)
+        else strike_price
+    )
 
-    if format_ == 'dot':
-        return f'.{underlying_symbol}{expiry}{call_or_put}{strike_price}'
+    if format_ == "dot":
+        return f".{underlying_symbol}{expiry}{call_or_put}{strike_price}"
 
-    return f'{underlying_symbol}_{expiry}{call_or_put}{strike_price}'
+    return f"{underlying_symbol}_{expiry}{call_or_put}{strike_price}"
 
 
-def parse_option_symbol_from_tda(option_symbol: str, output_format='object', expiry_format='date'):
+def parse_option_symbol_from_tda(
+    option_symbol: str, output_format="object", expiry_format="date"
+):
     """
     Function to parse an option symbol in format supported by TD Ameritrade.
 
@@ -116,21 +143,30 @@ def parse_option_symbol_from_tda(option_symbol: str, output_format='object', exp
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    format_ = 'underscore'
-    if option_symbol.startswith('.'):
-        format_ = 'dot'
+    format_ = "underscore"
+    if option_symbol.startswith("."):
+        format_ = "dot"
 
-    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='tda', fmt=format_)
+    _obj = OptionSymbol(option_symbol, expiry_format,
+                        symbol_format="tda", fmt=format_)
 
-    if output_format in ['list', list]:
-        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
+    if output_format in ["list", list]:
+        _obj = [
+            _obj.underlying_symbol,
+            _obj.expiry,
+            _obj.call_or_put,
+            _obj.strike_price,
+            _obj.option_symbol,
+        ]
 
-    elif output_format in ['dict', dict]:
-        _obj = {'underlying_symbol': _obj.underlying_symbol,
-                'strike_price': _obj.strike_price,
-                'expiry': _obj.expiry,
-                'call_or_put': _obj.call_or_put,
-                'option_symbol': _obj.option_symbol}
+    elif output_format in ["dict", dict]:
+        _obj = {
+            "underlying_symbol": _obj.underlying_symbol,
+            "strike_price": _obj.strike_price,
+            "expiry": _obj.expiry,
+            "call_or_put": _obj.call_or_put,
+            "option_symbol": _obj.option_symbol,
+        }
 
     return _obj
 
@@ -145,17 +181,22 @@ def convert_from_tda_to_polygon_format(option_symbol: str, prefix_o: bool = Fals
     :return: The formatted symbol converted to polygon's symbol format.
     """
 
-    format_ = 'underscore'
-    if option_symbol.startswith('.'):
-        format_ = 'dot'
+    format_ = "underscore"
+    if option_symbol.startswith("."):
+        format_ = "dot"
 
-    _temp = OptionSymbol(option_symbol, symbol_format='tda', fmt=format_)
+    _temp = OptionSymbol(option_symbol, symbol_format="tda", fmt=format_)
 
-    return build_option_symbol(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
-                               prefix_o=prefix_o)
+    return build_option_symbol(
+        _temp.underlying_symbol,
+        _temp.expiry,
+        _temp.call_or_put,
+        _temp.strike_price,
+        prefix_o=prefix_o,
+    )
 
 
-def convert_from_polygon_to_tda_format(option_symbol: str, format_: str = 'underscore'):
+def convert_from_polygon_to_tda_format(option_symbol: str, format_: str = "underscore"):
     """
     Helper function to convert from polygon.io symbol format to TD Ameritrade symbol format. Useful for writing
     applications which make use of both the APIs
@@ -169,8 +210,13 @@ def convert_from_polygon_to_tda_format(option_symbol: str, format_: str = 'under
 
     _temp = OptionSymbol(option_symbol)
 
-    return build_option_symbol_for_tda(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
-                                       format_=format_)
+    return build_option_symbol_for_tda(
+        _temp.underlying_symbol,
+        _temp.expiry,
+        _temp.call_or_put,
+        _temp.strike_price,
+        format_=format_,
+    )
 
 
 def detect_symbol_format(option_symbol: str) -> Union[str, bool]:
@@ -181,20 +227,28 @@ def detect_symbol_format(option_symbol: str) -> Union[str, bool]:
     :param option_symbol: The option symbol to check.
     :return: ``tda`` or ``polygon`` if format is recognized. ``False`` otherwise.
     """
-    if option_symbol.startswith('.') or ('_' in option_symbol):
-        return 'tda'
+    if option_symbol.startswith(".") or ("_" in option_symbol):
+        return "tda"
 
-    if option_symbol.startswith('O:') or len(option_symbol) > 15:
-        return 'polygon'
+    if option_symbol.startswith("O:") or len(option_symbol) > 15:
+        return "polygon"
 
     return False
+
 
 # ========================================================= #
 
 
-def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                    pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                    write_timeout: int = 10):
+def OptionsClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST options endpoints.
 
@@ -221,8 +275,15 @@ def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 
     if not use_async:
         return SyncOptionsClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncOptionsClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                              max_keepalive, write_timeout)
+    return AsyncOptionsClient(
+        api_key,
+        connect_timeout,
+        read_timeout,
+        pool_timeout,
+        max_connections,
+        max_keepalive,
+        write_timeout,
+    )
 
 
 # ========================================================= #
@@ -241,10 +302,24 @@ class SyncOptionsClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_trades(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -288,21 +363,37 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -312,13 +403,32 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_quotes(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -362,21 +472,37 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/quotes/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -386,8 +512,13 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
     def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
@@ -401,7 +532,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
+        _path = f"/v2/last/trade/{ensure_prefix(ticker)}"
 
         _res = self._get_response(_path)
 
@@ -410,8 +541,9 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False):
+    def get_daily_open_close(
+        self, symbol: str, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
@@ -428,11 +560,11 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+        _path = f"/v1/open-close/{ensure_prefix(symbol)}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -441,10 +573,23 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -475,8 +620,8 @@ class SyncOptionsClient(base_client.BaseClient):
                                        controls how many worker threads to use in internal ThreadPool
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY, 
-                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't 
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -487,21 +632,28 @@ class SyncOptionsClient(base_client.BaseClient):
 
         if not full_range:
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
+            to_date = self.normalize_datetime(
+                to_date, output_type="nts", _dir="end")
 
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
-            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(
+                sort, str
+            )
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {
+                "adjusted": "true" if adjusted else "false",
+                "sort": sort,
+                "limit": limit,
+            }
 
             _res = self._get_response(_path, params=_data)
 
@@ -512,20 +664,50 @@ class SyncOptionsClient(base_client.BaseClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
+            time_chunks = self.split_date_range(
+                from_date, to_date, timespan, high_volatility=high_volatility
+            )
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
 
-    def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                     max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                     raw_page_responses: bool = False, raw_response: bool = False):
+    def get_snapshot(
+        self,
+        underlying_symbol: str,
+        option_symbol: str,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
@@ -553,7 +735,9 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
+        _path = (
+            f"/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}"
+        )
 
         _res = self._get_response(_path)
 
@@ -563,11 +747,17 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_previous_close(self, ticker: str, adjusted: bool = True,
-                           raw_response: bool = False):
+    def get_previous_close(
+        self, ticker: str, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
@@ -581,9 +771,9 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(ticker)}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -606,16 +796,45 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key,
+            connect_timeout,
+            read_timeout,
+            pool_timeout,
+            max_connections,
+            max_keepalive,
+            write_timeout,
+        )
 
     # Endpoints
-    async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000,
-                         order='asc', all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_trades(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option
         symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
@@ -659,21 +878,37 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -685,13 +920,32 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_quotes(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -735,21 +989,37 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/quotes/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -761,8 +1031,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
     async def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
@@ -776,7 +1051,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
+        _path = f"/v2/last/trade/{ensure_prefix(ticker)}"
 
         _res = await self._get_response(_path)
 
@@ -785,8 +1060,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False):
+    async def get_daily_open_close(
+        self, symbol: str, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
@@ -803,11 +1079,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+        _path = f"/v1/open-close/{ensure_prefix(symbol)}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -818,11 +1094,23 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                                 sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                                 full_range: bool = False, run_parallel: bool = True,
-                                 max_concurrent_workers: int = cpu_count() * 5, warnings: bool = True,
-                                 high_volatility: bool = False, raw_response: bool = False):
+    async def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -865,21 +1153,28 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         if not full_range:
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
+            to_date = self.normalize_datetime(
+                to_date, output_type="nts", _dir="end")
 
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
-            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(
+                sort, str
+            )
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {
+                "adjusted": "true" if adjusted else "false",
+                "sort": sort,
+                "limit": limit,
+            }
 
             _data = {key: value for key, value in _data.items() if value}
 
@@ -892,22 +1187,50 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit,
-                                                        timespan=timespan)
+            time_chunks = self.split_date_range(
+                from_date, to_date, timespan, high_volatility=high_volatility
+            )
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit,
-                                                    timespan=timespan)
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
 
-    async def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                           max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                           raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_snapshot(
+        self,
+        underlying_symbol: str,
+        option_symbol: str,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
@@ -935,7 +1258,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
+        _path = (
+            f"/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}"
+        )
 
         _res = await self._get_response(_path)
 
@@ -945,11 +1270,17 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_previous_close(self, ticker: str, adjusted: bool = True,
-                                 raw_response: bool = False):
+    async def get_previous_close(
+        self, ticker: str, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
@@ -963,9 +1294,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(ticker)}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -985,7 +1316,13 @@ class OptionSymbol:
     The custom object for parsed details from option symbols.
     """
 
-    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon', fmt: str = 'underscore'):
+    def __init__(
+        self,
+        option_symbol: str,
+        expiry_format="date",
+        symbol_format="polygon",
+        fmt: str = "underscore",
+    ):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -999,8 +1336,8 @@ class OptionSymbol:
                     dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
                     ``'dot'`` to get dot format. (ONLY use when using tda formats, has no effect on polygon format)
         """
-        if symbol_format == 'polygon':
-            if option_symbol.startswith('O:'):
+        if symbol_format == "polygon":
+            if option_symbol.startswith("O:"):
                 option_symbol = option_symbol[2:]
 
             self.underlying_symbol = option_symbol[:-15]
@@ -1008,24 +1345,30 @@ class OptionSymbol:
             _len = len(self.underlying_symbol)
 
             # optional filter for those Corrections Ian talked about
-            self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
+            self.underlying_symbol = "".join(
+                [x for x in self.underlying_symbol if not x.isdigit()]
+            )
 
-            self._expiry = option_symbol[_len:_len + 6]
+            self._expiry = option_symbol[_len: _len + 6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
-                                        int(self._expiry[2:4]), int(self._expiry[4:6]))
+            self.expiry = datetime.date(
+                int(datetime.date.today().strftime(
+                    "%Y")[:2] + self._expiry[:2]),
+                int(self._expiry[2:4]),
+                int(self._expiry[4:6]),
+            )
 
             self.call_or_put = option_symbol[_len + 6].upper()
 
             self.strike_price = int(option_symbol[_len + 7:]) / 1000
 
-            self.option_symbol = f'{self.underlying_symbol}{option_symbol[_len:]}'
+            self.option_symbol = f"{self.underlying_symbol}{option_symbol[_len:]}"
 
-            if expiry_format in ['string', 'str', str]:
-                self.expiry = self.expiry.strftime('%Y-%m-%d')
+            if expiry_format in ["string", "str", str]:
+                self.expiry = self.expiry.strftime("%Y-%m-%d")
 
-        elif symbol_format == 'tda':
-            if fmt == 'dot':
+        elif symbol_format == "tda":
+            if fmt == "dot":
                 option_symbol, num = option_symbol[1:].upper(), 0
 
                 for char in option_symbol:
@@ -1034,32 +1377,43 @@ class OptionSymbol:
                         continue
                     break
 
-                option_symbol = f'{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}' \
-                                f'{option_symbol[num:num+2]}{option_symbol[num+6:]}'
+                option_symbol = (
+                    f"{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}"
+                    f"{option_symbol[num:num+2]}{option_symbol[num+6:]}"
+                )
 
             # Usual flow
-            _split = option_symbol.split('_')
+            _split = option_symbol.split("_")
 
             self.underlying_symbol = _split[0]
 
             self._expiry = _split[1][:6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[4:6]),
-                                        int(self._expiry[:2]), int(self._expiry[2:4]))
+            self.expiry = datetime.date(
+                int(datetime.date.today().strftime(
+                    "%Y")[:2] + self._expiry[4:6]),
+                int(self._expiry[:2]),
+                int(self._expiry[2:4]),
+            )
 
             self.call_or_put = _split[1][6]
 
-            self.strike_price = int(float(_split[1][7:])) if float(_split[1][7:]) == int(float(_split[1][7:])) else \
-                float(_split[1][7:])
+            self.strike_price = (
+                int(float(_split[1][7:]))
+                if float(_split[1][7:]) == int(float(_split[1][7:]))
+                else float(_split[1][7:])
+            )
 
             self.option_symbol = option_symbol
 
-            if expiry_format in ['string', 'str', str]:
-                self.expiry = self.expiry.strftime('%Y-%m-%d')
+            if expiry_format in ["string", "str", str]:
+                self.expiry = self.expiry.strftime("%Y-%m-%d")
 
     def __repr__(self):
-        return f'Underlying: {self.underlying_symbol} || expiry: {self.expiry} || type: {self.call_or_put} || ' \
-               f'strike_price: {self.strike_price}'
+        return (
+            f"Underlying: {self.underlying_symbol} || expiry: {self.expiry} || type: {self.call_or_put} || "
+            f"strike_price: {self.strike_price}"
+        )
 
 
 def ensure_prefix(symbol: str):
@@ -1070,19 +1424,21 @@ def ensure_prefix(symbol: str):
     :param symbol: the option symbol to check
     """
     if len(symbol) < 15:
-        raise ValueError('Option symbol length must at least be 15 letters. See documentation on option symbols for '
-                         'more info')
+        raise ValueError(
+            "Option symbol length must at least be 15 letters. See documentation on option symbols for "
+            "more info"
+        )
 
-    if symbol.upper().startswith('O:'):
+    if symbol.upper().startswith("O:"):
         return symbol.upper()
 
-    return f'O:{symbol.upper()}'
+    return f"O:{symbol.upper()}"
 
 
 # ========================================================= #
 
 
-if __name__ == '__main__':  # Tests
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":  # Tests
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

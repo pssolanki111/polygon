@@ -6,9 +6,16 @@ from os import cpu_count
 # ========================================================= #
 
 
-def CryptoClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                    pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                    write_timeout: int = 10):
+def CryptoClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST crypto endpoints.
 
@@ -35,8 +42,15 @@ def CryptoClient(api_key: str, use_async: bool = False, connect_timeout: int = 1
     if not use_async:
         return SyncCryptoClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncCryptoClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                             max_keepalive, write_timeout)
+    return AsyncCryptoClient(
+        api_key,
+        connect_timeout,
+        read_timeout,
+        pool_timeout,
+        max_connections,
+        max_keepalive,
+        write_timeout,
+    )
 
 
 # ========================================================= #
@@ -55,8 +69,15 @@ class SyncCryptoClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_historic_trades(self, from_symbol: str, to_symbol: str, date, offset: Union[str, int] = None,
-                            limit: int = 500, raw_response: bool = False):
+    def get_historic_trades(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        offset: Union[str, int] = None,
+        limit: int = 500,
+        raw_response: bool = False,
+    ):
         """
         Get historic trade ticks for a cryptocurrency pair.
         `Official Docs
@@ -77,13 +98,12 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         offset = self.normalize_datetime(offset)
 
-        _path = f'/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'offset': offset,
-                 'limit': limit}
+        _data = {"offset": offset, "limit": limit}
 
         _res = self._get_response(_path, params=_data)
 
@@ -92,10 +112,24 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                   timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_trades(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
@@ -136,21 +170,37 @@ class SyncCryptoClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/trades/{ensure_prefix(symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -160,10 +210,17 @@ class SyncCryptoClient(base_client.BaseClient):
 
             return _res.json()
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
+    def get_last_trade(
+        self, from_symbol: str, to_symbol: str, raw_response: bool = False
+    ):
         """
         Get the last trade tick for a cryptocurrency pair.
         `Official Docs
@@ -177,7 +234,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}'
+        _path = f"/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}"
 
         _res = self._get_response(_path)
 
@@ -186,8 +243,14 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False):
+    def get_daily_open_close(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        adjusted: bool = True,
+        raw_response: bool = False,
+    ):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day.
         `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
@@ -203,11 +266,13 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = (
+            f"/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
+        )
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -216,10 +281,23 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
-                           adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="day",
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
@@ -263,21 +341,28 @@ class SyncCryptoClient(base_client.BaseClient):
 
         if not full_range:
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
+            to_date = self.normalize_datetime(
+                to_date, output_type="nts", _dir="end")
 
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
-            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(
+                sort, str
+            )
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {
+                "adjusted": "true" if adjusted else "false",
+                "sort": sort,
+                "limit": limit,
+            }
 
             _res = self._get_response(_path, params=_data)
 
@@ -288,20 +373,42 @@ class SyncCryptoClient(base_client.BaseClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit,
-                                                  timespan=timespan)
+            time_chunks = self.split_date_range(
+                from_date, to_date, timespan, high_volatility=high_volatility
+            )
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit,
-                                              timespan=timespan)
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
 
-    def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
+    def get_grouped_daily_bars(
+        self, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market.
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
@@ -315,11 +422,11 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/global/market/crypto/{date}'
+        _path = f"/v2/aggs/grouped/locale/global/market/crypto/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -328,8 +435,9 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False):
+    def get_previous_close(
+        self, symbol: str, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
@@ -344,9 +452,9 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -369,11 +477,11 @@ class SyncCryptoClient(base_client.BaseClient):
         """
 
         if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
+            raise ValueError("symbols must be supplied as a list of tickers")
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers"
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        _data = {"tickers": ",".join([x.upper() for x in symbols])}
 
         _res = self._get_response(_path, params=_data)
 
@@ -395,7 +503,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}"
 
         _res = self._get_response(_path)
 
@@ -404,7 +512,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return _res.json()
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
+    def get_gainers_and_losers(self, direction="gainers", raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
@@ -417,7 +525,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}"
 
         _res = self._get_response(_path)
 
@@ -439,7 +547,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book"
 
         _res = self._get_response(_path)
 
@@ -451,6 +559,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
 # ========================================================= #
 
+
 class AsyncCryptoClient(base_client.BaseAsyncClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
@@ -460,15 +569,36 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key,
+            connect_timeout,
+            read_timeout,
+            pool_timeout,
+            max_connections,
+            max_keepalive,
+            write_timeout,
+        )
 
     # Endpoints
-    async def get_historic_trades(self, from_symbol: str, to_symbol: str,
-                                  date, offset: Union[str, int] = None, limit: int = 500,
-                                  raw_response: bool = False):
+    async def get_historic_trades(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        offset: Union[str, int] = None,
+        limit: int = 500,
+        raw_response: bool = False,
+    ):
         """
         Get historic trade ticks for a cryptocurrency pair - Async method.
         `Official Docs
@@ -489,13 +619,12 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         offset = self.normalize_datetime(offset)
 
-        _path = f'/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'offset': offset,
-                 'limit': limit}
+        _data = {"offset": offset, "limit": limit}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -506,10 +635,24 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                         timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_trades(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
@@ -550,21 +693,37 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(
+            timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(
+            timestamp_lt, output_type="nts", unit="ns"
+        )
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(
+            timestamp_lte, output_type="nts", unit="ns"
+        )
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(
+            timestamp_gt, output_type="nts", unit="ns"
+        )
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(
+            timestamp_gte, output_type="nts", unit="ns"
+        )
 
-        _path = f'/v3/trades/{ensure_prefix(symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -576,11 +735,17 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
             return _res.json()
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res,
+            merge_all_pages,
+            max_pages,
+            verbose=verbose,
+            raw_page_responses=raw_page_responses,
+        )
 
-    async def get_last_trade(self, from_symbol: str, to_symbol: str,
-                             raw_response: bool = False):
+    async def get_last_trade(
+        self, from_symbol: str, to_symbol: str, raw_response: bool = False
+    ):
         """
         Get the last trade tick for a cryptocurrency pair - Async method
         `Official Docs
@@ -594,7 +759,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}'
+        _path = f"/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}"
 
         _res = await self._get_response(_path)
 
@@ -603,8 +768,14 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False):
+    async def get_daily_open_close(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        adjusted: bool = True,
+        raw_response: bool = False,
+    ):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - Async method
         `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
@@ -620,11 +791,13 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = (
+            f"/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
+        )
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -635,10 +808,23 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
-                                 adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
-                                 run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                                 warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    async def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="day",
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
@@ -684,19 +870,25 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
             from_date = self.normalize_datetime(from_date)
 
-            to_date = self.normalize_datetime(to_date, _dir='end')
+            to_date = self.normalize_datetime(to_date, _dir="end")
 
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
-            timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
+            timespan, sort = self._change_enum(timespan, str), self._change_enum(
+                sort, str
+            )
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {
+                "adjusted": "true" if adjusted else "false",
+                "sort": sort,
+                "limit": limit,
+            }
 
             _data = {key: value for key, value in _data.items() if value}
 
@@ -709,21 +901,42 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
-            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit,
-                                                        timespan=timespan)
+            time_chunks = self.split_date_range(
+                from_date, to_date, timespan, high_volatility=high_volatility
+            )
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit,
-                                                    timespan=timespan)
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
 
-    async def get_grouped_daily_bars(self, date, adjusted: bool = True,
-                                     raw_response: bool = False):
+    async def get_grouped_daily_bars(
+        self, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
@@ -737,11 +950,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/global/market/crypto/{date}'
+        _path = f"/v2/aggs/grouped/locale/global/market/crypto/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -752,8 +965,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False):
+    async def get_previous_close(
+        self, symbol: str, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
@@ -768,9 +982,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -795,11 +1009,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
 
         if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
+            raise ValueError("symbols must be supplied as a list of tickers")
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers"
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        _data = {"tickers": ",".join([x.upper() for x in symbols])}
 
         _data = {key: value for key, value in _data.items() if value}
 
@@ -823,7 +1037,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}"
 
         _res = await self._get_response(_path)
 
@@ -832,8 +1046,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return _res.json()
 
-    async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False):
+    async def get_gainers_and_losers(
+        self, direction="gainers", raw_response: bool = False
+    ):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
         `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
@@ -846,7 +1061,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}"
 
         _res = await self._get_response(_path)
 
@@ -868,7 +1083,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book"
 
         _res = await self._get_response(_path)
 
@@ -882,16 +1097,16 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
 
 def ensure_prefix(sym: str):
-    if sym.upper().startswith('X:'):
+    if sym.upper().startswith("X:"):
         return sym.upper()
 
-    return f'X:{sym.upper()}'
+    return f"X:{sym.upper()}"
 
 
 # ========================================================= #
 
 
-if __name__ == '__main__':
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

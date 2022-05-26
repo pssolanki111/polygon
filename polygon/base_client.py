@@ -11,15 +11,16 @@ import datetime
 # ========================================================= #
 
 
-TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
-                     'min': datetime.timedelta(days=45),
-                     'hour': datetime.timedelta(days=60),
-                     'day': datetime.timedelta(days=3500),
-                     'week': datetime.timedelta(days=3500),
-                     'month': datetime.timedelta(days=3500),
-                     'quarter': datetime.timedelta(days=3500),
-                     'year': datetime.timedelta(days=3500)
-                     }
+TIME_FRAME_CHUNKS = {
+    "minute": datetime.timedelta(days=45),
+    "min": datetime.timedelta(days=45),
+    "hour": datetime.timedelta(days=60),
+    "day": datetime.timedelta(days=3500),
+    "week": datetime.timedelta(days=3500),
+    "month": datetime.timedelta(days=3500),
+    "quarter": datetime.timedelta(days=3500),
+    "year": datetime.timedelta(days=3500),
+}
 
 
 # ========================================================= #
@@ -27,7 +28,14 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
 
 # Just a very basic method to house methods which are common to both sync and async clients
 class Base:
-    def split_date_range(self, start, end, timespan: str, high_volatility: bool = False, reverse: bool = True) -> list:
+    def split_date_range(
+        self,
+        start,
+        end,
+        timespan: str,
+        high_volatility: bool = False,
+        reverse: bool = True,
+    ) -> list:
         """
         Internal helper function to split a BIGGER date range into smaller chunks to be able to easily fetch
         aggregate bars data. The chunks duration is supposed to be different for time spans.
@@ -43,30 +51,42 @@ class Base:
         :return: a list of tuples. each tuple is in format ``(start, end)`` and represents one chunk of time frame
         """
         # The Time Travel begins
-        if timespan == 'min':
-            timespan = 'minute'
+        if timespan == "min":
+            timespan = "minute"
 
         try:
             delta, temp = TIME_FRAME_CHUNKS[timespan], (start, end)
         except KeyError:
-            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
-                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
-                             '.enums.Timespan')
+            raise ValueError(
+                "Invalid timespan. Use a correct enum or a correct value. See "
+                "https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon"
+                ".enums.Timespan"
+            )
 
         if high_volatility:
-            if timespan in ['minute', 'hour']:
+            if timespan in ["minute", "hour"]:
                 delta = datetime.timedelta(days=delta.days - 20)
             else:
                 delta = datetime.timedelta(days=delta.days - 1500)
 
-        start, end = self.normalize_datetime(start), self.normalize_datetime(end, _dir='end')
+        start, end = self.normalize_datetime(start), self.normalize_datetime(
+            end, _dir="end"
+        )
 
-        start, end = self.normalize_datetime(start, 'datetime'), self.normalize_datetime(end, 'datetime')
+        start, end = self.normalize_datetime(
+            start, "datetime"
+        ), self.normalize_datetime(end, "datetime")
 
         if (end - start).days < delta.days:
-            return [(self.normalize_datetime(temp[0], 'nts'), self.normalize_datetime(temp[1], 'nts'))]
+            return [
+                (
+                    self.normalize_datetime(temp[0], "nts"),
+                    self.normalize_datetime(temp[1], "nts"),
+                )
+            ]
 
-        final_time_chunks, timespan, current = [], self._change_enum(timespan), start
+        final_time_chunks, timespan, current = [
+        ], self._change_enum(timespan), start
 
         while 1:
             probable_next_date = current + delta
@@ -101,8 +121,13 @@ class Base:
     #     # Snap First  # TODO: will pick up some other time
 
     @staticmethod
-    def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
-                           unit: str = 'ms'):
+    def normalize_datetime(
+        dt,
+        output_type: str = "ts",
+        _dir: str = "start",
+        _format: str = "%Y-%m-%d",
+        unit: str = "ms",
+    ):
         """
         a core method to perform some specific datetime operations before/after interaction with the API
 
@@ -114,55 +139,70 @@ class Base:
         :return: The output timestamp or formatted string
         """
 
-        if unit == 'ms':
+        if unit == "ms":
             factor = 1000
-        elif unit == 'ns':
+        elif unit == "ns":
             factor = 1000000000
         else:
             factor = 1
 
         if isinstance(dt, datetime.datetime):
-            if output_type == 'date':
+            if output_type == "date":
                 return dt.date()
 
-            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+            dt = (
+                dt.replace(tzinfo=datetime.timezone.utc)
+                if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None)
                 else dt
+            )
 
-            if output_type == 'datetime':
+            if output_type == "datetime":
                 return dt
-            elif output_type in ['ts', 'nts']:
+            elif output_type in ["ts", "nts"]:
                 return int(dt.timestamp() * factor)
-            elif output_type == 'str':
+            elif output_type == "str":
                 return dt.strftime(_format)
 
         if isinstance(dt, str):
             dt = datetime.datetime.strptime(dt, _format).date()
 
         if isinstance(dt, datetime.date):
-            if output_type == 'ts' and _dir == 'start':
-                return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type == 'ts' and _dir == 'end':
-                return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
-            elif output_type in ['str', 'nts']:
+            if output_type == "ts" and _dir == "start":
+                return int(
+                    datetime.datetime(dt.year, dt.month, dt.day)
+                    .replace(tzinfo=datetime.timezone.utc)
+                    .timestamp()
+                    * factor
+                )
+            elif output_type == "ts" and _dir == "end":
+                return int(
+                    datetime.datetime(dt.year, dt.month, dt.day, 23, 59)
+                    .replace(tzinfo=datetime.timezone.utc)
+                    .timestamp()
+                    * factor
+                )
+            elif output_type in ["str", "nts"]:
                 return dt.strftime(_format)
-            elif output_type == 'datetime':
-                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
-            elif output_type == 'date':
+            elif output_type == "datetime":
+                return datetime.datetime(dt.year, dt.month, dt.day).replace(
+                    tzinfo=datetime.timezone.utc
+                )
+            elif output_type == "date":
                 return dt
 
         elif isinstance(dt, (int, float)):
-            if output_type in ['ts', 'nts']:
+            if output_type in ["ts", "nts"]:
                 return dt
 
-            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
+            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(
+                tzinfo=datetime.timezone.utc
+            )
 
-            if output_type == 'str':
+            if output_type == "str":
                 return dt.strftime(_format)
-            elif output_type == 'datetime':
+            elif output_type == "datetime":
                 return dt
-            elif output_type == 'date':
+            elif output_type == "date":
                 return dt.date()
 
     @staticmethod
@@ -172,17 +212,21 @@ class Base:
                 return val.value
 
             except AttributeError:
-                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                                 f'Please consider using the  specified enum in the docs for this function or recheck '
-                                 f'the value supplied.')
+                raise ValueError(
+                    f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                    f"Please consider using the  specified enum in the docs for this function or recheck "
+                    f"the value supplied."
+                )
 
         if isinstance(allowed_type, list):
             if type(val) in allowed_type:
                 return val
 
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
+            raise ValueError(
+                f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                f"Please consider using the  specified enum in the docs for this function or recheck "
+                f"the value supplied."
+            )
 
         if isinstance(val, allowed_type) or val is None:
             return val
@@ -213,12 +257,12 @@ class BaseClient(Base):
                              time limit.
         """
         self.KEY = api_key
-        self.BASE = 'https://api.polygon.io'
+        self.BASE = "https://api.polygon.io"
 
         self.time_out_conf = (connect_timeout, read_timeout)
         self.session = requests.session()
 
-        self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
+        self.session.headers.update({"Authorization": f"Bearer {self.KEY}"})
 
     # Context Managers
     def __enter__(self):
@@ -236,8 +280,9 @@ class BaseClient(Base):
         self.session.close()
 
     # Internal Functions
-    def _get_response(self, path: str, params: dict = None,
-                      raw_response: bool = True) -> Union[Response, dict]:
+    def _get_response(
+        self, path: str, params: dict = None, raw_response: bool = True
+    ) -> Union[Response, dict]:
         """
         Get response on a path. Meant to be used internally but can be used if you know what you're doing
 
@@ -247,14 +292,18 @@ class BaseClient(Base):
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
-        _res = self.session.request('GET', self.BASE + path, params=params, timeout=self.time_out_conf)
+        _res = self.session.request(
+            "GET", self.BASE + path, params=params, timeout=self.time_out_conf
+        )
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
+    def get_page_by_url(
+        self, url: str, raw_response: bool = False
+    ) -> Union[Response, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
@@ -266,15 +315,16 @@ class BaseClient(Base):
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
         """
-        _res = self.session.request('GET', url)
+        _res = self.session.request("GET", url)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    def get_next_page(self, old_response: Union[Response, dict],
-                      raw_response: bool = False) -> Union[Response, dict, bool]:
+    def get_next_page(
+        self, old_response: Union[Response, dict], raw_response: bool = False
+    ) -> Union[Response, dict, bool]:
         """
         Get the next page using the most recent old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
@@ -291,15 +341,16 @@ class BaseClient(Base):
             if not isinstance(old_response, (dict, list)):
                 old_response = old_response.json()
 
-            _next_url = old_response['next_url']
+            _next_url = old_response["next_url"]
 
             return self.get_page_by_url(_next_url, raw_response=raw_response)
 
         except KeyError:
             return False
 
-    def get_previous_page(self, old_response: Union[Response, dict],
-                          raw_response: bool = False) -> Union[Response, dict, bool]:
+    def get_previous_page(
+        self, old_response: Union[Response, dict], raw_response: bool = False
+    ) -> Union[Response, dict, bool]:
         """
         Get the previous page using the most recent old response. This function simply parses the previous_url attribute
         from the  existing response and uses it to get the previous page. Returns False if there is no previous page
@@ -317,15 +368,21 @@ class BaseClient(Base):
             if not isinstance(old_response, (dict, list)):
                 old_response = old_response.json()
 
-            _prev_url = old_response['previous_url']
+            _prev_url = old_response["previous_url"]
 
             return self.get_page_by_url(_prev_url, raw_response=raw_response)
 
         except KeyError:
             return False
 
-    def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next', verbose: bool = False,
-                      raw_responses: bool = False):
+    def get_all_pages(
+        self,
+        old_response,
+        max_pages: int = None,
+        direction: str = "next",
+        verbose: bool = False,
+        raw_responses: bool = False,
+    ):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
         Can be used externally too to get all responses in a list.
@@ -343,13 +400,16 @@ class BaseClient(Base):
                  ``raw_response``
         """
 
-        direction, container, _res = self._change_enum(direction, str), [], old_response
+        direction, container, _res = self._change_enum(
+            direction, str), [], old_response
         if not max_pages:
             if verbose:
-                print(f'No max limit specified. Initiating pagination for ALL available pages...')
-            max_pages = float('inf')
+                print(
+                    f"No max limit specified. Initiating pagination for ALL available pages..."
+                )
+            max_pages = float("inf")
 
-        if direction in ['prev', 'previous']:
+        if direction in ["prev", "previous"]:
             fn = self.get_previous_page
         else:
             fn = self.get_next_page
@@ -358,18 +418,21 @@ class BaseClient(Base):
         while 1:
             if len(container) >= max_pages:
                 if verbose:
-                    print(f'Max number of pages ({max_pages}) reached. Stopping and aggregating results...')
+                    print(
+                        f"Max number of pages ({max_pages}) reached. Stopping and aggregating results..."
+                    )
                 break
 
             _res = fn(_res, raw_response=True)
 
             if not _res:
                 if verbose:
-                    print(f'No more pages remain. Stopping and aggregating results...')
+                    print(f"No more pages remain. Stopping and aggregating results...")
                 break
 
             if verbose:
-                print(f'Fetched another page... total pages so far: {len(container)}')
+                print(
+                    f"Fetched another page... total pages so far: {len(container)}")
 
             if raw_responses:
                 container.append(_res)
@@ -379,8 +442,14 @@ class BaseClient(Base):
 
         return container
 
-    def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, verbose: bool = False,
-                  raw_page_responses: bool = False):
+    def _paginate(
+        self,
+        _res,
+        merge_all_pages: bool = True,
+        max_pages: int = None,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+    ):
         """
         Internal function to call the core pagination methods to build the response object to be parsed by individual
         methods.
@@ -398,26 +467,44 @@ class BaseClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
-        elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
-            return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
+            pages = [_res.json()] + self.get_all_pages(
+                _res, max_pages=max_pages, verbose=verbose
+            )
+        elif (
+            raw_page_responses
+        ):  # we don't need your help, adventurer (no merge, no decoding)
+            return [_res] + self.get_all_pages(
+                _res, raw_responses=True, max_pages=max_pages, verbose=verbose
+            )
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [_res.json()] + self.get_all_pages(
+                _res, max_pages=max_pages, verbose=verbose
+            )
 
         # We need your help adventurer  (decode and merge)
         container = []
         try:
             for page in pages:
-                container += page['results']
+                container += page["results"]
         except KeyError:
             return pages
 
         return container
 
-    def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
-                                  max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                  adjusted: bool = True, sort='asc', limit: int = 5000,
-                                  multiplier: int = 1, timespan='day') -> list:
+    def get_full_range_aggregates(
+        self,
+        fn,
+        symbol: str,
+        time_chunks: list,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = os.cpu_count() * 5,
+        warnings: bool = True,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+    ) -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
         Users should prefer the relevant aggregate function with additional parameters.
@@ -445,17 +532,21 @@ class BaseClient(Base):
         """
 
         if run_parallel and warnings:
-            print(f'WARNING: Running with threading will spawn an internal ThreadPool to get responses in parallel. '
-                  f'It is fine if you are not running a ThreadPool of your own. But If you are, know that only one '
-                  f'pool will run at a time due to python GIL restriction. Other pool will wait. You can pass '
-                  f'warnings=False to disable this warning OR pass run_parallel=False to disable running internal '
-                  f'thread pool')
+            print(
+                f"WARNING: Running with threading will spawn an internal ThreadPool to get responses in parallel. "
+                f"It is fine if you are not running a ThreadPool of your own. But If you are, know that only one "
+                f"pool will run at a time due to python GIL restriction. Other pool will wait. You can pass "
+                f"warnings=False to disable this warning OR pass run_parallel=False to disable running internal "
+                f"thread pool"
+            )
         if (not run_parallel) and warnings:
-            print(f'WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour '
-                  f'aggs on a BIG time frame. If you have more than one symbol to run, it is suggested to run both '
-                  f'of them in their own thread. You can pass warnings=False to disable this warning OR '
-                  f'pass run_parallel=True to run an internal thread pool if you are not running a thread pool of '
-                  f'your own')
+            print(
+                f"WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour "
+                f"aggs on a BIG time frame. If you have more than one symbol to run, it is suggested to run both "
+                f"of them in their own thread. You can pass warnings=False to disable this warning OR "
+                f"pass run_parallel=True to run an internal thread pool if you are not running a thread pool of "
+                f"your own"
+            )
 
         # The aggregation begins
         dupe_handler, final_results = 0, []
@@ -468,54 +559,84 @@ class BaseClient(Base):
 
             with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
                 for chunk in time_chunks:
-                    chunk = (self.normalize_datetime(chunk[0], 'nts'),
-                             self.normalize_datetime(chunk[1], 'nts', _dir='end'))
-                    futures.append(pool.submit(fn, symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
-                                               limit=500000, multiplier=multiplier, timespan=timespan))
+                    chunk = (
+                        self.normalize_datetime(chunk[0], "nts"),
+                        self.normalize_datetime(chunk[1], "nts", _dir="end"),
+                    )
+                    futures.append(
+                        pool.submit(
+                            fn,
+                            symbol,
+                            chunk[0],
+                            chunk[1],
+                            adjusted=adjusted,
+                            sort="asc",
+                            limit=500000,
+                            multiplier=multiplier,
+                            timespan=timespan,
+                        )
+                    )
 
             for future in reversed(futures):
                 try:
-                    data = future.result()['results']
+                    data = future.result()["results"]
                 except KeyError:
                     if warnings:
-                        print(f'No data returned. response: {future.result()}')
+                        print(f"No data returned. response: {future.result()}")
                     continue
 
                 if len(data) < 1:
                     if warnings:
-                        print(f'No data returned. response: {future.result()}')
+                        print(f"No data returned. response: {future.result()}")
                     continue
 
-                final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
-                dupe_handler = final_results[-1]['t']
+                final_results += [
+                    candle for candle in data if (candle["t"] > dupe_handler)
+                ]
+                dupe_handler = final_results[-1]["t"]
 
-            if sort_order in ['desc', 'descending']:
+            if sort_order in ["desc", "descending"]:
                 final_results.reverse()
 
             return final_results
 
         # Sequential
         current_dt = self.normalize_datetime(time_chunks[0])
-        end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
+        end_dt = self.normalize_datetime(time_chunks[1], _dir="end")
         first_entry = self.normalize_datetime(time_chunks[0])
 
         try:
             delta = TIME_FRAME_CHUNKS[timespan]
         except KeyError:
-            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
-                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
-                             '.enums.Timespan')
+            raise ValueError(
+                "Invalid timespan. Use a correct enum or a correct value. See "
+                "https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon"
+                ".enums.Timespan"
+            )
 
-        if (self.normalize_datetime(end_dt, 'datetime', 'end') - self.normalize_datetime(
-                first_entry, 'datetime')).days <= delta.days:
-            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
-                     multiplier=multiplier, timespan=timespan, full_range=False)
+        if (
+            self.normalize_datetime(end_dt, "datetime", "end")
+            - self.normalize_datetime(first_entry, "datetime")
+        ).days <= delta.days:
+            res = fn(
+                symbol,
+                current_dt,
+                end_dt,
+                adjusted=adjusted,
+                sort=sort,
+                limit=500000,
+                multiplier=multiplier,
+                timespan=timespan,
+                full_range=False,
+            )
             try:
-                return res['results']
+                return res["results"]
             except KeyError:
                 if warnings:
-                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
-                          f'{res}')
+                    print(
+                        f"no data returned for {symbol} for range {first_entry} to {end_dt}. Response: "
+                        f"{res}"
+                    )
                 return []
 
         dupe_handler = current_dt
@@ -524,38 +645,53 @@ class BaseClient(Base):
             if current_dt >= end_dt:
                 break
 
-            res = fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000, multiplier=multiplier,
-                     timespan=timespan, full_range=False)
+            res = fn(
+                symbol,
+                current_dt,
+                end_dt,
+                adjusted=adjusted,
+                sort=sort,
+                limit=500000,
+                multiplier=multiplier,
+                timespan=timespan,
+                full_range=False,
+            )
 
             try:
-                data = res['results']
+                data = res["results"]
             except KeyError:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(
+                        f"No data found for {symbol} between {current_dt} and {end_dt} with "
+                        f"response: {res}. Terminating loop..."
+                    )
                 break
 
             if len(data) < 1:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(
+                        f"No data found for {symbol} between {current_dt} and {end_dt} with "
+                        f"response: {res}. Terminating loop..."
+                    )
                 break
 
             temp_len = len(final_results)
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
+            final_results += [candle for candle in data if (
+                candle["t"] > dupe_handler)]
 
             if len(final_results) == temp_len:
-                if data[-1]['t'] <= dupe_handler:
+                if data[-1]["t"] <= dupe_handler:
                     break
 
-            current_dt = final_results[-1]['t']
+            current_dt = final_results[-1]["t"]
             dupe_handler = current_dt
 
         return final_results
 
 
 # ========================================================= #
+
 
 class BaseAsyncClient(Base):
     """
@@ -566,8 +702,16 @@ class BaseAsyncClient(Base):
     their own endpoints on top of it.
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
         """
         Initiates a Client to be used to access all the endpoints.
 
@@ -590,15 +734,22 @@ class BaseAsyncClient(Base):
                              specified time limit.
         """
         self.KEY = api_key
-        self.BASE = 'https://api.polygon.io'
+        self.BASE = "https://api.polygon.io"
 
-        self.time_out_conf = httpx.Timeout(connect=connect_timeout, read=read_timeout, pool=pool_timeout,
-                                           write=write_timeout)
-        self._conn_pool_limits = httpx.Limits(max_connections=max_connections,
-                                              max_keepalive_connections=max_keepalive)
-        self.session = httpx.AsyncClient(timeout=self.time_out_conf, limits=self._conn_pool_limits)
+        self.time_out_conf = httpx.Timeout(
+            connect=connect_timeout,
+            read=read_timeout,
+            pool=pool_timeout,
+            write=write_timeout,
+        )
+        self._conn_pool_limits = httpx.Limits(
+            max_connections=max_connections, max_keepalive_connections=max_keepalive
+        )
+        self.session = httpx.AsyncClient(
+            timeout=self.time_out_conf, limits=self._conn_pool_limits
+        )
 
-        self.session.headers.update({'Authorization': f'Bearer {self.KEY}'})
+        self.session.headers.update({"Authorization": f"Bearer {self.KEY}"})
 
     @staticmethod
     async def aw_task(aw, semaphore):
@@ -621,8 +772,9 @@ class BaseAsyncClient(Base):
         await self.session.aclose()
 
     # Internal Functions
-    async def _get_response(self, path: str, params: dict = None,
-                            raw_response: bool = True) -> Union[HttpxResponse, dict]:
+    async def _get_response(
+        self, path: str, params: dict = None, raw_response: bool = True
+    ) -> Union[HttpxResponse, dict]:
         """
         Get response on a path - meant to be used internally but can be used if you know what you're doing
 
@@ -632,14 +784,16 @@ class BaseAsyncClient(Base):
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
-        _res = await self.session.request('GET', self.BASE + path, params=params)
+        _res = await self.session.request("GET", self.BASE + path, params=params)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
+    async def get_page_by_url(
+        self, url: str, raw_response: bool = False
+    ) -> Union[HttpxResponse, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
         pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
@@ -651,15 +805,16 @@ class BaseAsyncClient(Base):
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
         """
-        _res = await self.session.request('GET', url)
+        _res = await self.session.request("GET", url)
 
         if raw_response:
             return _res
 
         return _res.json()
 
-    async def get_next_page(self, old_response: Union[HttpxResponse, dict],
-                            raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+    async def get_next_page(
+        self, old_response: Union[HttpxResponse, dict], raw_response: bool = False
+    ) -> Union[HttpxResponse, dict, bool]:
         """
         Get the next page using the most recent old response. This function simply parses the next_url attribute
         from the  existing response and uses it to get the next page. Returns False if there is no next page
@@ -677,15 +832,16 @@ class BaseAsyncClient(Base):
             if not isinstance(old_response, dict):
                 old_response = old_response.json()
 
-            _next_url = old_response['next_url']
+            _next_url = old_response["next_url"]
 
             return await self.get_page_by_url(_next_url, raw_response=raw_response)
 
         except KeyError:
             return False
 
-    async def get_previous_page(self, old_response: Union[HttpxResponse, dict],
-                                raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
+    async def get_previous_page(
+        self, old_response: Union[HttpxResponse, dict], raw_response: bool = False
+    ) -> Union[HttpxResponse, dict, bool]:
         """
         Get the previous page using the most recent old response. This function simply parses the previous_url attribute
         from the  existing response and uses it to get the previous page. Returns False if there is no previous page
@@ -703,15 +859,21 @@ class BaseAsyncClient(Base):
             if not isinstance(old_response, dict):
                 old_response = old_response.json()
 
-            _prev_url = old_response['previous_url']
+            _prev_url = old_response["previous_url"]
 
             return await self.get_page_by_url(_prev_url, raw_response=raw_response)
 
         except KeyError:
             return False
 
-    async def get_all_pages(self, old_response, max_pages: int = None, direction: str = 'next', verbose: bool = False,
-                            raw_responses: bool = False):
+    async def get_all_pages(
+        self,
+        old_response,
+        max_pages: int = None,
+        direction: str = "next",
+        verbose: bool = False,
+        raw_responses: bool = False,
+    ):
         """
         A helper function for endpoints which implement pagination using ``next_url`` and ``previous_url`` attributes.
         Can be used externally too to get all responses in a list.
@@ -729,13 +891,16 @@ class BaseAsyncClient(Base):
                  ``raw_response``
         """
 
-        direction, container, _res = self._change_enum(direction, str), [], old_response
+        direction, container, _res = self._change_enum(
+            direction, str), [], old_response
         if not max_pages:
             if verbose:
-                print(f'No max limit specified. Initiating pagination for ALL available pages...')
-            max_pages = float('inf')
+                print(
+                    f"No max limit specified. Initiating pagination for ALL available pages..."
+                )
+            max_pages = float("inf")
 
-        if direction in ['prev', 'previous']:
+        if direction in ["prev", "previous"]:
             fn = self.get_previous_page
         else:
             fn = self.get_next_page
@@ -744,18 +909,21 @@ class BaseAsyncClient(Base):
         while 1:
             if len(container) >= max_pages:
                 if verbose:
-                    print(f'Max number of pages ({max_pages}) reached. Stopping and aggregating results...')
+                    print(
+                        f"Max number of pages ({max_pages}) reached. Stopping and aggregating results..."
+                    )
                 break
 
             _res = await fn(_res, raw_response=True)
 
             if not _res:
                 if verbose:
-                    print(f'No more pages remain. Stopping and aggregating results...')
+                    print(f"No more pages remain. Stopping and aggregating results...")
                 break
 
             if verbose:
-                print(f'Fetched another page... total pages so far: {len(container)}')
+                print(
+                    f"Fetched another page... total pages so far: {len(container)}")
 
             if raw_responses:
                 container.append(_res)
@@ -765,8 +933,14 @@ class BaseAsyncClient(Base):
 
         return container
 
-    async def _paginate(self, _res, merge_all_pages: bool = True, max_pages: int = None, verbose: bool = False,
-                        raw_page_responses: bool = False):
+    async def _paginate(
+        self,
+        _res,
+        merge_all_pages: bool = True,
+        max_pages: int = None,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+    ):
         """
         Internal function to call the core pagination methods to build the response object to be parsed by individual
         methods.
@@ -784,26 +958,44 @@ class BaseAsyncClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
-        elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
-            return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
+            pages = [_res.json()] + await self.get_all_pages(
+                _res, max_pages=max_pages, verbose=verbose
+            )
+        elif (
+            raw_page_responses
+        ):  # we don't need your help, adventurer (no merge, no decoding)
+            return [_res] + await self.get_all_pages(
+                _res, raw_responses=True, max_pages=max_pages, verbose=verbose
+            )
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [_res.json()] + await self.get_all_pages(
+                _res, max_pages=max_pages, verbose=verbose
+            )
 
         # We need your help adventurer  (decode and merge)
         container = []
         try:
             for page in pages:
-                container += page['results']
+                container += page["results"]
         except KeyError:
             return pages
 
         return container
 
-    async def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
-                                        max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                        adjusted: bool = True, sort='asc', limit: int = 5000,
-                                        multiplier: int = 1, timespan='day') -> list:
+    async def get_full_range_aggregates(
+        self,
+        fn,
+        symbol: str,
+        time_chunks: list,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = os.cpu_count() * 5,
+        warnings: bool = True,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+    ) -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
         Users should prefer the relevant aggregate function with additional parameters.
@@ -831,10 +1023,12 @@ class BaseAsyncClient(Base):
         """
 
         if (not run_parallel) and warnings:
-            print(f'WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour '
-                  f'aggs on a BIG time frame. If you have more than one symbols to run, it is suggested to run one '
-                  f'coroutine for each ticker. You can pass warnings=False to disable this warning OR '
-                  f'pass run_parallel=True to spawn internal coroutines to get data in parallel')
+            print(
+                f"WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour "
+                f"aggs on a BIG time frame. If you have more than one symbols to run, it is suggested to run one "
+                f"coroutine for each ticker. You can pass warnings=False to disable this warning OR "
+                f"pass run_parallel=True to spawn internal coroutines to get data in parallel"
+            )
 
         # The aggregation begins
         dupe_handler, final_results = 0, []
@@ -846,59 +1040,92 @@ class BaseAsyncClient(Base):
             futures, semaphore = [], asyncio.Semaphore(max_concurrent_workers)
 
             for chunk in time_chunks:
-                chunk = (self.normalize_datetime(chunk[0], 'nts'), self.normalize_datetime(chunk[1], 'nts', _dir='end'))
+                chunk = (
+                    self.normalize_datetime(chunk[0], "nts"),
+                    self.normalize_datetime(chunk[1], "nts", _dir="end"),
+                )
 
-                futures.append(self.aw_task(fn(symbol, chunk[0], chunk[1], adjusted=adjusted, sort='asc',
-                                               limit=500000, multiplier=multiplier, timespan=timespan,
-                                               full_range=False), semaphore))
+                futures.append(
+                    self.aw_task(
+                        fn(
+                            symbol,
+                            chunk[0],
+                            chunk[1],
+                            adjusted=adjusted,
+                            sort="asc",
+                            limit=500000,
+                            multiplier=multiplier,
+                            timespan=timespan,
+                            full_range=False,
+                        ),
+                        semaphore,
+                    )
+                )
 
             futures = await asyncio.gather(*futures)
 
             for future in reversed(futures):
                 try:
-                    data = future['results']
+                    data = future["results"]
                 except KeyError:
                     if warnings:
-                        print(f'No data returned. Response: {future}')
+                        print(f"No data returned. Response: {future}")
                     continue
 
                 if len(data) < 1:
                     if warnings:
-                        print(f'No data returned. Response: {future}')
+                        print(f"No data returned. Response: {future}")
                     continue
 
                 # final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
                 #         candle['t'] <= last_entry) and (candle['t'] >= first_entry)]
-                final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
-                dupe_handler = final_results[-1]['t']
+                final_results += [
+                    candle for candle in data if (candle["t"] > dupe_handler)
+                ]
+                dupe_handler = final_results[-1]["t"]
 
-            if sort_order in ['desc', 'descending']:
+            if sort_order in ["desc", "descending"]:
                 final_results.reverse()
 
             return final_results
 
         # Sequential
         current_dt = self.normalize_datetime(time_chunks[0])
-        end_dt = self.normalize_datetime(time_chunks[1], _dir='end')
+        end_dt = self.normalize_datetime(time_chunks[1], _dir="end")
         first_entry = self.normalize_datetime(time_chunks[0])
 
         try:
             delta = TIME_FRAME_CHUNKS[timespan]
         except KeyError:
-            raise ValueError('Invalid timespan. Use a correct enum or a correct value. See '
-                             'https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon'
-                             '.enums.Timespan')
+            raise ValueError(
+                "Invalid timespan. Use a correct enum or a correct value. See "
+                "https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html#polygon"
+                ".enums.Timespan"
+            )
 
-        if (self.normalize_datetime(end_dt, 'datetime', 'end') - self.normalize_datetime(
-                first_entry, 'datetime')).days <= delta.days:
-            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
-                           multiplier=multiplier, timespan=timespan, full_range=False)
+        if (
+            self.normalize_datetime(end_dt, "datetime", "end")
+            - self.normalize_datetime(first_entry, "datetime")
+        ).days <= delta.days:
+            res = await fn(
+                symbol,
+                current_dt,
+                end_dt,
+                adjusted=adjusted,
+                sort=sort,
+                limit=500000,
+                multiplier=multiplier,
+                timespan=timespan,
+                full_range=False,
+            )
             try:
-                return res['results']
+                return res["results"]
             except KeyError:
                 if warnings:
-                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
-                          f'{res}')
+                    print(
+                        f"no data returned for {symbol} for range {first_entry} to {end_dt}. Response: "
+                        f"{res}"
+                    )
                 return []
 
         dupe_handler = current_dt
@@ -907,32 +1134,46 @@ class BaseAsyncClient(Base):
             if current_dt >= end_dt:
                 break
 
-            res = await fn(symbol, current_dt, end_dt, adjusted=adjusted, sort=sort, limit=500000,
-                           multiplier=multiplier, timespan=timespan, full_range=False)
+            res = await fn(
+                symbol,
+                current_dt,
+                end_dt,
+                adjusted=adjusted,
+                sort=sort,
+                limit=500000,
+                multiplier=multiplier,
+                timespan=timespan,
+                full_range=False,
+            )
 
             try:
-                data = res['results']
+                data = res["results"]
             except KeyError:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(
+                        f"No data found for {symbol} between {current_dt} and {end_dt} with "
+                        f"response: {res}. Terminating loop..."
+                    )
                 break
 
             if len(data) < 1:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(
+                        f"No data found for {symbol} between {current_dt} and {end_dt} with "
+                        f"response: {res}. Terminating loop..."
+                    )
                 break
 
             temp_len = len(final_results)
 
-            final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
+            final_results += [candle for candle in data if (
+                candle["t"] > dupe_handler)]
 
             if len(final_results) == temp_len:
-                if data[-1]['t'] <= dupe_handler:
+                if data[-1]["t"] <= dupe_handler:
                     break
 
-            current_dt = final_results[-1]['t']
+            current_dt = final_results[-1]["t"]
             dupe_handler = current_dt
 
         return final_results
@@ -941,7 +1182,7 @@ class BaseAsyncClient(Base):
 # ========================================================= #
 
 
-if __name__ == '__main__':  # Tests
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":  # Tests
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

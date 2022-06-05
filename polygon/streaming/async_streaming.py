@@ -1,12 +1,15 @@
 # ========================================================= #
 import asyncio
 import inspect
-import orjson as json
 import logging
 import sys
 from typing import Union
 import websockets as wss
 from enum import Enum
+try:
+    import orjson as json
+except ImportError:
+    import json
 
 # ========================================================= #
 
@@ -158,7 +161,7 @@ class AsyncStreamClient:
         try:
             _data = json.loads(_raw)
 
-        except json.JSONDecodeError as exc:
+        except Exception as exc:
             raise ValueError(f'Unable to decode message string: {_raw}.\nUsually happens with invalid symbols.'
                              f'\nException Message: {str(exc)}')
 

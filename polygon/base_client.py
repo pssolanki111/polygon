@@ -7,6 +7,10 @@ from httpx import Response as HttpxResponse
 from enum import Enum
 import os
 import datetime
+try:
+    import orjson as json_lib
+except ImportError:
+    import json as json_lib
 
 # ========================================================= #
 
@@ -243,7 +247,7 @@ class BaseClient(Base):
 
         :param path: RESTful path for the endpoint. Available on the docs for the endpoint right above its name.
         :param params: Query Parameters to be supplied with the request. These are mapped 1:1 with the endpoint.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to check the
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
@@ -252,7 +256,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -261,7 +265,7 @@ class BaseClient(Base):
         received or the endpoint doesn't have pagination. Meant for internal use primarily.
 
         :param url: The next URL. As contained in ``next_url`` of the response.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
@@ -271,7 +275,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_next_page(self, old_response: Union[Response, dict],
                       raw_response: bool = False) -> Union[Response, dict, bool]:
@@ -375,7 +379,7 @@ class BaseClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(_res.json())
+            container.append(json_lib.loads(_res.text))
 
         return container
 
@@ -398,11 +402,11 @@ class BaseClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [json_lib.loads(_res.text)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [json_lib.loads(_res.text)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []
@@ -632,21 +636,23 @@ class BaseAsyncClient(Base):
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
-        _res = await self.session.request('GET', self.BASE + path, params=params)
+        _res = await self.session.request('GET', self.BASE + path,
+                                          params={key: value for key, value in 
+                                                  params.items() if value} if params else None)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
-        pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
+        pagination (eg the tickers' endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination. Meant for internal use primarily.
 
         :param url: The next URL. As contained in ``next_url`` of the response.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of raw_response. Defaults to Dict.
@@ -656,7 +662,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_next_page(self, old_response: Union[HttpxResponse, dict],
                             raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
@@ -761,7 +767,7 @@ class BaseAsyncClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(_res.json())
+            container.append(json_lib.loads(_res.text))
 
         return container
 
@@ -784,11 +790,11 @@ class BaseAsyncClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [json_lib.loads(_res.text)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [json_lib.loads(_res.text)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []

@@ -6,7 +6,7 @@ Getting Started
 
 Welcome to ``polygon``. Read this page to quickly install and configure this library to write your first Polygon Python application.
 
-**It is highly recommended to read this page to the full as it has important information**
+**It is highly recommended to read this page for everyone since it contains everything you need to get started with the library**
 
 You can see some examples on the `github repository <https://github.com/pssolanki111/polygon/tree/main/EXAMPLES>`__ after you have done
 the initial steps. And maybe join our `Discord Server <https://discord.gg/jPkARduU6N>`__ while you're at it :D
@@ -17,7 +17,7 @@ What you need to have
 1. A `polygon.io account <https://polygon.io/>`__ and your ``API key``. Find your api key on `Your Dashboard <https://polygon.io/dashboard/api-keys>`__
 #. Python version 3.6 or higher. Don't have it installed? `Install python <https://www.python.org/downloads/>`__
 
-Once you have done these, Proceed to the installation of the library. Skip if already done.
+Once you have these, Proceed to the installation of the library. Skip if already done.
 
 Installing ``polygon``
 ----------------------
@@ -37,6 +37,20 @@ To confirm the install worked, try importing the package as such
   import polygon
 
 If this doesn't throw any errors, the install worked. You may proceed to next steps now.
+
+You can also install the library with **optional dependencies** (you can skip them if you don't need their functionalities)
+
+.. code-block:: shell
+
+  pip install polygon['uvloop']  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on async apps
+
+  # OR
+
+  pip install polygon['orjson']  # this will install orjson lib. Polygon lib would use orjson if available. This enables fast json decoding of responses
+
+  # OR to get both
+
+  pip install polygon['all']  # Note that uvloop is only available on Unix platforms as of now
 
 .. _create_and_use_header:
 

@@ -3,6 +3,10 @@ from .. import base_client
 from typing import Union
 from os import cpu_count
 import datetime
+try:
+    import orjson as json_lib
+except ImportError:
+    import json as json_lib
 
 
 # ========================================================= #
@@ -310,7 +314,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -384,7 +388,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -408,7 +412,7 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                              raw_response: bool = False):
@@ -439,7 +443,7 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                            sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
@@ -508,7 +512,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -561,7 +565,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -590,7 +594,7 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
 
 # ========================================================= #
@@ -675,15 +679,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -751,15 +753,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
                  'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -783,7 +783,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                                    raw_response: bool = False):
@@ -809,14 +809,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
@@ -881,14 +879,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                      'sort': sort,
                      'limit': limit}
 
-            _data = {key: value for key, value in _data.items() if value}
-
             _res = await self._get_response(_path, params=_data)
 
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -943,7 +939,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -967,14 +963,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _data = {'adjusted': 'true' if adjusted else 'false'}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
 
 # ========================================================= #

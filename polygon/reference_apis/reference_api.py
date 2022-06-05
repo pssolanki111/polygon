@@ -1,5 +1,9 @@
 # ========================================================= #
 from .. import base_client
+try:
+    import orjson as json_lib
+except ImportError:
+    import json as json_lib
 
 # ========================================================= #
 
@@ -133,7 +137,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -163,7 +167,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -192,7 +196,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """
@@ -221,7 +225,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
@@ -291,7 +295,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -366,7 +370,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -453,37 +457,37 @@ class SyncReferenceClient(base_client.BaseClient):
 
         pay_date = self.normalize_datetime(pay_date, output_type='str')
 
-        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
+        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt, output_type='str')
 
-        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte)
+        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte, output_type='str')
 
-        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt)
+        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt, output_type='str')
 
-        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte)
+        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte, output_type='str')
 
-        record_date_lt = self.normalize_datetime(record_date_lt)
+        record_date_lt = self.normalize_datetime(record_date_lt, output_type='str')
 
-        record_date_lte = self.normalize_datetime(record_date_lte)
+        record_date_lte = self.normalize_datetime(record_date_lte, output_type='str')
 
-        record_date_gt = self.normalize_datetime(record_date_gt)
+        record_date_gt = self.normalize_datetime(record_date_gt, output_type='str')
 
-        record_date_gte = self.normalize_datetime(record_date_gte)
+        record_date_gte = self.normalize_datetime(record_date_gte, output_type='str')
 
-        declaration_date_lt = self.normalize_datetime(declaration_date_lt)
+        declaration_date_lt = self.normalize_datetime(declaration_date_lt, output_type='str')
 
-        declaration_date_lte = self.normalize_datetime(declaration_date_lte)
+        declaration_date_lte = self.normalize_datetime(declaration_date_lte, output_type='str')
 
-        declaration_date_gt = self.normalize_datetime(declaration_date_gt)
+        declaration_date_gt = self.normalize_datetime(declaration_date_gt, output_type='str')
 
-        declaration_date_gte = self.normalize_datetime(declaration_date_gte)
+        declaration_date_gte = self.normalize_datetime(declaration_date_gte, output_type='str')
 
-        pay_date_lt = self.normalize_datetime(pay_date_lt)
+        pay_date_lt = self.normalize_datetime(pay_date_lt, output_type='str')
 
-        pay_date_lte = self.normalize_datetime(pay_date_lte)
+        pay_date_lte = self.normalize_datetime(pay_date_lte, output_type='str')
 
-        pay_date_gt = self.normalize_datetime(pay_date_gt)
+        pay_date_gt = self.normalize_datetime(pay_date_gt, output_type='str')
 
-        pay_date_gte = self.normalize_datetime(pay_date_gte)
+        pay_date_gte = self.normalize_datetime(pay_date_gte, output_type='str')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
         frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
@@ -511,7 +515,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -569,21 +573,21 @@ class SyncReferenceClient(base_client.BaseClient):
 
         period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
 
-        filing_date_lt = self.normalize_datetime(filing_date_lt)
+        filing_date_lt = self.normalize_datetime(filing_date_lt, output_type='str')
 
-        filing_date_lte = self.normalize_datetime(filing_date_lte)
+        filing_date_lte = self.normalize_datetime(filing_date_lte, output_type='str')
 
-        filing_date_gt = self.normalize_datetime(filing_date_gt)
+        filing_date_gt = self.normalize_datetime(filing_date_gt, output_type='str')
 
-        filing_date_gte = self.normalize_datetime(filing_date_gte)
+        filing_date_gte = self.normalize_datetime(filing_date_gte, output_type='str')
 
-        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt, output_type='str')
 
-        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte, output_type='str')
 
-        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt, output_type='str')
 
-        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte, output_type='str')
 
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
@@ -605,7 +609,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
                          sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,
@@ -658,13 +662,13 @@ class SyncReferenceClient(base_client.BaseClient):
 
         execution_date = self.normalize_datetime(execution_date, output_type='str')
 
-        execution_date_lt = self.normalize_datetime(execution_date_lt)
+        execution_date_lt = self.normalize_datetime(execution_date_lt, output_type='str')
 
-        execution_date_lte = self.normalize_datetime(execution_date_lte)
+        execution_date_lte = self.normalize_datetime(execution_date_lte, output_type='str')
 
-        execution_date_gt = self.normalize_datetime(execution_date_gt)
+        execution_date_gt = self.normalize_datetime(execution_date_gt, output_type='str')
 
-        execution_date_gte = self.normalize_datetime(execution_date_gte)
+        execution_date_gte = self.normalize_datetime(execution_date_gte, output_type='str')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -682,7 +686,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -705,7 +709,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_market_status(self, raw_response: bool = False):
         """
@@ -725,7 +729,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                        limit: int = 50, sort='name', raw_response: bool = False):
@@ -762,7 +766,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
@@ -788,7 +792,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
 
 # ========================================================= #
@@ -882,15 +886,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'cusip': cusip, 'cik': cik, 'date': date, 'search': search, 'active': active, 'sort': sort,
                  'order': order, 'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -915,14 +917,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _data = {'asset_class': asset_class,
                  'locale': locale}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -946,14 +946,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'date': date}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """
@@ -977,14 +975,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'as_of': as_of_date}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                                    expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
@@ -1049,17 +1045,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
                  'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1129,15 +1121,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'published_utc.lte': published_utc_lte, 'published_utc.gt': published_utc_gt,
                  'published_utc.gte': published_utc_gte}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1224,37 +1214,37 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         pay_date = self.normalize_datetime(pay_date, output_type='str')
 
-        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt)
+        ex_dividend_date_lt = self.normalize_datetime(ex_dividend_date_lt, output_type='str')
 
-        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte)
+        ex_dividend_date_lte = self.normalize_datetime(ex_dividend_date_lte, output_type='str')
 
-        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt)
+        ex_dividend_date_gt = self.normalize_datetime(ex_dividend_date_gt, output_type='str')
 
-        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte)
+        ex_dividend_date_gte = self.normalize_datetime(ex_dividend_date_gte, output_type='str')
 
-        record_date_lt = self.normalize_datetime(record_date_lt)
+        record_date_lt = self.normalize_datetime(record_date_lt, output_type='str')
 
-        record_date_lte = self.normalize_datetime(record_date_lte)
+        record_date_lte = self.normalize_datetime(record_date_lte, output_type='str')
 
-        record_date_gt = self.normalize_datetime(record_date_gt)
+        record_date_gt = self.normalize_datetime(record_date_gt, output_type='str')
 
-        record_date_gte = self.normalize_datetime(record_date_gte)
+        record_date_gte = self.normalize_datetime(record_date_gte, output_type='str')
 
-        declaration_date_lt = self.normalize_datetime(declaration_date_lt)
+        declaration_date_lt = self.normalize_datetime(declaration_date_lt, output_type='str')
 
-        declaration_date_lte = self.normalize_datetime(declaration_date_lte)
+        declaration_date_lte = self.normalize_datetime(declaration_date_lte, output_type='str')
 
-        declaration_date_gt = self.normalize_datetime(declaration_date_gt)
+        declaration_date_gt = self.normalize_datetime(declaration_date_gt, output_type='str')
 
-        declaration_date_gte = self.normalize_datetime(declaration_date_gte)
+        declaration_date_gte = self.normalize_datetime(declaration_date_gte, output_type='str')
 
-        pay_date_lt = self.normalize_datetime(pay_date_lt)
+        pay_date_lt = self.normalize_datetime(pay_date_lt, output_type='str')
 
-        pay_date_lte = self.normalize_datetime(pay_date_lte)
+        pay_date_lte = self.normalize_datetime(pay_date_lte, output_type='str')
 
-        pay_date_gt = self.normalize_datetime(pay_date_gt)
+        pay_date_gt = self.normalize_datetime(pay_date_gt, output_type='str')
 
-        pay_date_gte = self.normalize_datetime(pay_date_gte)
+        pay_date_gte = self.normalize_datetime(pay_date_gte, output_type='str')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
         frequency, dividend_type = self._change_enum(frequency, int), self._change_enum(dividend_type, str)
@@ -1276,15 +1266,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'cash_amount.gte': cash_amount_gte, 'dividend_type': dividend_type, 'order': order, 'sort': sort,
                  'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1342,21 +1330,21 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         period_of_report_date = self.normalize_datetime(period_of_report_date, output_type='str')
 
-        filing_date_lt = self.normalize_datetime(filing_date_lt)
+        filing_date_lt = self.normalize_datetime(filing_date_lt, output_type='str')
 
-        filing_date_lte = self.normalize_datetime(filing_date_lte)
+        filing_date_lte = self.normalize_datetime(filing_date_lte, output_type='str')
 
-        filing_date_gt = self.normalize_datetime(filing_date_gt)
+        filing_date_gt = self.normalize_datetime(filing_date_gt, output_type='str')
 
-        filing_date_gte = self.normalize_datetime(filing_date_gte)
+        filing_date_gte = self.normalize_datetime(filing_date_gte, output_type='str')
 
-        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt)
+        period_of_report_date_lt = self.normalize_datetime(period_of_report_date_lt, output_type='str')
 
-        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte)
+        period_of_report_date_lte = self.normalize_datetime(period_of_report_date_lte, output_type='str')
 
-        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt)
+        period_of_report_date_gt = self.normalize_datetime(period_of_report_date_gt, output_type='str')
 
-        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte)
+        period_of_report_date_gte = self.normalize_datetime(period_of_report_date_gte, output_type='str')
 
         time_frame = self._change_enum(time_frame)
         order, sort = self._change_enum(order), self._change_enum(sort)
@@ -1373,14 +1361,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'period_of_report_date.gte': period_of_report_date_gte, 'timeframe': time_frame, 'order': order,
                  'include_sources': 'true' if include_sources else 'false', 'limit': limit, 'sort': sort}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None,
                                order: str = 'asc', sort: str = 'execution_date', limit: int = 1000, ticker_lt=None,
@@ -1433,13 +1419,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         execution_date = self.normalize_datetime(execution_date, output_type='str')
 
-        execution_date_lt = self.normalize_datetime(execution_date_lt)
+        execution_date_lt = self.normalize_datetime(execution_date_lt, output_type='str')
 
-        execution_date_lte = self.normalize_datetime(execution_date_lte)
+        execution_date_lte = self.normalize_datetime(execution_date_lte, output_type='str')
 
-        execution_date_gt = self.normalize_datetime(execution_date_gt)
+        execution_date_gt = self.normalize_datetime(execution_date_gt, output_type='str')
 
-        execution_date_gte = self.normalize_datetime(execution_date_gte)
+        execution_date_gte = self.normalize_datetime(execution_date_gte, output_type='str')
 
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -1451,15 +1437,13 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                  'execution_date.gte': execution_date_gte, 'reverse_split': reverse_split, 'order': order,
                  'sort': sort, 'limit': limit}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if not all_pages:  # don't you dare paginating!!
             if raw_response:
                 return _res
 
-            return _res.json()
+            return json_lib.loads(_res.text)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1482,7 +1466,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_market_status(self, raw_response: bool = False):
         """
@@ -1502,7 +1486,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                              limit: int = 50, sort='name', raw_response: bool = False):
@@ -1533,14 +1517,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _data = {'asset_class': asset_class, 'data_type': data_type, 'id': condition_id, 'sip': sip, 'order': order,
                  'limit': limit, 'sort': sort}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
     async def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
@@ -1561,14 +1543,12 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _data = {'asset_class': asset_class, 'locale': locale}
 
-        _data = {key: value for key, value in _data.items() if value}
-
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
             return _res
 
-        return _res.json()
+        return json_lib.loads(_res.text)
 
 
 # ========================================================= #
@@ -1589,7 +1569,6 @@ def ensure_prefix(symbol: str):
         return symbol.upper()
 
     return f'O:{symbol.upper()}'
-
 
 
 # ========================================================= #

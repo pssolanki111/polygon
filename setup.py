@@ -5,7 +5,7 @@ with open('README.md') as file:
 
 setup(
     name='polygon',
-    version='1.0.6',
+    version='1.0.7',
     packages=['polygon', 'polygon.forex', 'polygon.crypto', 'polygon.stocks', 'polygon.streaming',
               'polygon.reference_apis', 'polygon.options'],
     url='https://github.com/pssolanki111/polygon',
@@ -34,8 +34,9 @@ setup(
         'requests',
         'websockets',
         'websocket-client',
-        'httpx',
-        'orjson'],
-    extras_require={'uvloop': ['uvloop']},
+        'httpx'],
+    extras_require={'uvloop': ['uvloop'], 
+                    'orjson': ['orjson'], 
+                    'all': ['orjson', 'uvloop']},
     keywords='finance trading equities bonds options research data',
 )

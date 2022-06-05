@@ -1,5 +1,6 @@
 # Sometimes a file finds a way to slip through and make it through repo...
 
+test.py
 .idea
 ./idea
 ./.idea/

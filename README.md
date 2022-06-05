@@ -1,6 +1,6 @@
 # `polygon`: A Polygon.io API Wrapper
 
-[![Discord](https://img.shields.io/discord/903351697995337820)](https://discord.gg/jPkARduU6N) [![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![CodeFactor](https://www.codefactor.io/repository/github/pssolanki111/polygon/badge/main)](https://www.codefactor.io/repository/github/pssolanki111/polygon/overview/main) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licensess](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
+[![Discord](https://img.shields.io/discord/903351697995337820)](https://discord.gg/jPkARduU6N) [![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![CodeFactor](https://www.codefactor.io/repository/github/pssolanki111/polygon/badge/main)](https://www.codefactor.io/repository/github/pssolanki111/polygon/overview/main) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licenses](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
 
 ## what is `polygon`
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 
@@ -37,7 +37,11 @@ Next, you'd need to install `polygon`
 pip install polygon
 ```
 
-**and You're good to Go!** A few quick examples.
+**and You're good to Go!** 
+
+You can also install optional dependencies (orjson, uvloop) as outlined in [Install Guide](https://polygon.readthedocs.io/en/latest/Getting-Started.html#installing-polygon) 
+
+Here are a few quick usage examples.
 
 ### Getting a stock's previous day OCHLV
 
@@ -138,11 +142,12 @@ See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) o
 
 ## Anything else?
 
-Bug reports, suggestions and pull requests are always welcome. 
+-  Bug reports, suggestions and pull requests are always welcome. 
 
-See [Contributing](https://polygon.readthedocs.io/en/latest/contrib_and_license.html)
-if you wish to contribute.
+-  See [Contributing](https://polygon.readthedocs.io/en/latest/contrib_and_license.html) if you wish to contribute.
 
-Read [This](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html) before raising a bug.
+-  Read [This](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html) before raising a bug.
 
-`polygon` is released under the [MIT License](https://github.com/pssolanki111/polygon/blob/main/LICENSE)
+-  [Changelog](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md) for the project is available within the same repository
+
+-  `polygon` is released under the [MIT License](https://github.com/pssolanki111/polygon/blob/main/LICENSE)

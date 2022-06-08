@@ -378,7 +378,7 @@ class AsyncStreamClient:
             symbols = _prefix + '*'
 
         elif isinstance(symbols, list):
-            symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+            symbols = ','.join([_prefix + symbol for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)

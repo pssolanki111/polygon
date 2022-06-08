@@ -349,7 +349,7 @@ class AsyncStreamClient:
 
         return _apis, _handlers
 
-    async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.'):
+    async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.', convert_case=True):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
         corresponding methods to subscribe or unsubscribe to streams.
@@ -400,7 +400,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
@@ -428,7 +428,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
@@ -456,7 +456,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
@@ -484,7 +484,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """
@@ -512,7 +512,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
@@ -540,7 +540,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
@@ -570,7 +570,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_option_trades(self, symbols: list = None):
         """
@@ -600,7 +600,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_option_quotes(self, symbols: list = None):
         """
@@ -630,7 +630,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
@@ -660,7 +660,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
@@ -691,7 +691,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
@@ -721,7 +721,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
@@ -753,7 +753,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
@@ -785,7 +785,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
@@ -817,7 +817,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
@@ -849,7 +849,7 @@ class AsyncStreamClient:
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, _prefix=f'{_prefix}.', convert_case=convert_case)
 
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """

@@ -378,6 +378,9 @@ class AsyncStreamClient:
             symbols = _prefix + '*'
 
         elif isinstance(symbols, list):
+            if convert_case:
+                symbols = [symbol.upper() for symbol in symbols]
+                
             symbols = ','.join([_prefix + symbol for symbol in symbols])
 
         self._subs.append((symbols, action))

@@ -386,7 +386,7 @@ class AsyncStreamClient:
         await self.WS.send(str(_payload))
 
     # STOCK Streams
-    async def subscribe_stock_trades(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_trades(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time trades for provided symbol(s)
 
@@ -414,7 +414,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time quotes for provided symbol(s)
 
@@ -442,7 +442,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Minute Aggregates for provided symbol(s)
 
@@ -470,7 +470,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_second_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_second_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Seconds Aggregates for provided symbol(s)
 
@@ -498,7 +498,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time LULD Events for provided symbol(s)
 
@@ -526,7 +526,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None):
+    async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Imbalance Events for provided symbol(s)
 
@@ -555,7 +555,7 @@ class AsyncStreamClient:
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
     # OPTIONS Streams
-    async def subscribe_option_trades(self, symbols: list = None, handler_function=None):
+    async def subscribe_option_trades(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time options trades for provided ticker(s)
 
@@ -585,7 +585,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_option_quotes(self, symbols: list = None, handler_function=None):
+    async def subscribe_option_quotes(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time options quotes for provided ticker(s)
 
@@ -615,7 +615,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time options minute aggregates for given ticker(s)
 
@@ -645,7 +645,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_option_second_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_option_second_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time options second aggregates for given ticker(s)
 
@@ -676,7 +676,7 @@ class AsyncStreamClient:
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
     # FOREX Streams
-    async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None):
+    async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Forex Quotes for provided symbol(s)
 
@@ -706,7 +706,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Forex Minute Aggregates for provided symbol(s)
 
@@ -737,7 +737,7 @@ class AsyncStreamClient:
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
     # CRYPTO Streams
-    async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None):
+    async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Crypto Trades for provided symbol(s)
 
@@ -769,7 +769,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None):
+    async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Crypto Quotes for provided symbol(s)
 
@@ -801,7 +801,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None):
+    async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Crypto Minute Aggregates for provided symbol(s)
 
@@ -833,7 +833,7 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
 
-    async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None):
+    async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None, convert_case=True):
         """
         Get Real time Crypto Level 2 Book Data for provided symbol(s)
 

@@ -5,6 +5,11 @@ All notable changes to this project are documented here.
 Version history is sorted from most recent release to the least recent
 
 ---
+## `v1.0.8` - (2022-06-05)
+
+- TBD
+
+---
 ## `v1.0.7` - (2022-06-05)
 
 - We now have an Official `CHANGELOG`. View it [HERE](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md). 

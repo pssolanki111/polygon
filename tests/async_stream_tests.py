@@ -118,7 +118,8 @@ class TestStocksStream(unittest.TestCase):
 
         # subbing STOCK QUOTES
         await streamer.subscribe_stock_quotes(['AMD', 'NVDA', 'TSLA', 'MSFT', 'GOOG'],
-                                              handler_function=self.message_handler)
+                                              handler_function=self.message_handler,
+                                              force_uppercase_symbols=False)
 
         try:
             await asyncio.sleep(3)
@@ -191,7 +192,8 @@ class TestOptionsStream(unittest.TestCase):
         await streamer.change_handler('status', self.message_handler)
 
         # subbing OPTIONS TRADES
-        await streamer.subscribe_option_trades(handler_function=self.message_handler)
+        await streamer.subscribe_option_trades(handler_function=self.message_handler,
+                                               force_uppercase_symbols=False)
         asyncio.ensure_future(self.handle_messages(streamer))
 
         try:
@@ -285,7 +287,8 @@ class TestForexStream(unittest.TestCase):
 
         # subbing FOREX QUOTES
         await streamer.subscribe_forex_quotes(['EUR/USD', 'C:USD/EUR', 'AUD/USD'],
-                                              handler_function=self.message_handler)
+                                              handler_function=self.message_handler,
+                                              force_uppercase_symbols=False)
         asyncio.ensure_future(self.handle_messages(streamer))
 
         try:
@@ -337,7 +340,8 @@ class TestCryptoStream(unittest.TestCase):
         await streamer.change_handler('status', self.message_handler)
 
         # subbing CRYPTO TRADES
-        await streamer.subscribe_crypto_trades(['BTC-USD', 'X:LTC-USD'], handler_function=self.message_handler)
+        await streamer.subscribe_crypto_trades(['BTC-USD', 'X:LTC-USD'], handler_function=self.message_handler,
+                                               force_uppercase_symbols=False)
         asyncio.ensure_future(self.handle_messages(streamer))
 
         try:

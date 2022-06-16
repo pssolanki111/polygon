@@ -94,8 +94,9 @@ Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']``
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
 Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols would also results in ALL tickers.
 
-The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
-Note that a list of single ticker is accepted.
+The library allows specifying a string for symbol argument (that string is sent exactly as it is without processing), 
+but only do that if you have the absolute need to. Most people should just specify a list. Note that a list of single
+ticker is accepted.
 
 **Options and Crypto stream endpoints expect prefixes ``O:, X:`` respectively in front of every ticker. The library handles this for you**
 so you can pass symbols with or without those prefixes.
@@ -106,6 +107,9 @@ received. You can have one handler for multiple services. Not supplying a handle
 All methods are async coroutines which need to be awaited.
 
 ``await stream_client.subscribe_stock_trades(['AMD', 'NVDA'], handler_function=my_handler_function)``
+
+By default, the library will also enforce upper case for all symbols being passed. To disable this enforcement, just 
+pass in ``force_uppercase_symbols=False`` when subscribing in the methods below.
 
 Handling Messages
 -----------------

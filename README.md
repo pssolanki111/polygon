@@ -11,20 +11,23 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 -  Websocket streaming (both callback and async based)
 -  Market Info, News, Holidays, Schedules, Tickers, Conditions, Dividends, Splits
 -  Async support for REST endpoints
--  Built In stream reconnection functionality (async streamer only, in progress for callback streamer)
+-  Built In stream reconnection functionality (Experimental, async streamer only)
 -  Complete Pagination support (with internal merging of responses)
--  Better Aggregate Bars functionality (useful for historical OCHLV)
+-  Better Aggregate Bars functionality (useful for historical OCHLV) and other simpler helper functions
 
-and more...
+and a lot more...
 
 ## How do I use `polygon`
 
 The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) which has answers to 
 any question you might have with example uses included wherever needed. Docs is a must-read for most people.
 
--  For examples to get started with, see the [examples](https://github.com/pssolanki111/polygon/tree/main/EXAMPLES)
--  For an advanced use case example code involving redis queue and postgresql database, check out [MarketMakerLite/polygon](https://github.com/MarketMakerLite/polygon) 
--  The lib is also officially supported by the popular TA library [pandas-ta](https://github.com/twopirllc/pandas-ta) as an underlying data source instead of the default `yfinance`. See relevant docs to know how to use
+- For examples to get started with, see the [examples](https://github.com/pssolanki111/polygon/tree/main/EXAMPLES)
+- For an advanced use case example code involving redis queue and postgresql database, check out [MarketMakerLite/polygon](https://github.com/MarketMakerLite/polygon) 
+- The lib is also officially supported by the popular TA library [pandas-ta](https://github.com/twopirllc/pandas-ta) as an underlying data source instead of the default `yfinance`. See relevant docs to know how to use
+- To see an advanced use case of downloading ALL OCHLV data for ALL tickers for 20+ years and write it to a 
+  timescale enabled postgresql database efficiently, see [This Script](https://github.
+  com/MarketMakerLite/polygon/blob/main/historical_data/advanced.py) by [MML](https://github.com/MarketMakerLite).
 
 ### Here is a quick setup guide with a few examples
 

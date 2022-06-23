@@ -1,9 +1,5 @@
 # ========================================================= #
 from .. import base_client
-try:
-    import orjson as json_lib
-except ImportError:
-    import json as json_lib
 
 # ========================================================= #
 
@@ -137,7 +133,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -167,7 +163,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -196,7 +192,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """
@@ -225,7 +221,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
@@ -295,7 +291,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -370,7 +366,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -515,7 +511,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -609,7 +605,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
                          sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,
@@ -686,7 +682,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -709,7 +705,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_market_status(self, raw_response: bool = False):
         """
@@ -729,7 +725,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                        limit: int = 50, sort='name', raw_response: bool = False):
@@ -766,7 +762,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
@@ -792,7 +788,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
 
 # ========================================================= #
@@ -892,7 +888,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -922,7 +918,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -951,7 +947,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """
@@ -980,7 +976,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_option_contracts(self, underlying_ticker: str = None, ticker: str = None, contract_type=None,
                                    expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
@@ -1051,7 +1047,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1127,7 +1123,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1272,7 +1268,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1366,7 +1362,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None,
                                order: str = 'asc', sort: str = 'execution_date', limit: int = 1000, ticker_lt=None,
@@ -1443,7 +1439,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1466,7 +1462,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_market_status(self, raw_response: bool = False):
         """
@@ -1486,7 +1482,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_conditions(self, asset_class=None, data_type=None, condition_id=None, sip=None, order=None,
                              limit: int = 50, sort='name', raw_response: bool = False):
@@ -1522,7 +1518,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_exchanges(self, asset_class=None, locale=None, raw_response: bool = False):
         """
@@ -1548,7 +1544,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
 
 # ========================================================= #

@@ -2,10 +2,6 @@
 from .. import base_client
 from typing import Union
 from os import cpu_count
-try:
-    import orjson as json_lib
-except ImportError:
-    import json as json_lib
 
 # ========================================================= #
 
@@ -94,7 +90,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                    timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -162,7 +158,7 @@ class SyncCryptoClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -188,7 +184,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
                              raw_response: bool = False):
@@ -218,7 +214,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                            adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
@@ -288,7 +284,7 @@ class SyncCryptoClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -330,7 +326,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_previous_close(self, symbol: str, adjusted: bool = True,
                            raw_response: bool = False):
@@ -357,7 +353,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
@@ -384,7 +380,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
@@ -406,7 +402,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
@@ -428,7 +424,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_level2_book(self, symbol: str, raw_response: bool = False):
         """
@@ -450,7 +446,7 @@ class SyncCryptoClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
 
 # ========================================================= #
@@ -506,7 +502,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                          timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -574,7 +570,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -601,7 +597,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
                                    raw_response: bool = False):
@@ -631,7 +627,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
                                  adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
@@ -701,7 +697,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return json_lib.loads(_res.text)
+            return _res.json()
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -744,7 +740,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_previous_close(self, symbol: str, adjusted: bool = True,
                                  raw_response: bool = False):
@@ -771,7 +767,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_snapshot_all(self, symbols: list, raw_response: bool = False):
         """
@@ -798,7 +794,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
@@ -820,7 +816,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_gainers_and_losers(self, direction='gainers',
                                      raw_response: bool = False):
@@ -843,7 +839,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_level2_book(self, symbol: str, raw_response: bool = False):
         """
@@ -865,7 +861,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
 
 # ========================================================= #

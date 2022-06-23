@@ -38,19 +38,22 @@ To confirm the install worked, try importing the package as such
 
 If this doesn't throw any errors, the install worked. You may proceed to next steps now.
 
+Optional Libraries
+~~~~~~~~~~~~~~~~~~
+
 You can also install the library with **optional dependencies** (you can skip them if you don't need their functionalities)
 
 .. code-block:: shell
 
-  pip install polygon['uvloop']  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on async apps
+  pip install uvloop  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on pure async programs
 
   # OR
 
-  pip install polygon['orjson']  # this will install orjson lib. Polygon lib would use orjson if available. This enables fast json decoding of responses
+  pip install orjson  # this will install orjson lib. Polygon lib would use orjson if available for streaming clients only. This enables fast json decoding of responses
 
   # OR to get both
 
-  pip install polygon['all']  # Note that uvloop is only available on Unix platforms as of now
+  pip install orjson, uvloop  # Note that uvloop is only available on Unix platforms as of now
 
 .. _create_and_use_header:
 

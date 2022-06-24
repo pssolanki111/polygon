@@ -12,6 +12,7 @@ Version history is sorted from most recent release to the least recent
 ---
 ## `v1.0.7` - (2022-06-05)
 
+- Docs for this version are available [Here](https://polygon.readthedocs.io/en/1.0.7/)
 - We now have an Official `CHANGELOG`. View it [HERE](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md). 
   Thanks to @Baker XBL for the suggestion
 - The lib will now use `orjson` if it's installed for all JSON operations. `orjson` is no longer a required 

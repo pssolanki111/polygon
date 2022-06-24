@@ -26,66 +26,119 @@ here is how the client initializer looks like:
 
 .. _option_symbols_header:
 
-Creating Option Symbols
------------------------
+Working with Option Symbols
+---------------------------
 
 So when you're working with options (rest/websockets), you'll certainly need the option symbols which contain the information about their underlying symbol, expiry, call_or_put and the
-strike price in a certain format. Many organizations tend to use different formats to represent these.
+strike price in a certain format. There are many formats to represent them and every data source/brokerage uses a 
+different format to represent them.
 
-Polygon.io tends to use `This Format <https://www.optionstaxguy.com/option-symbols-osi>`__ . For those who want to understand how this formatting works,
-`Here is a guide <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__ (thanks to Ian from their support team).
+for example Polygon.io tends to use `This Format <https://www.optionstaxguy.com/option-symbols-osi>`__ . For those who want to understand how this formatting works,
+`Here is a guide <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__ (thanks to Ian from polygon support team).
 
-Fortunately for you, the library comes with a few functions to help ya out with it. **first function in that list is creating an option symbol**
+The library is equipped with a few functions to make it easier for you to **build, parse, convert, and detect 
+format** of option symbols without worrying about how the structure works.
 
-The library also has two bonus functions which allow you to create and parse option symbols using the format supported by TD Ameritrade. See below for more info on how to use them.
+The library supports the following symbol formats at the moment
 
-Building polygon formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===================  ====================
+  Full Name            Shorthand String
+===================  ====================
+Polygon.io           polygon
+Tradier              tradier
+Trade Station        trade_station
+Interactive Brokers  ibkr
+TD Ameritrade        tda
+Think Or Swim        tos
+===================  ====================
 
-Note that polygon has a rest endpoint in reference API to get all active contracts which you can filter based on many values.
+This section on option symbols is divided into these sections below. 
 
-You might have noticed (you didn't notice, did ya?) that polygon endpoints expect a prefix: ``O:`` before option symbols. For convenience, this library handles all of it internally.
-what that means for you is that you can pass in option symbols **with or without the prefix O:** and both will be handled. In the below function, you can make the argument ``prefix_o=True``
-to get the prefix in the output. By defaults it returns this format: ``AMD211205P00149000`` (example symbol)
+1. **Creating** Option symbols from info as underlying, expiry, strike price, option type
+#. **Parsing** Option symbols to **extract** info as underlying, expiry, strike price, option type
+#. **Converting** an option symbol from one format to another. Works between all supported formats.
+#. **Detecting** format of an option symbol. Basic detection based on some simple rules.
 
-here is how the function looks. just supply the details.
+Creating Option Symbols
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The function in this sub-section help you to build option symbols from info as underlying symbol, expiry, strike 
+price & option type (call/put)
+
+The function to use is ``polygon.build_option_symbol``
+
+Since the default format is polygon.io you don't need to worry about passing in the format explicitly.
+
+-  Polygon has a rest endpoint in reference client to get all active contracts which you can filter based on 
+   many values such as underlying symbol and expiry dates.
+
+-  In polygon format, If you wonder whether you need to worry about the ``O:`` prefix which some/all option endpoints 
+   expect, then to your ease, the library handles that for you (So you can pass a symbol without prefix to let's say
+   Option Snapshot function and the prefix will be added internally). If you want to be explicit, just pass 
+   ``prefix_o=True`` when building symbol.
+
+-  Note that both tradier and polygon happen to use the exact same symbol format and hence can be used interchangeably.
+
+Example Code & Output for polygon/tradier format
+
+.. code-block:: python
+
+  import polygon
+  
+  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56)
+  symbol2 = polygon.build_option_symbol('TSLA', '220628', 'c', 546, _format='polygon')
+  symbol3 = polygon.build_option_symbol('A', '220628', 'put', 66.01, prefix_o=True)
+  
+  # Outputs
+  # symbol1 -> AMD220628C00546560
+  # symbol2 -> TSLA220628C00546000
+  # symbol3 -> O:A220628P00066010
+  
+  
+The same function can be used to create option symbols for any of the supported formats, just pass in the format you 
+need, either as a shorthand string from the table above, or use an enum from :class:`polygon.enums.OptionSymbolFormat`
+
+-  Using enums (like ``OptionSymbolFormat.POLYGON`` in example below) is a good way to ensure you only pass in 
+   correct shorthand strings. Your IDE auto completion would make your life much easier when working with enums.
+
+Example code & outputs for multiple formats
+
+.. code-block:: python
+
+  from polygon import build_option_symbol  # you can import the way you like, just showing the alternates
+  from polygon.enums import OptionSymbolFormat  # optional, you can pass in shorthand strings too
+  
+  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56, format_='tda')
+  symbol2 = polygon.build_option_symbol('NVDA', '220628', 'c', 546, format_='tos')
+  symbol3 = polygon.build_option_symbol('TSLA', datetime.date(2022, 6, 28), 'put', 46.01, format_='tradier')
+  symbol4 = polygon.build_option_symbol('A', datetime.date(2022, 6, 28), 'p', 46.1, format_='ibkr')
+  symbol5 = polygon.build_option_symbol('AB', datetime.date(2022, 6, 28), 'p', 46.01, format_='trade_station')
+  symbol6 = polygon.build_option_symbol('PTON', '220628', 'p', 46, format_=OptionSymbolFormat.POLYGON)  # using enum
+  
+  # outputs
+  # symbol1 -> AMD_062822C546.56
+  # symbol2 -> .NVDA062822C546
+  # symbol3 -> TSLA220628P00046010
+  # symbol4 -> A 220628P00046100
+  # symbol5 -> AB 220628P46.01
+  # symbol5 -> PTON220628P00046000
+
+For those who want more control, here is how the function signature and arguments look
 
 .. autofunction:: polygon.options.options.build_option_symbol
    :noindex:
 
-Example use:
-
-.. code-block:: python
-
-  from polygon import build_option_symbol
-
-  symbol = build_option_symbol('AMD', date(year=2021, month=12, day=5), 'c', 158)  # date is just a datetime.date object
-
-  # another one!
-  symbol = build_option_symbol('NVDA', '211205', 'call', 124.56)
-  # you can use these variable as you like on polygon's endpoints
-
-Building TDA formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-don't use this formatting on polygon endpoints. only on td ameritrade. this is just a bonus function.
-
-.. autofunction:: polygon.options.options.build_option_symbol_for_tda
-   :noindex:
-
-Example use:
-
-.. code-block:: python
-
-  from polygon import build_option_symbol_for_tda
-
-  symbol = build_option_symbol_for_tda('AMD', date(year=2021, month=12, day=5), 'c', 158)  # date is just a datetime.date object
-
-  # another one!
-  symbol = build_option_symbol_for_tda('NVDA', '120522', 'call', 124.56)
-
 Parsing Option Symbols
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
+
+Converting Option Symbol Formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Detecting Option Symbol Format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Parsing Option Symbols6
+-----------------------
 
 So the above function was to build an option symbol from details. This function would help you do the opposite. That is, extracting information from an option symbol.
 
@@ -149,15 +202,6 @@ Example use:
 parsing TDA formatted option symbols
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-don't use this function on polygon endpoints. this is a bonus function meant for td ameritrade formatting.
-
-The output_format and expiry_format have the same behavior as above. Only difference is in the formatting.
-
-the dot format (symbol starting with a ``.``, usually found **when you export some file through ThinkOrSwim** or similar tda tool) is also supported
-
-.. autofunction:: polygon.options.options.parse_option_symbol_from_tda
-   :noindex:
-
 Example use:
 
 .. code-block:: python
@@ -172,38 +216,14 @@ Example use:
   # another one!
   parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)
 
-Converting option symbol formats
---------------------------------
+Converting option symbol formats5
+----------------------------------
 
 As a bonus function in the library, you can use the below functions to convert from polygon.io option symbol format to the
 TD Ameritrade option symbol format and vice versa.
 
 **this is useful for people who use TDA API for brokerage and polygon as their data source**.
-**If you need a python package to work with TDA API, check out** `tda-api <https://github.com/alexgolec/tda-api>`__ by Alex Golec.
-
-Converting from polygon to TDA format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**you might wanna use this when you want to place a trade on TDA for example using data from polygon.**
-
-.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
-   :noindex:
-
-Converting from TDA to polygon format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-for when you grab a option symbol from tda, and want to get relevant data from polygon
-
-.. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
-   :noindex:
-
-Detecting what format is a symbol in
-------------------------------------
-
-as the name suggests, when you want to programmatically determine what format is a symbol in. Might be useful for symbol lookups, for instance.
-
-.. autofunction:: polygon.options.options.detect_symbol_format
-   :noindex:
+**If you need a python package to work with TDA API, check out** `tda-api <https://github.com/alexgolec/tda-api>`__
 
 .. _option_endpoints_header:
 

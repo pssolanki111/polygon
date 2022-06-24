@@ -3,16 +3,177 @@ from .. import base_client
 from typing import Union
 from os import cpu_count
 import datetime
-
+from enum import Enum
 
 # ========================================================= #
 
+SYMBOL_FORMATS = {'polygon': '{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}',
+                  'tda': '{symbol}_{mm}{dd}{yy}{_type}{strike}.{strike_dec}',
+                  'tos': '.{symbol}{mm}{dd}{yy}{_type}{strike}.{strike_dec}',
+                  'ibkr': '{symbol} {yy}{mm}{dd}{_type}{strike}{strike_dec}',
+                  'tradier': '{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}',
+                  'trade_station': '{symbol} {yy}{mm}{dd}{_type}{strike}.{strike_dec}'}
 
-# Functions for option symbol parsing and creation
+# ========================================================= #
+# OPTION SYMBOL HELPERS                                     #
+# ========================================================= #
 
-def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price, prefix_o: bool = False):
+
+# Commons
+def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price, 
+                        _format='polygon', prefix_o: bool = False) -> str:
     """
-    Build the option symbol from the details provided.
+    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`. 
+    Default format is ``polygon``.
+    
+    :param underlying_symbol: The underlying stock ticker symbol.
+    :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
+                   ``datetime.date`` object. Or a string in format: ``YYMMDD``. Using datetime objects is recommended.
+    :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
+                        also supported.
+    :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
+                         ``15.003``, ``56``, ``129.02`` are all valid values. Try to keep up to 3 digits after the 
+                         decimal point
+    :param _format: The format to use when building symbol. Defaults to ``polygon``. Supported formats are ``polygon, 
+                    tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums, 
+                    see :class:`polygon.enums.OptionSymbolFormat`
+    :param prefix_o: Whether to prefix the symbol with ``O:``. It is needed by polygon endpoints. However, all the
+                     library functions will automatically add this prefix if you pass in symbols without this prefix.
+                     This parameter is **ignored** if format is not ``polygon``
+    :return: The option symbols string in the format specified
+    """
+    _format = _change_enum(_format)
+    
+    if _format not in SYMBOL_FORMATS:
+        raise ValueError(f'Symbol format {_format} is not supported (yet?). Supported formats are: '
+                         f'{SYMBOL_FORMATS.keys()}')
+    
+    if _format in ['polygon', 'tradier']:
+        return build_polygon_option_symbol(underlying_symbol, expiry, call_or_put, strike_price, prefix_o=prefix_o)
+    
+    # post processing on input data
+    if isinstance(expiry, (datetime.datetime, datetime.date)):
+        expiry = expiry.strftime('%y%m%d')
+        yy, mm, dd = expiry[:2], expiry[2:4], expiry[4:]
+
+    elif isinstance(expiry, str) and len(expiry) == 6:
+        yy, mm, dd = expiry[:2], expiry[2:4], expiry[4:]
+    else:
+        raise ValueError('Expiry string must have 6 characters & format must be: YYMMDD. You should prefer passing '
+                         'in a date or datetime object')
+
+    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+
+    strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
+    
+    if '.' in str(strike_price):
+        strike, strike_dec = int(str(strike_price).split('.')[0]), str(strike_price).split('.')[1][:3]
+    else:
+        strike, strike_dec = str(int(strike_price)), ''
+        
+    if _format == 'ibkr':
+        strike_dec = strike_dec.ljust(3, '0') if strike_dec != '' else '000'
+        strike = str(strike).rjust(5, '0')
+    
+    # build and return
+    return SYMBOL_FORMATS[_format].format(symbol=underlying_symbol, yy=yy, mm=mm, dd=dd, _type=call_or_put,
+                                          strike=strike, strike_dec=strike_dec)
+
+
+def parse_option_symbol(option_symbol: str, _format='polygon', output_format='object', 
+                        expiry_format='date'):
+    """
+    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`. 
+    Default format is ``polygon``.
+    
+    :param option_symbol: the option symbol you want to parse
+    :param _format: What format the symbol is in. If you don't know the format you can use the 
+                    ``detect_option_symbol_format`` function to detect the format (best effort detection). Supported 
+                    formats are ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use 
+                    convenient enums, see :class:`polygon.enums.OptionSymbolFormat`. Default: ``polygon``
+    :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
+    :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
+                          param to ``string`` to get the value as a string: ``YYYY-MM-DD``
+    :return: The parsed info from symbol either as an object, list or a dict as indicated by ``output_format``.
+    """
+
+    _format = _change_enum(_format)
+
+    if _format not in SYMBOL_FORMATS:
+        raise ValueError(f'Symbol format {_format} is not supported (yet?). Supported formats are: '
+                         f'{SYMBOL_FORMATS.keys()}')
+    
+    if _format in ['polygon', 'tradier']:
+        return parse_polygon_option_symbol(option_symbol, output_format, expiry_format)
+
+    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format=_format)
+
+    if output_format in ['list', list]:
+        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
+
+    elif output_format in ['dict', dict]:
+        _obj = {'underlying_symbol': _obj.underlying_symbol,
+                'strike_price': _obj.strike_price,
+                'expiry': _obj.expiry, 'call_or_put': _obj.call_or_put,
+                'option_symbol': _obj.option_symbol}
+
+    return _obj
+
+
+def convert_option_symbol_formats(option_symbol: str, from_format: str, to_format: str) -> str:
+    """
+    Convert an option symbol from one format to another within supported
+    formats: :class:`polygon.enums.OptionSymbolFormat`
+    
+    :param option_symbol: The option symbol you want to convert
+    :param from_format: The format in which the option symbol is currently in. If you don't know the format 
+                        you can use the ``detect_option_symbol_format`` function to detect the format 
+                        (best effort detection). Supported formats are ``polygon, tda, tos, ibkr, tradier, 
+                        trade_station``. If you prefer to use convenient enums, 
+                        see :class:`polygon.enums.OptionSymbolFormat`
+    :param to_format: The format to which you want to convert the option symbol. Supported formats are 
+                      ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums, 
+                      see :class:`polygon.enums.OptionSymbolFormat`
+    :return: The converted option symbol as a string
+    """
+    _obj = parse_option_symbol(option_symbol, from_format, 'object', 'date')
+    
+    return build_option_symbol(_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price,
+                               _format=to_format)
+
+
+def detect_option_symbol_format(option_symbol: str) -> Union[str, bool, list]:
+    """
+    Detect what format a symbol is formed in. Supported formats are :class:`polygon.enums.OptionSymbolFormat`.
+    This function does basic detection according to some simple rules. Test well before using in production.
+
+    :param option_symbol: The option symbol to check the format of
+    :return: Format's shorthand string or list of strings if able to recognize the format. ``False`` otherwise. 
+             Possible shorthand strings are ``polygon, tda, tos, ibkr, tradier, trade_station``
+    """
+    if option_symbol.startswith('.'):
+        return 'tos'
+    
+    if '_' in option_symbol:
+        return 'tda'
+    
+    if ' ' in option_symbol:
+        if '.' in option_symbol:
+            return 'trade_station'
+        
+        return ['ibkr', 'trade_station']
+
+    if option_symbol.startswith('O:') or len(option_symbol) > 15:
+        return 'polygon'
+
+    return False
+
+
+# Polygon Specific (also includes tradier since both have the same format)
+def build_polygon_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price,
+                                prefix_o: bool = False) -> str:
+    """
+    Build the option symbol from the details provided, in standard polygon format
 
     :param underlying_symbol: The underlying stock ticker symbol.
     :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
@@ -22,7 +183,7 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
                          ``15.003``, ``56``, ``129.02`` are all valid values. It shouldn't have more than three
                          numbers after decimal point.
-    :param prefix_o: Whether or not to prefix the symbol with 'O:'. It is needed by polygon endpoints. However all the
+    :param prefix_o: Whether to prefix the symbol with ``O:``. It is needed by polygon endpoints. However, all the
                      library functions will automatically add this prefix if you pass in symbols without this prefix.
     :return: The option symbol in the format specified by polygon
     """
@@ -47,9 +208,9 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     return f'{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
 
 
-def parse_option_symbol(option_symbol: str, output_format='object', expiry_format='date'):
+def parse_polygon_option_symbol(option_symbol: str, output_format='object', expiry_format='date'):
     """
-    Function to parse an option symbol.
+    Function to parse an option symbol in standard polygon format
 
     :param option_symbol: the symbol you want to parse. Both ``TSLA211015P125000`` and ``O:TSLA211015P125000`` are valid
     :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
@@ -58,7 +219,7 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    _obj = OptionSymbol(option_symbol, expiry_format)
+    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='polygon')
 
     if output_format in ['list', list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
@@ -71,130 +232,13 @@ def parse_option_symbol(option_symbol: str, output_format='object', expiry_forma
                 'option_symbol': _obj.option_symbol}
 
     return _obj
-
-
-def build_option_symbol_for_tda(underlying_symbol: str, expiry, call_or_put, strike_price,
-                                format_: str = 'underscore'):
-    """
-    Only use this function if you need to create option symbol for TD ameritrade API. This function is just a bonus.
-
-    :param underlying_symbol: The underlying stock ticker symbol.
-    :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
-                   ``datetime.date`` object. Or a string in format: ``MMDDYY``. Using datetime objects is recommended.
-    :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
-                        also supported.
-    :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
-                         ``15.003``, ``56``, ``129.02`` are all valid values. It shouldn't have more than three
-                         numbers after decimal point.
-    :param format_: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
-                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
-                    ``'dot'`` to get dot format.
-    :return: The option symbol built in the format supported by TD Ameritrade.
-    """
-
-    if isinstance(expiry, (datetime.date, datetime.datetime)):
-        expiry = expiry.strftime('%m%d%y')
-
-    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
-
-    strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
-
-    if format_ == 'dot':
-        return f'.{underlying_symbol}{expiry}{call_or_put}{strike_price}'
-
-    return f'{underlying_symbol}_{expiry}{call_or_put}{strike_price}'
-
-
-def parse_option_symbol_from_tda(option_symbol: str, output_format='object', expiry_format='date'):
-    """
-    Function to parse an option symbol in format supported by TD Ameritrade.
-
-    :param option_symbol: the symbol you want to parse. Both ``TSLA211015P125000`` and ``O:TSLA211015P125000`` are valid
-    :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
-    :param expiry_format: The format for the expiry date in the results. Defaults to ``date`` object. change this
-                          param to ``string`` to get the value as a string: ``YYYY-MM-DD``
-    :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
-    """
-
-    format_ = 'underscore'
-    if option_symbol.startswith('.'):
-        format_ = 'dot'
-
-    _obj = OptionSymbol(option_symbol, expiry_format, symbol_format='tda', fmt=format_)
-
-    if output_format in ['list', list]:
-        _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
-
-    elif output_format in ['dict', dict]:
-        _obj = {'underlying_symbol': _obj.underlying_symbol,
-                'strike_price': _obj.strike_price,
-                'expiry': _obj.expiry,
-                'call_or_put': _obj.call_or_put,
-                'option_symbol': _obj.option_symbol}
-
-    return _obj
-
-
-def convert_from_tda_to_polygon_format(option_symbol: str, prefix_o: bool = False):
-    """
-    Helper function to convert from TD Ameritrade symbol format to polygon format. Useful for writing applications
-    which make use of both the APIs
-
-    :param option_symbol: The option symbol. This must be in the format supported by TD Ameritrade
-    :param prefix_o: Whether or not to add the prefix O: in front of created symbol
-    :return: The formatted symbol converted to polygon's symbol format.
-    """
-
-    format_ = 'underscore'
-    if option_symbol.startswith('.'):
-        format_ = 'dot'
-
-    _temp = OptionSymbol(option_symbol, symbol_format='tda', fmt=format_)
-
-    return build_option_symbol(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
-                               prefix_o=prefix_o)
-
-
-def convert_from_polygon_to_tda_format(option_symbol: str, format_: str = 'underscore'):
-    """
-    Helper function to convert from polygon.io symbol format to TD Ameritrade symbol format. Useful for writing
-    applications which make use of both the APIs
-
-    :param option_symbol: The option symbol. This must be in the format supported by polygon.io
-    :param format_: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
-                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
-                    ``'dot'`` to get dot format.
-    :return: The formatted symbol converted to TDA symbol format.
-    """
-
-    _temp = OptionSymbol(option_symbol)
-
-    return build_option_symbol_for_tda(_temp.underlying_symbol, _temp.expiry, _temp.call_or_put, _temp.strike_price,
-                                       format_=format_)
-
-
-def detect_symbol_format(option_symbol: str) -> Union[str, bool]:
-    """
-    Detect what format a symbol is formed in. Returns ``polygon`` or ``tda`` depending on which format the symbol is
-    in. Returns False if the format doesn't match any of the two supported.
-
-    :param option_symbol: The option symbol to check.
-    :return: ``tda`` or ``polygon`` if format is recognized. ``False`` otherwise.
-    """
-    if option_symbol.startswith('.') or ('_' in option_symbol):
-        return 'tda'
-
-    if option_symbol.startswith('O:') or len(option_symbol) > 15:
-        return 'polygon'
-
-    return False
 
 # ========================================================= #
 
 
 def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                    pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                    write_timeout: int = 10):
+                  pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
+                  write_timeout: int = 10):
     """
     Initiates a Client to be used to access all REST options endpoints.
 
@@ -975,7 +1019,7 @@ class OptionSymbol:
     The custom object for parsed details from option symbols.
     """
 
-    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon', fmt: str = 'underscore'):
+    def __init__(self, option_symbol: str, expiry_format='date', symbol_format='polygon'):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -985,37 +1029,37 @@ class OptionSymbol:
                               param to ``string`` to get the value as a string: ``YYYY-MM-DD``
         :param symbol_format: Which formatting spec to use. Defaults to polygon. also supports ``tda`` which is the
                               format supported by TD Ameritrade
-        :param fmt: tda has two formats. one having an underscore in between (used by TDA API). and other starts with a
-                    dot (``.``). Defaults to the underscore format. **If you're not sure, leave to default.** Pass
-                    ``'dot'`` to get dot format. (ONLY use when using tda formats, has no effect on polygon format)
         """
-        if symbol_format == 'polygon':
-            if option_symbol.startswith('O:'):
-                option_symbol = option_symbol[2:]
-
+        if symbol_format not in SYMBOL_FORMATS:
+            pass
+        
+        if option_symbol.startswith('O:'):
+            option_symbol = option_symbol[2:]
+            
+        if symbol_format in ['polygon', 'tradier']:
             self.underlying_symbol = option_symbol[:-15]
 
             _len = len(self.underlying_symbol)
 
-            # optional filter for those Corrections Ian talked about
+            # filter for those Corrections Ian talked about
             self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
 
             self._expiry = option_symbol[_len:_len + 6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[:2]),
                                         int(self._expiry[2:4]), int(self._expiry[4:6]))
 
             self.call_or_put = option_symbol[_len + 6].upper()
 
             self.strike_price = int(option_symbol[_len + 7:]) / 1000
 
+            self.strike_price = int(float(self.strike_price)) if int(
+                float(self.strike_price)) == float(self.strike_price) else self.strike_price
+
             self.option_symbol = f'{self.underlying_symbol}{option_symbol[_len:]}'
 
-            if expiry_format in ['string', 'str', str]:
-                self.expiry = self.expiry.strftime('%Y-%m-%d')
-
-        elif symbol_format == 'tda':
-            if fmt == 'dot':
+        elif symbol_format in ['tda', 'tos']:
+            if symbol_format == 'tos':
                 option_symbol, num = option_symbol[1:].upper(), 0
 
                 for char in option_symbol:
@@ -1034,7 +1078,7 @@ class OptionSymbol:
 
             self._expiry = _split[1][:6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[4:6]),
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[4:6]),
                                         int(self._expiry[:2]), int(self._expiry[2:4]))
 
             self.call_or_put = _split[1][6]
@@ -1043,13 +1087,31 @@ class OptionSymbol:
                 float(_split[1][7:])
 
             self.option_symbol = option_symbol
+            
+        elif symbol_format in ['trade_station', 'ibkr']:
+            split = option_symbol.split(' ')
+            self.underlying_symbol, rem = split[0], split[1]
 
-            if expiry_format in ['string', 'str', str]:
-                self.expiry = self.expiry.strftime('%Y-%m-%d')
+            self._expiry = rem[:6]
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[:2]),
+                                        int(self._expiry[2:4]), int(self._expiry[4:6]))
+            
+            self.call_or_put = rem[6].upper()
+
+            self.strike_price = int(rem[7:]) / 1000 if symbol_format == 'ibkr' else float(rem[7:])
+            
+            self.strike_price = int(float(self.strike_price)) if int(
+                float(self.strike_price)) == float(self.strike_price) else self.strike_price
+
+            self.option_symbol = option_symbol
+
+        # Normalize expiry as required by user, run for all formats
+        if expiry_format in ['string', 'str', str]:
+            self.expiry = self.expiry.strftime('%Y-%m-%d')
 
     def __repr__(self):
-        return f'Underlying: {self.underlying_symbol} || expiry: {self.expiry} || type: {self.call_or_put} || ' \
-               f'strike_price: {self.strike_price}'
+        return f'Underlying Symbol: {self.underlying_symbol} || Expiry: {self.expiry} || ' \
+               f'Type: {self.call_or_put} || Strike Price: {self.strike_price}'
 
 
 def ensure_prefix(symbol: str):
@@ -1067,6 +1129,28 @@ def ensure_prefix(symbol: str):
         return symbol.upper()
 
     return f'O:{symbol.upper()}'
+
+
+def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
+    if isinstance(val, Enum):
+        try:
+            return val.value
+
+        except AttributeError:
+            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                             f'Please consider using the  specified enum in the docs for this function or recheck '
+                             f'the value supplied.')
+
+    if isinstance(allowed_type, list):
+        if type(val) in allowed_type:
+            return val
+
+        raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
+                         f'Please consider using the  specified enum in the docs for this function or recheck '
+                         f'the value supplied.')
+
+    if isinstance(val, allowed_type) or val is None:
+        return val
 
 
 # ========================================================= #

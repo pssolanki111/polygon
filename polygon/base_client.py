@@ -86,20 +86,6 @@ class Base:
 
         return final_time_chunks
 
-    # def snap_and_stretch(self, start, end, multiplier: int = 1, timespan: str = 'day'):
-    #     """
-    #     A method to manage the `snap and stretch behavior logic <https://polygon.io/blog/aggs-api-updates/>`__ on
-    #     the aggregates' endpoints
-    #
-    #     :param start: input start time of the aggregate window
-    #     :param end: input end time of the aggregate window
-    #     :param multiplier: size of the aggregate window
-    #     :param timespan: bars type to return in the aggregate window
-    #     :return: Corrected tuple (start, end) with snap and stretch logic applied.
-    #     """
-    #
-    #     # Snap First  # TODO: will pick up some other time
-
     @staticmethod
     def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
                            unit: str = 'ms'):

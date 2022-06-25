@@ -5,7 +5,7 @@ All notable changes to this project are documented here.
 Version history is sorted from most recent release to the least recent
 
 ---
-## `v1.0.8` - (2022-06-05)
+## `v1.0.8` - (2022-06-25)
 
 - Removed orjson from REST clients, using `.json()` response method again due to a drop in multicore performance
 - The option symbology is UPDATED and BETTER than ever. [Docs](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols) are re-written. Support for 6 symbol formats added.

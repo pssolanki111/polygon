@@ -130,6 +130,9 @@ This only scratches the surface of the library.
 
 **See the [Documentation](https://polygon.readthedocs.io/) to start using the library with its full functionalities.**
 
+Latest development source code of the library can be found on the 
+[development branch](https://github.com/pssolanki111/polygon/tree/dev)
+
 ## what if I need help?
 
 We have a helpful & vibrant community in our [Discord Server](https://discord.gg/jPkARduU6N). Join in to ask a 

@@ -108,12 +108,12 @@ Example code & outputs for multiple formats
   from polygon import build_option_symbol  # you can import the way you like, just showing the alternates
   from polygon.enums import OptionSymbolFormat  # optional, you can pass in shorthand strings too
   
-  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56, format_='tda')
-  symbol2 = polygon.build_option_symbol('NVDA', '220628', 'c', 546, format_='tos')
-  symbol3 = polygon.build_option_symbol('TSLA', datetime.date(2022, 6, 28), 'put', 46.01, format_='tradier')
-  symbol4 = polygon.build_option_symbol('A', datetime.date(2022, 6, 28), 'p', 46.1, format_='ibkr')
-  symbol5 = polygon.build_option_symbol('AB', datetime.date(2022, 6, 28), 'p', 46.01, format_='trade_station')
-  symbol6 = polygon.build_option_symbol('PTON', '220628', 'p', 46, format_=OptionSymbolFormat.POLYGON)  # using enum
+  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56, _format='tda')
+  symbol2 = polygon.build_option_symbol('NVDA', '220628', 'c', 546, _format='tos')
+  symbol3 = polygon.build_option_symbol('TSLA', datetime.date(2022, 6, 28), 'put', 46.01, _format='tradier')
+  symbol4 = polygon.build_option_symbol('A', datetime.date(2022, 6, 28), 'p', 46.1, _format='ibkr')
+  symbol5 = polygon.build_option_symbol('AB', datetime.date(2022, 6, 28), 'p', 46.01, _format='trade_station')
+  symbol6 = polygon.build_option_symbol('PTON', '220628', 'p', 46, _format=OptionSymbolFormat.POLYGON)  # using enum
   
   # outputs
   # symbol1 -> AMD_062822C546.56
@@ -179,13 +179,12 @@ Example code and output for polygon/tradier formats
   
   parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000')
   parsed_details2 = polygon.parse_option_symbol('AMD211205C00156000', output_format=list)
-  parsed_details3 = polygon.parse_option_symbol('AB 220628P46.01', _format='trade_station', output_format=dict,
-                                                expiry_format=str)
+  parsed_details3 = polygon.parse_option_symbol('AMD211205C00156000', output_format=dict)
   
   # outputs
   # parsed_details1 would be an object having info as attributes as described in output format sub-section above
-  # parsed_details2 would be a list of info variables as described in output format sub-section above
-  # parsed_details3 would be a dict of info variables as described in output format sub-section above
+  # parsed_details2 -> ['AMD', dt.date(2021, 12, 5), 'C', 156, 'AMD211205C00156000']
+  # parsed_details3 -> {'underlying_symbol': 'AMD', 'expiry': dt.date(2021, 12, 5), 'call_or_put': 'C',  'strike_price': 156, 'option_symbol': 'AMD211205C00156000'}
 
 The same function can be used to parse option symbols in any of the supported formats, just pass in the format you 
 need, either as a shorthand string from the table above, or use an enum from :class:`polygon.enums.OptionSymbolFormat`
@@ -199,14 +198,14 @@ Example code & outputs for multiple formats
 
   import polygon
   
-  parsed_details1 = polygon.parse_option_symbol('GOOG_012122P620', _format='tda')
-  parsed_details2 = polygon.parse_option_symbol('.AMD220128P81', _format='tos', output_format=list)
-  parsed_details3 = polygon.parse_option_symbol('AMD211205C00156000', output_format=dict, expiry_format=str)
+  parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000', _format='tradier')
+  parsed_details2 = polygon.parse_option_symbol('AMD_062822P587.56', _format='tda', output_format=list)
+  parsed_details3 = polygon.parse_option_symbol('AB 220628P46.01', _format='trade_station', output_format=dict)
   
   # outputs
   # parsed_details1 would be an object having info as attributes as described in output format sub-section above
-  # parsed_details2 would be a list of info variables as described in output format sub-section above
-  # parsed_details3 would be a dict of info variables as described in output format sub-section above
+  # parsed_details2 -> ['AMD', dt.date(2022, 6, 28), 'P', 587.56, 'AMD_062822P587.56']
+  # parsed_details3 -> {'underlying_symbol': 'AB', 'expiry': dt.date(2022, 6, 28), 'call_or_put': 'P', 'strike_price': 46.01, 'option_symbol': 'AB 220628P46.01'}
 
 For those who want more control, here is how the function signature and arguments look
 

@@ -77,7 +77,7 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     
     # build and return
     return SYMBOL_FORMATS[_format].format(symbol=underlying_symbol, yy=yy, mm=mm, dd=dd, _type=call_or_put,
-                                          strike=strike, strike_dec=strike_dec)
+                                          strike=strike, strike_dec=strike_dec).rstrip('.')
 
 
 def parse_option_symbol(option_symbol: str, _format='polygon', output_format='object'):
@@ -1039,7 +1039,7 @@ class OptionSymbol:
 
             self._expiry = option_symbol[_len:_len + 6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[:2]),
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
                                         int(self._expiry[2:4]), int(self._expiry[4:6]))
 
             self.call_or_put = option_symbol[_len + 6].upper()
@@ -1071,7 +1071,7 @@ class OptionSymbol:
 
             self._expiry = _split[1][:6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[4:6]),
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[4:6]),
                                         int(self._expiry[:2]), int(self._expiry[2:4]))
 
             self.call_or_put = _split[1][6]
@@ -1086,7 +1086,7 @@ class OptionSymbol:
             self.underlying_symbol, rem = split[0], split[1]
 
             self._expiry = rem[:6]
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%y') + self._expiry[:2]),
+            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
                                         int(self._expiry[2:4]), int(self._expiry[4:6]))
             
             self.call_or_put = rem[6].upper()

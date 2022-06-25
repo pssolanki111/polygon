@@ -71,7 +71,7 @@ class TestStocksStream(unittest.TestCase):
         streamer.start_stream_thread()
 
         # subbing STOCK TRADES
-        streamer.subscribe_stock_trades(['AMD', 'NVDA'])
+        streamer.subscribe_stock_trades(['AMD', 'NVDA'], force_uppercase_symbols=False)
         time.sleep(3)
 
         try:
@@ -179,7 +179,7 @@ class TestOptionsStream(unittest.TestCase):
         streamer.start_stream_thread()
 
         # subbing OPTIONS TRADES
-        streamer.subscribe_option_trades()
+        streamer.subscribe_option_trades(force_uppercase_symbols=False)
         time.sleep(2)
 
         try:
@@ -265,7 +265,7 @@ class TestForexStream(unittest.TestCase):
         streamer.start_stream_thread()
 
         # subbing FOREX QUOTES
-        streamer.subscribe_forex_quotes()
+        streamer.subscribe_forex_quotes(force_uppercase_symbols=False)
         time.sleep(2)
 
         try:
@@ -329,7 +329,7 @@ class TestCryptoStream(unittest.TestCase):
             raise
 
         # subbing CRYPTO QUOTES
-        streamer.subscribe_crypto_quotes()
+        streamer.subscribe_crypto_quotes(force_uppercase_symbols=False)
         time.sleep(4)
 
         try:

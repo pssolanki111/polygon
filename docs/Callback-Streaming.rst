@@ -67,17 +67,21 @@ Important stuff to know before you connect your first stream. Note that when wri
 Subscribing/Unsubscribing to Streams
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All subscription methods have names in pattern ``subscribe_service_name`` and ``unsubscribe_service_name``.
+All subscription methods have names in pattern ``subscribe_service_name`` and ``unsubscribe_service_name`` (listed below)
 
 Symbols names must be specified as a list of symbols: ``['AMD', 'NVDA', 'LOL']`` is the correct way to specify symbols.
 Not specifying a list of symbols results in the action being applied to ``ALL`` tickers in that service.
 Note that either of ``[]``, ``None``, ``['*']`` or ``'all'`` as value of symbols would also results in ALL tickers.
 
-The library allows specifying a string as for symbol argument, but only do that if you have the absolute need to. Most people should just specify a list.
-Note that a list of single ticker is accepted.
+The library allows specifying a string for symbol argument (that string is sent exactly as it is without processing), 
+but only do that if you have the absolute need to. Most people should just specify a list. Note that a list of single
+ticker is accepted.
 
 **Options and Crypto stream endpoints expect prefixes ``O:, X:`` respectively in front of every ticker. The library handles this for you**
 so you can pass symbols with or without those prefixes.
+
+By default, the library will also enforce upper case for all symbols being passed. To disable this enforcement, just 
+pass in ``force_uppercase_symbols=False`` when subscribing in the methods below.
 
 Handling messages
 ~~~~~~~~~~~~~~~~~

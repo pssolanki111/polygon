@@ -6,6 +6,8 @@ import datetime as dt
 from requests.models import Response
 import asyncio
 from httpx import Response as HttpxResponse
+from polygon.enums import OptionSymbolFormat
+
 # ========================================================= #
 
 # Test Runners
@@ -45,155 +47,95 @@ class TestOptionsPrefix(unittest.TestCase):
         self.assertEqual(data5, 'O:TSLA120110P00123000')
 
 
+class TestOptionSymbology(unittest.TestCase):
+    def test_build_option_symbol(self):
+        symbol1 = polygon.build_option_symbol('AMD', dt.date(2022, 6, 28), 'call', 546.56)
+        symbol2 = polygon.build_option_symbol('TSLA', '220628', 'c', 546, _format='polygon')
+        symbol3 = polygon.build_option_symbol('A', '220628', 'put', 66.01, prefix_o=True)
+
+        self.assertEqual(symbol1, 'AMD220628C00546560')
+        self.assertEqual(symbol2, 'TSLA220628C00546000')
+        self.assertEqual(symbol3, 'O:A220628P00066010')
+        
+        symbol1 = polygon.build_option_symbol('AMD', dt.date(2022, 6, 28), 'call', 546.56, _format='tda')
+        symbol2 = polygon.build_option_symbol('NVDA', '220628', 'c', 546, _format='tos')
+        symbol3 = polygon.build_option_symbol('TSLA', dt.date(2022, 6, 28), 'put', 46.01, _format='tradier')
+        symbol4 = polygon.build_option_symbol('A', dt.date(2022, 6, 28), 'p', 46.1, _format='ibkr')
+        symbol5 = polygon.build_option_symbol('AB', dt.date(2022, 6, 28), 'p', 46.01, _format='trade_station')
+        symbol6 = polygon.build_option_symbol('PTON', '220628', 'p', 46, _format=OptionSymbolFormat.POLYGON)
+
+        self.assertEqual(symbol1, 'AMD_062822C546.56')
+        self.assertEqual(symbol2, '.NVDA062822C546')
+        self.assertEqual(symbol3, 'TSLA220628P00046010')
+        self.assertEqual(symbol4, 'A 220628P00046100')
+        self.assertEqual(symbol5, 'AB 220628P46.01')
+        self.assertEqual(symbol6, 'PTON220628P00046000')
+        
+    def test_parse_option_symbol(self):
+        parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000')
+        parsed_details2 = polygon.parse_option_symbol('AMD211205C00156000', output_format=list)
+        parsed_details3 = polygon.parse_option_symbol('AMD211205C00156000', output_format=dict)
+        
+        self.assertIsInstance(parsed_details1, polygon.OptionSymbol)
+        self.assertIsInstance(parsed_details2, list)
+        self.assertIsInstance(parsed_details3, dict)
+
+        self.assertTrue(parsed_details1.underlying_symbol == 'AMD' 
+                        and parsed_details1.expiry == dt.date(2021, 12, 5) 
+                        and parsed_details1.call_or_put == 'C' and parsed_details1.strike_price == 156 
+                        and parsed_details1.option_symbol == 'AMD211205C00156000')
+        
+        self.assertTrue(parsed_details2, ['AMD', dt.date(2021, 12, 5), 'C', 156, 'AMD211205C00156000'])
+        self.assertEqual(parsed_details3, {'underlying_symbol': 'AMD', 'expiry': dt.date(2021, 12, 5), 
+                                           'call_or_put': 'C', 'strike_price': 156,
+                                           'option_symbol': 'AMD211205C00156000'})
+
+        parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000', _format=OptionSymbolFormat.TRADIER)
+        parsed_details2 = polygon.parse_option_symbol('AMD_062822P587.56', _format='tda', output_format=list)
+        parsed_details3 = polygon.parse_option_symbol('AB 220628P46.01', _format='trade_station', output_format=dict)
+
+        self.assertIsInstance(parsed_details1, polygon.OptionSymbol)
+        self.assertIsInstance(parsed_details2, list)
+        self.assertIsInstance(parsed_details3, dict)
+
+        self.assertTrue(parsed_details1.underlying_symbol == 'AMD'
+                        and parsed_details1.expiry == dt.date(2021, 12, 5)
+                        and parsed_details1.call_or_put == 'C' and parsed_details1.strike_price == 156
+                        and parsed_details1.option_symbol == 'AMD211205C00156000')
+
+        self.assertTrue(parsed_details2, ['AMD', dt.date(2022, 6, 28), 'P', 587.56, 'AMD_062822P587.56'])
+        self.assertEqual(parsed_details3, {'underlying_symbol': 'AB', 'expiry': dt.date(2022, 6, 28), 
+                                           'call_or_put': 'P', 'strike_price': 46.01,
+                                           'option_symbol': 'AB 220628P46.01'})
+        
+    def test_convert_option_symbol_formats(self):
+        symbol1 = polygon.convert_option_symbol_formats('AMD220628P00096050', from_format='polygon', to_format='tda')
+        symbol2 = polygon.convert_option_symbol_formats('AB 220628P46.01', from_format='trade_station',
+                                                        to_format='polygon')
+        symbol3 = polygon.convert_option_symbol_formats('NVDA220628C00546000', 'tradier', 'tos')
+        
+        self.assertEqual(symbol1, 'AMD_062822P96.05')
+        self.assertEqual(symbol2, 'AB220628P00046010')
+        self.assertEqual(symbol3, '.NVDA062822C546')
+        
+    def test_detect_option_symbol_format(self):
+        format1 = polygon.detect_option_symbol_format('AMD_062822P96.05')
+        format2 = polygon.detect_option_symbol_format('AB220628P00046010')
+        format3 = polygon.detect_option_symbol_format('.NVDA062822C546')
+        format4 = polygon.detect_option_symbol_format('AB 220628P46.01')
+        format5 = polygon.detect_option_symbol_format('AB 220628P00046045')
+        
+        self.assertEqual(format1, 'tda')
+        self.assertEqual(format2, 'polygon')
+        self.assertEqual(format3, 'tos')
+        self.assertEqual(format4, 'trade_station')
+        self.assertEqual(format5, ['ibkr', 'trade_station'])
+        
+        
 # ========================================================= #
 
 
 class TestOptions(unittest.TestCase):
-    def test_build_option_symbol(self):
-        bos = polygon.build_option_symbol('X', '211205', 'call', 134)
-        bos1 = polygon.build_option_symbol('AA', dt.date(2021, 12, 5), 'c', 134.4)
-        bos2 = polygon.build_option_symbol('AMD', '211205', 'p', 14.23, prefix_o=True)
-        bos3 = polygon.build_option_symbol('MSFT', dt.datetime(2021, 12, 5), 'put', 7.345)
-        bos4 = polygon.build_option_symbol('WPGGQ', '211205', 'CALL', 134.0)
-        bos5 = polygon.build_option_symbol('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345')
-
-        self.assertEqual(bos, 'X211205C00134000')
-        self.assertEqual(bos1, 'AA211205C00134400')
-        self.assertEqual(bos2, 'O:AMD211205P00014230')
-        self.assertEqual(bos3, 'MSFT211205P00007345')
-        self.assertEqual(bos4, 'WPGGQ211205C00134000')
-        self.assertEqual(bos5, 'PPPPPP211205P00134345')
-
-    def test_parse_option_symbol(self):
-        bos = polygon.parse_option_symbol('O:A211015C00090000')  
-        bos2 = polygon.parse_option_symbol('O:AA211015C00013000', expiry_format=str)  
-        bos3 = polygon.parse_option_symbol('AA211015P00015000', output_format=list)  
-        bos4 = polygon.parse_option_symbol('AMD211015P00037500', output_format=dict, expiry_format=str)
-        bos5 = polygon.parse_option_symbol('O:AMD211015P00040000')  
-        bos6 = polygon.parse_option_symbol('NVDA211015C00070000', output_format=list)  
-        bos7 = polygon.parse_option_symbol('O:NVDA211015C00072500', output_format=dict)
-        bos8 = polygon.parse_option_symbol('O:GOOGL211015C00780000', output_format=list)  
-        bos9 = polygon.parse_option_symbol('GOOGL2211015P00780000', output_format=list)
-        bos10 = polygon.parse_option_symbol('O:AMD1211015C00040000', output_format=list)  
-
-        self.assertIsInstance(bos, polygon.OptionSymbol)
-        self.assertIsInstance(bos2, polygon.OptionSymbol)
-        self.assertIsInstance(bos3, list)
-        self.assertIsInstance(bos4, dict)
-
-        _dt = int(dt.date.today().strftime('%Y')[:2] + '21')
-
-        self.assertTrue(bos.underlying_symbol == 'A' and bos.expiry == dt.date(_dt, 10, 15) and bos.call_or_put == 'C'
-                        and bos.strike_price == 90 and bos.option_symbol == 'A211015C00090000')
-        self.assertTrue(bos2.underlying_symbol == 'AA' and bos2.expiry == f'{_dt}-10-15' and bos2.call_or_put ==
-                        'C' and bos2.strike_price == 13 and bos2.option_symbol == 'AA211015C00013000')
-        self.assertTrue(bos5.underlying_symbol == 'AMD' and bos5.expiry == dt.date(_dt, 10, 15) and bos5.call_or_put ==
-                        'P' and bos5.strike_price == 40 and bos5.option_symbol == 'AMD211015P00040000')
-
-        self.assertEqual(bos3, ['AA', dt.date(_dt, 10, 15), 'P', 15, 'AA211015P00015000'])
-        self.assertEqual(bos6, ['NVDA', dt.date(_dt, 10, 15), 'C', 70, 'NVDA211015C00070000'])
-        self.assertEqual(bos8, ['GOOGL', dt.date(_dt, 10, 15), 'C', 780, 'GOOGL211015C00780000'])
-        self.assertEqual(bos9, ['GOOGL', dt.date(_dt, 10, 15), 'P', 780, 'GOOGL211015P00780000'])
-        self.assertEqual(bos10, ['AMD', dt.date(_dt, 10, 15), 'C', 40, 'AMD211015C00040000'])
-
-        self.assertEqual(bos4, {'underlying_symbol': 'AMD',
-                                'strike_price': 37.5,
-                                'expiry': f'{_dt}-10-15',
-                                'call_or_put': 'P',
-                                'option_symbol': 'AMD211015P00037500'})
-        self.assertEqual(bos7, {'underlying_symbol': 'NVDA',
-                                'strike_price': 72.5,
-                                'expiry': dt.date(_dt, 10, 15),
-                                'call_or_put': 'C',
-                                'option_symbol': 'NVDA211015C00072500'})
-
-    def test_build_option_symbol_for_tda(self):
-        bos = polygon.build_option_symbol_for_tda('X', '120521', 'call', 134)
-        bos1 = polygon.build_option_symbol_for_tda('AA', dt.date(2021, 12, 5), 'c', 134.4)
-        bos2 = polygon.build_option_symbol_for_tda('AMD', '120521', 'p', 14.23)
-        bos3 = polygon.build_option_symbol_for_tda('MSFT', dt.datetime(2021, 12, 5), 'put', 7.345)
-        bos4 = polygon.build_option_symbol_for_tda('WPGGQ', '120521', 'CALL', 134.0)
-        bos5 = polygon.build_option_symbol_for_tda('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345')
-        bos6 = polygon.build_option_symbol_for_tda('PPPPPP', dt.date(2021, 12, 5), 'P', '134.345', format_='dot')
-
-        self.assertEqual(bos, 'X_120521C134')
-        self.assertEqual(bos1, 'AA_120521C134.4')
-        self.assertEqual(bos2, 'AMD_120521P14.23')
-        self.assertEqual(bos3, 'MSFT_120521P7.345')
-        self.assertEqual(bos4, 'WPGGQ_120521C134')
-        self.assertEqual(bos5, 'PPPPPP_120521P134.345')
-        self.assertEqual(bos6, '.PPPPPP120521P134.345')
-
-    def test_parse_option_symbol_from_tda(self):
-        bos = polygon.parse_option_symbol_from_tda('X_101521C134')
-        bos3 = polygon.parse_option_symbol_from_tda('AA_101521C134.4', output_format=list)
-        bos4 = polygon.parse_option_symbol_from_tda('AMD_101521P14.23', output_format=dict, expiry_format=str)
-        bos6 = polygon.parse_option_symbol_from_tda('MSFT_101521P7.345', output_format=list)
-        bos8 = polygon.parse_option_symbol_from_tda('WPGGQ_101521C134.0', output_format=list)
-        bos9 = polygon.parse_option_symbol_from_tda('PPPPPP_101521P134.345', output_format=list)
-        bos10 = polygon.parse_option_symbol_from_tda('.PPPPPP211015P134.345', output_format=list)
-        bos11 = polygon.parse_option_symbol_from_tda('.X211015P134', output_format=list)
-
-        self.assertIsInstance(bos, polygon.OptionSymbol)
-        self.assertIsInstance(bos3, list)
-        self.assertIsInstance(bos4, dict)
-
-        _dt = int(dt.date.today().strftime('%Y')[:2] + '21')
-
-        self.assertTrue(bos.underlying_symbol == 'X' and bos.expiry == dt.date(_dt, 10, 15) and bos.call_or_put == 'C'
-                        and bos.strike_price == 134 and bos.option_symbol == 'X_101521C134')
-
-        self.assertEqual(bos3, ['AA', dt.date(_dt, 10, 15), 'C', 134.4, 'AA_101521C134.4'])
-        self.assertEqual(bos6, ['MSFT', dt.date(_dt, 10, 15), 'P', 7.345, 'MSFT_101521P7.345'])
-        self.assertEqual(bos8, ['WPGGQ', dt.date(_dt, 10, 15), 'C', 134, 'WPGGQ_101521C134.0'])
-        self.assertEqual(bos9, ['PPPPPP', dt.date(_dt, 10, 15), 'P', 134.345, 'PPPPPP_101521P134.345'])
-        self.assertEqual(bos10, ['PPPPPP', dt.date(_dt, 10, 15), 'P', 134.345, 'PPPPPP_101521P134.345'])
-        self.assertEqual(bos11, ['X', dt.date(_dt, 10, 15), 'P', 134, 'X_101521P134'])
-
-        self.assertEqual(bos4, {'underlying_symbol': 'AMD',
-                                'strike_price': 14.23,
-                                'expiry': f'{_dt}-10-15',
-                                'call_or_put': 'P',
-                                'option_symbol': 'AMD_101521P14.23'})
-
-    def test_convert_from_tda_to_polygon_format(self):
-        bos1 = polygon.convert_from_tda_to_polygon_format('X_101521C134')
-        bos2 = polygon.convert_from_tda_to_polygon_format('AA_101521C134.4', True)
-        bos3 = polygon.convert_from_tda_to_polygon_format('AMD_101521P14.23')
-        bos4 = polygon.convert_from_tda_to_polygon_format('MSFT_101521P7.345')
-        bos5 = polygon.convert_from_tda_to_polygon_format('WPGGQ_101521C134.0')
-        bos6 = polygon.convert_from_tda_to_polygon_format('PPPPPP_101521P134.345')
-        bos7 = polygon.convert_from_tda_to_polygon_format('.PPPPPP211015P134.345')
-        bos8 = polygon.convert_from_tda_to_polygon_format('.X211015P134.02')
-
-        self.assertEqual(bos1, 'X211015C00134000')
-        self.assertEqual(bos2, 'O:AA211015C00134400')
-        self.assertEqual(bos3, 'AMD211015P00014230')
-        self.assertEqual(bos4, 'MSFT211015P00007345')
-        self.assertEqual(bos5, 'WPGGQ211015C00134000')
-        self.assertEqual(bos6, 'PPPPPP211015P00134345')
-        self.assertEqual(bos7, 'PPPPPP211015P00134345')
-        self.assertEqual(bos8, 'X211015P00134020')
-
-    def test_convert_from_polygon_to_tda_format(self):
-        bos1 = polygon.convert_from_polygon_to_tda_format('X211015C00134000')
-        bos2 = polygon.convert_from_polygon_to_tda_format('O:AA211015C00134400')
-        bos3 = polygon.convert_from_polygon_to_tda_format('AMD211015P00014230')
-        bos4 = polygon.convert_from_polygon_to_tda_format('MSFT211015P00007345')
-        bos5 = polygon.convert_from_polygon_to_tda_format('WPGGQ211015C00134000')
-        bos6 = polygon.convert_from_polygon_to_tda_format('PPPPPP211015P00134345')
-        bos7 = polygon.convert_from_polygon_to_tda_format('PPPPPP211015P00134345', format_='dot')
-        bos8 = polygon.convert_from_polygon_to_tda_format('X211015P00134000', format_='dot')
-
-        self.assertEqual(bos1, 'X_101521C134')
-        self.assertEqual(bos2, 'AA_101521C134.4')
-        self.assertEqual(bos3, 'AMD_101521P14.23')
-        self.assertEqual(bos4, 'MSFT_101521P7.345')
-        self.assertEqual(bos5, 'WPGGQ_101521C134')
-        self.assertEqual(bos6, 'PPPPPP_101521P134.345')
-        self.assertEqual(bos7, '.PPPPPP101521P134.345')
-        self.assertEqual(bos8, '.X101521P134')
-
     def test_get_trades(self):
         with polygon.OptionsClient(cred.KEY) as client:
             data = client.get_trades('O:TSLA210903C00700000', limit=10)

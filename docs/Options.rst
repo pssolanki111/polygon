@@ -22,192 +22,258 @@ here is how the client initializer looks like:
 
 .. autofunction:: polygon.options.options.OptionsClient
 
-**NOTE** if you don't want to use the option symbol helper functions, then you can just go to the desired endpoint documentation from the list to left
+**NOTE:** if you don't want to use the option symbol helper functions, then you can just go to the desired endpoint documentation from the list to left
 
 .. _option_symbols_header:
 
-Creating Option Symbols
------------------------
+Working with Option Symbols
+---------------------------
 
 So when you're working with options (rest/websockets), you'll certainly need the option symbols which contain the information about their underlying symbol, expiry, call_or_put and the
-strike price in a certain format. Many organizations tend to use different formats to represent these.
+strike price in a certain format. There are many formats to represent them and every data source/brokerage uses a 
+different format to represent them.
 
-Polygon.io tends to use `This Format <https://www.optionstaxguy.com/option-symbols-osi>`__ . For those who want to understand how this formatting works,
-`Here is a guide <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__ (thanks to Ian from their support team).
+for example Polygon.io tends to use `This Format <https://www.optionstaxguy.com/option-symbols-osi>`__ . For those who want to understand how this formatting works,
+`Here is a guide <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__ (thanks to Ian from polygon support team).
 
-Fortunately for you, the library comes with a few functions to help ya out with it. **first function in that list is creating an option symbol**
+The library is equipped with a few functions to make it easier for you to **build, parse, convert, and detect 
+format** of option symbols without worrying about how the structure works.
 
-The library also has two bonus functions which allow you to create and parse option symbols using the format supported by TD Ameritrade. See below for more info on how to use them.
+This section has been written again following many changes in v1.0.8. If you were using option symbology in v1.0.7 or
+older, the documentation for that version is available [here](https://polygon.readthedocs.io/en/1.0.7/) although I'd 
+suggest upgrading and making required (small) changes
 
-Building polygon formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The library supports the following symbol formats at the moment
 
-Note that polygon has a rest endpoint in reference API to get all active contracts which you can filter based on many values.
+===================  ====================
+  Full Name            Shorthand String
+===================  ====================
+Polygon.io           polygon
+Tradier              tradier
+Trade Station        trade_station
+Interactive Brokers  ibkr
+TD Ameritrade        tda
+Think Or Swim        tos
+===================  ====================
 
-You might have noticed (you didn't notice, did ya?) that polygon endpoints expect a prefix: ``O:`` before option symbols. For convenience, this library handles all of it internally.
-what that means for you is that you can pass in option symbols **with or without the prefix O:** and both will be handled. In the below function, you can make the argument ``prefix_o=True``
-to get the prefix in the output. By defaults it returns this format: ``AMD211205P00149000`` (example symbol)
+This section on option symbols is divided into these sections below. 
 
-here is how the function looks. just supply the details.
+1. **Creating** Option symbols from info as underlying, expiry, strike price, option type
+#. **Parsing** Option symbols to **extract** info as underlying, expiry, strike price, option type
+#. **Converting** an option symbol from one format to another. Works between all supported formats.
+#. **Detecting** format of an option symbol. Basic detection based on some simple rules.
+
+Creating Option Symbols
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The function in this sub-section helps you to build option symbols from info as underlying symbol, expiry, strike 
+price & option type (call/put). The function to use is ``polygon.build_option_symbol``
+
+-  Since the default format is polygon.io you don't need to specify a format if you're only working with polygon 
+   option symbols.
+-  Polygon has a rest endpoint in reference client to get all active contracts which you can filter based on 
+   many values such as underlying symbol and expiry dates.
+-  In polygon format, If you wonder whether you need to worry about the ``O:`` prefix which some/all option endpoints 
+   expect, then to your ease, the library handles that for you (So you can pass a symbol without prefix to let's say
+   Option Snapshot function and the prefix will be added internally). If you want to be explicit, just pass 
+   ``prefix_o=True`` when building symbol.
+-  Note that both tradier and polygon happen to use the exact same symbol format and hence can be used interchangeably.
+
+Example Code & Output for polygon/tradier format
+
+.. code-block:: python
+
+  import polygon
+  
+  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56)
+  symbol2 = polygon.build_option_symbol('TSLA', '220628', 'c', 546, _format='polygon')
+  symbol3 = polygon.build_option_symbol('A', '220628', 'put', 66.01, prefix_o=True)
+  
+  # Outputs
+  # symbol1 -> AMD220628C00546560
+  # symbol2 -> TSLA220628C00546000
+  # symbol3 -> O:A220628P00066010
+  
+  
+The same function can be used to create option symbols for any of the supported formats, just pass in the format you 
+need, either as a shorthand string from the table above, or use an enum from :class:`polygon.enums.OptionSymbolFormat`
+
+-  Using enums (like ``OptionSymbolFormat.POLYGON`` in example below) is a good way to ensure you only pass in 
+   correct shorthand strings. Your IDE auto completion would make your life much easier when working with enums.
+
+Example code & outputs for multiple formats
+
+.. code-block:: python
+
+  from polygon import build_option_symbol  # you can import the way you like, just showing the alternates
+  from polygon.enums import OptionSymbolFormat  # optional, you can pass in shorthand strings too
+  
+  symbol1 = polygon.build_option_symbol('AMD', datetime.date(2022, 6, 28), 'call', 546.56, _format='tda')
+  symbol2 = polygon.build_option_symbol('NVDA', '220628', 'c', 546, _format='tos')
+  symbol3 = polygon.build_option_symbol('TSLA', datetime.date(2022, 6, 28), 'put', 46.01, _format='tradier')
+  symbol4 = polygon.build_option_symbol('A', datetime.date(2022, 6, 28), 'p', 46.1, _format='ibkr')
+  symbol5 = polygon.build_option_symbol('AB', datetime.date(2022, 6, 28), 'p', 46.01, _format='trade_station')
+  symbol6 = polygon.build_option_symbol('PTON', '220628', 'p', 46, _format=OptionSymbolFormat.POLYGON)  # using enum
+  
+  # outputs
+  # symbol1 -> AMD_062822C546.56
+  # symbol2 -> .NVDA062822C546
+  # symbol3 -> TSLA220628P00046010
+  # symbol4 -> A 220628P00046100
+  # symbol5 -> AB 220628P46.01
+  # symbol5 -> PTON220628P00046000
+
+For those who want more control, here is how the function signature and arguments look
 
 .. autofunction:: polygon.options.options.build_option_symbol
    :noindex:
 
-Example use:
-
-.. code-block:: python
-
-  from polygon import build_option_symbol
-
-  symbol = build_option_symbol('AMD', date(year=2021, month=12, day=5), 'c', 158)  # date is just a datetime.date object
-
-  # another one!
-  symbol = build_option_symbol('NVDA', '211205', 'call', 124.56)
-  # you can use these variable as you like on polygon's endpoints
-
-Building TDA formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-don't use this formatting on polygon endpoints. only on td ameritrade. this is just a bonus function.
-
-.. autofunction:: polygon.options.options.build_option_symbol_for_tda
-   :noindex:
-
-Example use:
-
-.. code-block:: python
-
-  from polygon import build_option_symbol_for_tda
-
-  symbol = build_option_symbol_for_tda('AMD', date(year=2021, month=12, day=5), 'c', 158)  # date is just a datetime.date object
-
-  # another one!
-  symbol = build_option_symbol_for_tda('NVDA', '120522', 'call', 124.56)
-
 Parsing Option Symbols
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
-So the above function was to build an option symbol from details. This function would help you do the opposite. That is, extracting information from an option symbol.
+The function in this sub-section helps you to extract info as underlying symbol, expiry, strike price & option type  
+(call/put) from an existing option symbol. Parsing is available on all supported formats. The function to use is 
+``polygon.build_option_symbol``
 
-This function parses the symbol based on
-`This spec <https://docs.google.com/document/d/15WYmleETJwB2S80vuj8muWr6DNBIFmcmiB_UmHTosFg/edit>`__. Note that
-you can pass the value with or without the ``O:`` prefix. The lib would handle that like it does everywhere else.
+-  Since the default format is ``polygon``, you don't need to specify a format if you're only working with polygon 
+   option symbols.
+-  Polygon symbols can be passed in with or without the prefix ``O:``. Library will handle both internally
+-  Note that both tradier and polygon happen to use the exact same symbol format and hence can be used interchangeably.
+-  It is observed that some option symbols as returned by polygon endpoints happen to have a **correction number** 
+   within the symbol. The additional number is always between the underlying symbol and expiry. 
+   **The lib handles that for you** & parses the symbol accordingly.
+-  An example of the corrected polygon symbol could be ``XY1221015C00234000``. Notice the extra 1 after ``XY`` and 
+   before expiry ``221015``. The library would parse this symbol as ``XY221015C00234000``. The number could be any 
+   number according to a response from polygon support team.
 
-parsing Polygon formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**NOTE:** The parse function takes another optional argument, ``output_format``, defaulting to ``'object'``. 
+Here is what it is for and how you can use it to your advantage.
 
-**Important** So it appears that some option symbols as returned by polygon endpoints happen to have a **correction number** within the symbol. The additional number is always
-between the underlying symbol and expiry. **The lib handles that for you** and hence returns the corrected parsed symbol.
+Output Format
+ The library provides 3 possible output formats when getting parsed info from an option symbol. They are
 
-To elaborate: sometimes you'd see something like: ``MS1221015C00234000``. Notice the extra 1 right after symbol MS and before expiry 221015. This symbol should actually be
-``MS221015C00234000`` without that 1 (which could be any number based on the info I have from support team).
+-  An object of class :class:`polygon.options.options.OptionSymbol` (Default). You can access info as 
 
-If you ever need to get the corrected symbol without that additional number, use the lib to parse the symbol and the attribute ``option_symbol`` would contain the full option symbol
-without the extra number and any prefixes.
+  *  ``obj.strike_price``
+  *  ``obj.underlying_symbol``
+  *  ``obj.expiry``
+  *  ``obj.call_or_put``
+  *  ``obj.option_symbol``
 
-By default the expiry date in the results would be a ``datetime.date`` object. Change it to ``string`` to get a
-string in format ``YYYY-MM-DD``
+-  As a list having elements: ``[underlying_symbol, expiry, call_or_put, strike_price, option_symbol]`` in this fixed
+   order
+-  As a dict having the following keys:
 
-You can choose to get your output in any one out of 3 different formats provided by the lib. To change the format, change the output_format arg in the function below.
+  *  ``underlying_symbol``
+  *  ``expiry``
+  *  ``call_or_put``
+  *  ``strike_price``
+  *  ``option_symbol``
 
-The OptionSymbol object (default)
- by default it would return a :class:`polygon.options.options.OptionSymbol` object. The object would allow you to
- access values using attributes. For example: ``parsed_symbol.expiry``, ``parsed_symbol.underlying_symbol``,
- ``parsed_symbol.strike_price``, ``parsed_symbol.call_or_put`` and ``parse_symbol.option_symbol``
 
-output as a list
- You can also choose to get your output as a ``list``. The list would just have all the parsed values as:
- ``[underlying_symbol, expiry, call_or_put, strike_price, option_symbol]``
+Example code and output for polygon/tradier formats
 
-output as a dict
- You can also choose to get your results as a ``dict``. The dict will have all the values as usual pairs.
- keys would be: ``'underlying_symbol', 'strike_price', 'expiry', 'call_or_put', 'option_symbol'``
+.. code-block:: python
 
-While other values are self explanatory, the value ``option_symbol`` in parsed symbol is simply the full option symbol without any extra correction numbers or prefixes. For example
-if you passed in ``MS221015C00234000``, option_symbol attribute will have the exact same value supplied. If you passed ``MS1221015C00234000`` or ``O:MS221015C00234000``, option_symbol would have
-``MS221015C00234000`` removing those extra numbers and prefixes.
+  import polygon
+  
+  parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000')
+  parsed_details2 = polygon.parse_option_symbol('AMD211205C00156000', output_format=list)
+  parsed_details3 = polygon.parse_option_symbol('AMD211205C00156000', output_format=dict)
+  
+  # outputs
+  # parsed_details1 would be an object having info as attributes as described in output format sub-section above
+  # parsed_details2 -> ['AMD', dt.date(2021, 12, 5), 'C', 156, 'AMD211205C00156000']
+  # parsed_details3 -> {'underlying_symbol': 'AMD', 'expiry': dt.date(2021, 12, 5), 'call_or_put': 'C',  'strike_price': 156, 'option_symbol': 'AMD211205C00156000'}
 
-here is how the function looks.
+The same function can be used to parse option symbols in any of the supported formats, just pass in the format you 
+need, either as a shorthand string from the table above, or use an enum from :class:`polygon.enums.OptionSymbolFormat`
+
+-  Using enums (like ``OptionSymbolFormat.POLYGON`` in example below) is a good way to ensure you only pass in 
+   correct shorthand strings. Your IDE auto completion would make your life much easier when working with enums.
+
+Example code & outputs for multiple formats
+
+.. code-block:: python
+
+  import polygon
+  
+  parsed_details1 = polygon.parse_option_symbol('AMD211205C00156000', _format='tradier')
+  parsed_details2 = polygon.parse_option_symbol('AMD_062822P587.56', _format='tda', output_format=list)
+  parsed_details3 = polygon.parse_option_symbol('AB 220628P46.01', _format='trade_station', output_format=dict)
+  
+  # outputs
+  # parsed_details1 would be an object having info as attributes as described in output format sub-section above
+  # parsed_details2 -> ['AMD', dt.date(2022, 6, 28), 'P', 587.56, 'AMD_062822P587.56']
+  # parsed_details3 -> {'underlying_symbol': 'AB', 'expiry': dt.date(2022, 6, 28), 'call_or_put': 'P', 'strike_price': 46.01, 'option_symbol': 'AB 220628P46.01'}
+
+For those who want more control, here is how the function signature and arguments look
 
 .. autofunction:: polygon.options.options.parse_option_symbol
    :noindex:
 
-Example use:
+Converting Option Symbol Formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The function in this sub-section helps you to convert an option symbol from one format to another. So if you want to 
+convert a polygon option symbol to TD Ameritrade symbol (say to place an order), pass the symbol in this function, 
+specify the formats and the library will do the conversions for you.
+
+Example code and outputs
 
 .. code-block:: python
 
-  from polygon import (build_option_symbol, parse_option_symbol)
+  import polygon
+  
+  symbol1 = polygon.convert_option_symbol_formats('AMD220628P00096050', from_format='polygon', to_format='tda')
+  symbol2 = polygon.convert_option_symbol_formats('AB 220628P46.01', from_format='trade_station', to_format='polygon')
+  symbol2 = polygon.convert_option_symbol_formats('NVDA220628C00546000', 'tradier', 'tos')
+  
+  # outputs
+  # symbol1 -> AMD_062822P96.05
+  # symbol2 -> AB220628P00046010
+  # symbol3 -> .NVDA062822C546
+  
+For those who want more control, here is how the function signature and arguments look
 
-  parsed_details = parse_option_symbol('AMD211205C00156000')
-
-  # another one!
-  parsed_details = parse_option_symbol('AMD211205C00156000', output_format=list)
-
-  # another one!
-  parsed_details = parse_option_symbol('AMD211205C00156000', dict, expiry_format=str)
-
-parsing TDA formatted option symbols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-don't use this function on polygon endpoints. this is a bonus function meant for td ameritrade formatting.
-
-The output_format and expiry_format have the same behavior as above. Only difference is in the formatting.
-
-the dot format (symbol starting with a ``.``, usually found **when you export some file through ThinkOrSwim** or similar tda tool) is also supported
-
-.. autofunction:: polygon.options.options.parse_option_symbol_from_tda
+.. autofunction:: polygon.options.options.convert_option_symbol_formats
    :noindex:
 
-Example use:
+Detecting Option Symbol Format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The function in this sub-section helps you to detect the symbol format of an option symbol programmatically. The 
+function does basic detection according to some simple rules so test well before using this in production setting. It
+is almost always recommended to be explicit about formats.
+
+Example code and outputs
 
 .. code-block:: python
 
-  from polygon import parse_option_symbol_from_tda
+  import polygon
+  
+  format1 = polygon.detect_option_symbol_format('AMD_062822P96.05')
+  format2 = polygon.detect_option_symbol_format('AB220628P00046010')
+  format3 = polygon.detect_option_symbol_format('.NVDA062822C546')
+  format4 = polygon.detect_option_symbol_format('AB 220628P46.01')
+  format5 = polygon.detect_option_symbol_format('AB 220628P00046045')
+  
+  # outputs
+  # format1 -> 'tda'
+  # format2 -> 'polygon'  # this also means tradier since both use exact same format
+  # format3 -> 'tos'
+  # format4 -> 'trade_station'
+  # format5 -> ['ibkr', 'trade_station']
 
-  parsed_details = parse_option_symbol_from_tda('GOOG_012122P620')
+For those who want more control, here is how the function signature and arguments look
 
-  # another one!
-  parsed_details = parse_option_symbol_from_tda('.AMD220128P81', output_format=list)  # DOT format from ThinkOrSwim
-
-  # another one!
-  parsed_details = parse_option_symbol_from_tda('SPY_121622C335', dict, expiry_format=str)
-
-Converting option symbol formats
---------------------------------
-
-As a bonus function in the library, you can use the below functions to convert from polygon.io option symbol format to the
-TD Ameritrade option symbol format and vice versa.
-
-**this is useful for people who use TDA API for brokerage and polygon as their data source**.
-**If you need a python package to work with TDA API, check out** `tda-api <https://github.com/alexgolec/tda-api>`__ by Alex Golec.
-
-Converting from polygon to TDA format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**you might wanna use this when you want to place a trade on TDA for example using data from polygon.**
-
-.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
-   :noindex:
-
-Converting from TDA to polygon format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-for when you grab a option symbol from tda, and want to get relevant data from polygon
-
-.. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
-   :noindex:
-
-Detecting what format is a symbol in
-------------------------------------
-
-as the name suggests, when you want to programmatically determine what format is a symbol in. Might be useful for symbol lookups, for instance.
-
-.. autofunction:: polygon.options.options.detect_symbol_format
+.. autofunction:: polygon.options.options.detect_option_symbol_format
    :noindex:
 
 .. _option_endpoints_header:
 
-**Endpoints**
+
+**Endpoints:**
 
 To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
 you'd call the methods as ``client.get_trades`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.

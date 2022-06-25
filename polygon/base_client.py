@@ -7,10 +7,6 @@ from httpx import Response as HttpxResponse
 from enum import Enum
 import os
 import datetime
-try:
-    import orjson as json_lib
-except ImportError:
-    import json as json_lib
 
 # ========================================================= #
 
@@ -89,20 +85,6 @@ class Base:
             final_time_chunks.reverse()
 
         return final_time_chunks
-
-    # def snap_and_stretch(self, start, end, multiplier: int = 1, timespan: str = 'day'):
-    #     """
-    #     A method to manage the `snap and stretch behavior logic <https://polygon.io/blog/aggs-api-updates/>`__ on
-    #     the aggregates' endpoints
-    #
-    #     :param start: input start time of the aggregate window
-    #     :param end: input end time of the aggregate window
-    #     :param multiplier: size of the aggregate window
-    #     :param timespan: bars type to return in the aggregate window
-    #     :return: Corrected tuple (start, end) with snap and stretch logic applied.
-    #     """
-    #
-    #     # Snap First  # TODO: will pick up some other time
 
     @staticmethod
     def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
@@ -256,7 +238,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -275,7 +257,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     def get_next_page(self, old_response: Union[Response, dict],
                       raw_response: bool = False) -> Union[Response, dict, bool]:
@@ -379,7 +361,7 @@ class BaseClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(json_lib.loads(_res.text))
+            container.append(_res.json())
 
         return container
 
@@ -402,11 +384,11 @@ class BaseClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [json_lib.loads(_res.text)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [json_lib.loads(_res.text)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []
@@ -643,7 +625,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
@@ -662,7 +644,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return _res
 
-        return json_lib.loads(_res.text)
+        return _res.json()
 
     async def get_next_page(self, old_response: Union[HttpxResponse, dict],
                             raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
@@ -767,7 +749,7 @@ class BaseAsyncClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(json_lib.loads(_res.text))
+            container.append(_res.json())
 
         return container
 
@@ -790,11 +772,11 @@ class BaseAsyncClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [json_lib.loads(_res.text)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [json_lib.loads(_res.text)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []

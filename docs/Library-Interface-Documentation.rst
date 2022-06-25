@@ -78,15 +78,13 @@ Option Symbol Helper Functions & Objects
 
 .. autofunction:: polygon.options.options.parse_option_symbol
 
-.. autofunction:: polygon.options.options.build_option_symbol_for_tda
+.. autofunction:: polygon.options.options.build_polygon_option_symbol
 
-.. autofunction:: polygon.options.options.parse_option_symbol_from_tda
+.. autofunction:: polygon.options.options.parse_polygon_option_symbol
 
-.. autofunction:: polygon.options.options.convert_from_tda_to_polygon_format
+.. autofunction:: polygon.options.options.convert_option_symbol_formats
 
-.. autofunction:: polygon.options.options.convert_from_polygon_to_tda_format
-
-.. autofunction:: polygon.options.options.detect_symbol_format
+.. autofunction:: polygon.options.options.detect_option_symbol_format
 
 .. autofunction:: polygon.options.options.ensure_prefix
 

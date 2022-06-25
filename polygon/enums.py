@@ -412,6 +412,23 @@ class Timespan(enum.Enum):
     MONTH = 'month'
     QUARTER = 'quarter'
     YEAR = 'year'
+    
+    
+# Option Symbol Format - options
+class OptionSymbolFormat(enum.Enum):
+    """
+    Option symbol formats supported by the library. To be used with functions to build or parse option symbols
+    """
+    POLYGON = 'polygon'
+    TDA = 'tda'
+    TD_AMERITRADE = 'tda'
+    TOS = 'tos'
+    THINK_OR_SWIM = 'tos'
+    TRADIER = 'tradier'
+    TRADE_STATION = 'trade_station'
+    IB = 'ibkr'
+    IBKR = 'ibkr'
+    INTERACTIVE_BROKERAGE = 'ibkr'
 
 
 # ========================================================= #

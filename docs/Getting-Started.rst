@@ -38,24 +38,27 @@ To confirm the install worked, try importing the package as such
 
 If this doesn't throw any errors, the install worked. You may proceed to next steps now.
 
+Optional Libraries
+~~~~~~~~~~~~~~~~~~
+
 You can also install the library with **optional dependencies** (you can skip them if you don't need their functionalities)
 
 .. code-block:: shell
 
-  pip install polygon['uvloop']  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on async apps
+  pip install uvloop  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on pure async programs
 
   # OR
 
-  pip install polygon['orjson']  # this will install orjson lib. Polygon lib would use orjson if available. This enables fast json decoding of responses
+  pip install orjson  # this will install orjson lib. Polygon lib would use orjson if available for streaming clients only. This enables fast json decoding of responses
 
   # OR to get both
 
-  pip install polygon['all']  # Note that uvloop is only available on Unix platforms as of now
+  pip install orjson, uvloop  # Note that uvloop is only available on Unix platforms as of now
 
 .. _create_and_use_header:
 
-General guide for clients
--------------------------
+General guide for clients & functions
+-------------------------------------
 This section would provide general guidance on the clients without going into specific endpoints as stocks or options.
 
 As you already know polygon.io has two major classes of APIs. The ``REST`` APIs and ``websockets`` streaming APIs.
@@ -73,6 +76,8 @@ This library implements all of them.
   + an async based stream client is also implemented. See :ref:`async_streaming_header`
 
 Be sure to check out our special section :ref:`enums_header` for info on ``enums`` which will be used in many functions in this library to avoid passing error prone data.
+
+Functions which are standalone (not attached to client objects) are all available at the top level as ``polygon.function_name``. 
 
 **A detailed description of how to use the streaming endpoints is provided in the streamer docs linked above.**
 

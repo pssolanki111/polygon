@@ -5,8 +5,21 @@ All notable changes to this project are documented here.
 Version history is sorted from most recent release to the least recent
 
 ---
+## `v1.0.8` - (2022-06-25)
+
+- Removed orjson from REST clients, using `.json()` response method again due to a drop in multicore performance
+- The option symbology is UPDATED and BETTER than ever. [Docs](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols) are re-written. Support for 6 symbol formats added.
+- added `force_uppercase_symbols` on both streamers to allow optionally disabling the upper case enforcement
+- The option symbology change is not backward compatible. Hence, I've decided to keep the documentation for `v1.0.7` 
+  persistent. You can use the **version switch on bottom left of documentation** to navigate between documentation for different versions
+- If you were not using option symbology so far, you should not have any issues upgrading. If you were, just update 
+  existing code to use new structure (which is very similar so should be very quick to change)
+- Added the total downloads badge on GH readme
+
+---
 ## `v1.0.7` - (2022-06-05)
 
+- Docs for this version are available [Here](https://polygon.readthedocs.io/en/1.0.7/)
 - We now have an Official `CHANGELOG`. View it [HERE](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md). 
   Thanks to @Baker XBL for the suggestion
 - The lib will now use `orjson` if it's installed for all JSON operations. `orjson` is no longer a required 

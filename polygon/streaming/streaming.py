@@ -184,15 +184,16 @@ class StreamClient:
 
         self._auth.set()
 
-    def _modify_sub(self, symbols=None, action='subscribe', _prefix='T.'):
+    def _modify_sub(self, symbols=None, action='subscribe', _prefix='T.', force_uppercase_symbols: bool = True):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
-        corresponding methods to subscribe or unsubscribe to streams.
+        corresponding methods to subscribe or unsubscribe to stream.
 
         :param symbols: The list of symbols to apply the actions to.
         :param action: Defaults to subscribe which subscribes to requested stream. Change to unsubscribe to remove an
                        existing subscription.
         :param _prefix: prefix of the stream service. See :class:`polygon.enums.StreamServicePrefix` for choices.
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
@@ -203,7 +204,10 @@ class StreamClient:
             pass
 
         else:
-            if self._cluster in ['options']:
+            if force_uppercase_symbols:
+                symbols = [x.upper() for x in symbols]
+                
+            if self._cluster in ['options']:                    
                 symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
 
             else:
@@ -226,17 +230,18 @@ class StreamClient:
             raise
 
     # STOCKS Streams
-    def subscribe_stock_trades(self, symbols: list = None):
+    def subscribe_stock_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time trades for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is ``*`` which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'T.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_trades(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -245,17 +250,18 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_stock_quotes(self, symbols: list = None):
+    def subscribe_stock_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Quotes for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'Q.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_quotes(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -264,17 +270,18 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_stock_minute_aggregates(self, symbols: list = None):
+    def subscribe_stock_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time minute aggregates for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'AM.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -283,17 +290,18 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_stock_second_aggregates(self, symbols: list = None):
+    def subscribe_stock_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time second aggregates for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'A.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -302,17 +310,18 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_stock_limit_up_limit_down(self, symbols: list = None):
+    def subscribe_stock_limit_up_limit_down(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time LULD events for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'LULD.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -321,17 +330,18 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_stock_imbalances(self, symbols: list = None):
+    def subscribe_stock_imbalances(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Imbalance Events for given stock ticker symbol(s).
 
         :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'NOI.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
@@ -341,18 +351,19 @@ class StreamClient:
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # OPTIONS Streams
-    def subscribe_option_trades(self, symbols: list = None):
+    def subscribe_option_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Options Trades for given Options contract.
 
         :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
                         **with or without** the prefix ``O:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'T.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_trades(self, symbols: list = None):
         """
@@ -367,18 +378,19 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_option_quotes(self, symbols: list = None):
+    def subscribe_option_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Options Quotes for given Options contract.
 
         :param symbols: A list of symbols. Default is * which subscribes to ALL symbols in the market. you can pass
                         **with or without** the prefix ``O:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'Q.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_quotes(self, symbols: list = None):
         """
@@ -393,18 +405,19 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_option_minute_aggregates(self, symbols: list = None):
+    def subscribe_option_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Options Minute Aggregates for given Options contract(s).
 
         :param symbols: A list of symbols. Default is * which subscribes to ALL tickers in the market. you can pass
                         **with or without** the prefix ``O:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'AM.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
@@ -419,18 +432,19 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_option_second_aggregates(self, symbols: list = None):
+    def subscribe_option_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Options Second Aggregates for given Options contract(s).
 
         :param symbols: A list of symbols. Default is * which subscribes to ALL tickers in the market. you can pass
                         **with or without** the prefix ``O:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'A.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
@@ -446,18 +460,19 @@ class StreamClient:
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # FOREX Streams
-    def subscribe_forex_quotes(self, symbols: list = None):
+    def subscribe_forex_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time forex quotes for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'C.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
         """
@@ -471,18 +486,19 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_forex_minute_aggregates(self, symbols: list = None):
+    def subscribe_forex_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time forex Minute Aggregates for given forex pair(s).
 
         :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'CA.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
@@ -497,19 +513,20 @@ class StreamClient:
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
     # CRYPTO Streams
-    def subscribe_crypto_trades(self, symbols: list = None):
+    def subscribe_crypto_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Trades for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
                         with or without the prefix ``X:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'XT.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
         """
@@ -525,19 +542,20 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_crypto_quotes(self, symbols: list = None):
+    def subscribe_crypto_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Quotes for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
                         with or without the prefix ``X:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'XQ.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
@@ -553,19 +571,20 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_crypto_minute_aggregates(self, symbols: list = None):
+    def subscribe_crypto_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Minute Aggregates for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
                         with or without the prefix ``X:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'XA.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
@@ -581,19 +600,20 @@ class StreamClient:
 
         self._modify_sub(symbols, 'unsubscribe', _prefix)
 
-    def subscribe_crypto_level2_book(self, symbols: list = None):
+    def subscribe_crypto_level2_book(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
         Stream real-time level 2 book data for given cryptocurrency pair(s).
 
         :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
                         each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
                         with or without the prefix ``X:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = 'XL2.'
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """

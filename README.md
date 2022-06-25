@@ -29,8 +29,9 @@ any question you might have with example uses included wherever needed. Docs is 
 - The lib is also officially supported by the popular TA library [pandas-ta](https://github.com/twopirllc/pandas-ta) 
   as an underlying data source instead of the default `yfinance`. See relevant docs to know how to use
 - To see an advanced use case of downloading ALL OCHLV data for ALL tickers for 20+ years and write it to a 
-  timescale enabled postgresql database efficiently, see [This Script](https://github.
-  com/MarketMakerLite/polygon/blob/main/historical_data/advanced.py) by [MML](https://github.com/MarketMakerLite).
+  timescale enabled postgresql database efficiently, see                                                            
+  [This Script](https://github.com/MarketMakerLite/polygon/blob/main/historical_data/advanced.py) by                
+  [MML](https://github.com/MarketMakerLite).
 - The [documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) also contain TONS of sample 
   code snippets wherever necessary.
 

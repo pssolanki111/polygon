@@ -11,9 +11,10 @@ Well read this page to get your answers.
 You should have seen them on many methods' documentation as argument choices.
 
 First up, does everyone need them? that depends on their use case. enums in this library are only used on some endpoints, especially the ones in reference APIs and some basic uses in
-stream clients. So if someone only needs to ochlv chart data, they probably won't need to use enums.
+stream clients. So if someone only needs to get ochlv chart data, they probably won't need to use enums.
 
-**If you notice any value which is supported by the API but not included in the enums, Let me Know using discussions**
+If you notice any value which is supported by the API but not included in the enums, you may let me know on our 
+`Discord Server <https://discord.gg/jPkARduU6N>`__ or GitHub Discussions. 
 
 What are they
 -------------

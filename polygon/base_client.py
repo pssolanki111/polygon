@@ -25,7 +25,7 @@ TIME_FRAME_CHUNKS = {'minute': datetime.timedelta(days=45),
 # ========================================================= #
 
 
-# Just a very basic method to house methods which are common to both sync and async clients
+# Just a very basic class to house methods which are common to both sync and async clients
 class Base:
     def split_date_range(self, start, end, timespan: str, high_volatility: bool = False, reverse: bool = True) -> list:
         """
@@ -88,7 +88,7 @@ class Base:
 
     @staticmethod
     def normalize_datetime(dt, output_type: str = 'ts', _dir: str = 'start', _format: str = '%Y-%m-%d',
-                           unit: str = 'ms'):
+                           unit: str = 'ms', tz=None):
         """
         a core method to perform some specific datetime operations before/after interaction with the API
 
@@ -97,8 +97,11 @@ class Base:
         :param _dir: whether the input is meant for start of a range or end of it
         :param _format: The format string to use IFF expected to return as string
         :param unit: the timestamp units to work with. defaults to ms (milliseconds)
+        :param tz: the timezone to assume/use. defaults to None (which means UTC)
         :return: The output timestamp or formatted string
         """
+        if not tz:
+            tz = datetime.timezone.utc
 
         if unit == 'ms':
             factor = 1000
@@ -111,7 +114,7 @@ class Base:
             if output_type == 'date':
                 return dt.date()
 
-            dt = dt.replace(tzinfo=datetime.timezone.utc) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
+            dt = dt.replace(tzinfo=tz) if (dt.tzinfo is None) or (dt.tzinfo.utcoffset(dt) is None) \
                 else dt
 
             if output_type == 'datetime':
@@ -127,14 +130,14 @@ class Base:
         if isinstance(dt, datetime.date):
             if output_type == 'ts' and _dir == 'start':
                 return int(datetime.datetime(dt.year, dt.month, dt.day).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+                    tzinfo=tz).timestamp() * factor)
             elif output_type == 'ts' and _dir == 'end':
                 return int(datetime.datetime(dt.year, dt.month, dt.day, 23, 59).replace(
-                    tzinfo=datetime.timezone.utc).timestamp() * factor)
+                    tzinfo=tz).timestamp() * factor)
             elif output_type in ['str', 'nts']:
                 return dt.strftime(_format)
             elif output_type == 'datetime':
-                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=datetime.timezone.utc)
+                return datetime.datetime(dt.year, dt.month, dt.day).replace(tzinfo=tz)
             elif output_type == 'date':
                 return dt
 
@@ -142,7 +145,7 @@ class Base:
             if output_type in ['ts', 'nts']:
                 return dt
 
-            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=datetime.timezone.utc)
+            dt = datetime.datetime.utcfromtimestamp(dt / factor).replace(tzinfo=tz)
 
             if output_type == 'str':
                 return dt.strftime(_format)
@@ -172,7 +175,35 @@ class Base:
 
         if isinstance(val, allowed_type) or val is None:
             return val
+        
+    def get_dates_between(self, from_date=None, to_date=None, include_to_date: bool = True) -> list:
+        """
+        Get a list of dates between the two specified dates (from_date and to_date)
+        
+        :param from_date: The start date
+        :param to_date: The end date
+        :param include_to_date: Whether to include the end date in the list
+        :return: A list of dates between the two specified dates
+        """
+        if from_date is None or to_date is None:
+            return []
+        
+        from_date = self.normalize_datetime(from_date, 'date')
+        to_date = self.normalize_datetime(to_date, 'date')
+        
+        if from_date > to_date:
+            raise ValueError('The start date cannot be after the end date')
 
+        dates, iterator = [], range(int((to_date - from_date).days))
+        
+        if include_to_date:
+            dates, iterator = [], range(int((to_date - from_date).days) + 1)
+        
+        for day in iterator:
+            dates.append(from_date + datetime.timedelta(days=day))
+            
+        return dates
+        
 
 # ========================================================= #
 

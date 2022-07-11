@@ -25,10 +25,10 @@
    Stocks
    Options
    References
-   Forex
-   Crypto
+   Forex_Crypto
    Callback-Streaming
    Async-Streaming
+   bulk_data_download_functions
    using_enums
    getting_help
    bugs_discussions_wikis_faqs

@@ -1,13 +1,23 @@
 # Changelog - `polygon`
 
-All notable changes to this project are documented here.
+All notable changes to the project are documented here.
 
 Version history is sorted from most recent release to the least recent
 
 ---
+## `v1.0.9` - (2022-07-11)
+
+- Added [Bulk Ticker Details](https://polygon.readthedocs.io/en/latest/bulk_data_download_functions.html#bulk-ticker-details). Thanks to @AlbusFrigoris for the suggestion.
+- Bulk download functions get [their own page](https://polygon.readthedocs.io/en/latest/bulk_data_download_functions.html) in the documentation. You may suggest new functions on our [Discord Server](https://discord.gg/jPkARduU6N)
+- Forex and crypto documentations are merged into a [single page](https://polygon.readthedocs.io/en/latest/Forex_Crypto.html).
+- Added the method `get_dates_between` and added custom timezone support to `normalize_datetime`.
+- Other internal changes that you don't care about
+
+---
 ## `v1.0.8` - (2022-06-25)
 
-- Removed orjson from REST clients, using `.json()` response method again due to a drop in multicore performance
+- Removed orjson from REST clients, using `.json()` response method again due to a drop in multicore performance. 
+  Thanks to @Baker XBL for the reports.
 - The option symbology is UPDATED and BETTER than ever. [Docs](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols) are re-written. Support for 6 symbol formats added.
 - added `force_uppercase_symbols` on both streamers to allow optionally disabling the upper case enforcement
 - The option symbology change is not backward compatible. Hence, I've decided to keep the documentation for `v1.0.7` 

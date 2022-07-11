@@ -245,6 +245,7 @@ class TestOptions(unittest.TestCase):
             data6 = client.get_aggregate_bars('O:TSLA210903C00700000', '2021-06-10', dt.date(2021, 10, 1),
                                               full_range=True, run_parallel=True, timespan='minute',
                                               high_volatility=True)
+            data7 = client.get_full_range_aggregate_bars('O:TSLA210903C00700000', '2021-06-10', '2021-10-01')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, Response)
@@ -253,12 +254,12 @@ class TestOptions(unittest.TestCase):
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
             self.assertIsInstance(data6, list)
+            self.assertIsInstance(data7, list)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
             self.assertEqual(len(data3), len(data4))
-            self.assertEqual(len(data5), 4355)
-            self.assertEqual(len(data6), 4355)
+            self.assertTrue(len(data5) == len(data6) == len(data7) == 4355)
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY)
@@ -431,6 +432,7 @@ class TestOptions(unittest.TestCase):
             data6 = await client.get_aggregate_bars('O:TSLA210903C00700000', '2021-06-10', dt.date(2021, 10, 1),
                                                     full_range=True, run_parallel=True, timespan='minute',
                                                     high_volatility=True)
+            data7 = await client.get_full_range_aggregate_bars('O:TSLA210903C00700000', '2021-06-10', '2021-10-01')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -439,12 +441,12 @@ class TestOptions(unittest.TestCase):
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
             self.assertIsInstance(data6, list)
+            self.assertIsInstance(data7, list)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
             self.assertEqual(len(data3), len(data4))
-            self.assertEqual(len(data5), 4355)
-            self.assertEqual(len(data6), 4355)
+            self.assertTrue(len(data5) == len(data6) == len(data7) == 4355)
 
         # Testing without context manager
         client = polygon.OptionsClient(cred.KEY, True)

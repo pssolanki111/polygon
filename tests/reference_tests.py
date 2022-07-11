@@ -6,7 +6,8 @@ import datetime
 from requests.models import Response
 import asyncio
 from httpx import Response as HttpxResponse
-import polygon.enums as enums
+from collections import OrderedDict
+
 # ========================================================= #
 
 # Test Runners
@@ -101,6 +102,30 @@ class TestReferences(unittest.TestCase):
         client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
+        
+    def test_get_bulk_ticker_details(self):
+        with polygon.ReferenceClient(cred.KEY) as client:
+            data = client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11')
+            data1 = client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', sort='desc')
+            data2 = client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', 
+                                                   custom_dates=['2022-06-28', '2022-06-27'])
+            data3 = client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', run_parallel=False)
+
+            self.assertIsInstance(data, OrderedDict)
+            self.assertIsInstance(data1, OrderedDict)
+            self.assertIsInstance(data2, OrderedDict)
+            self.assertIsInstance(data3, OrderedDict)
+            
+            self.assertTrue(len(data) == len(data3) == len(data1) == 4)
+            self.assertTrue(list(data1.keys())[-1] < list(data1.keys())[0])
+            self.assertTrue(len(data2), 6)
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY)
+        data = client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11')
+        client.close()
+        self.assertIsInstance(data, OrderedDict)
+        self.assertTrue(len(data) == 4)
 
     def test_get_option_contract(self):
         with polygon.ReferenceClient(cred.KEY) as client:
@@ -385,6 +410,31 @@ class TestReferences(unittest.TestCase):
         await client.close()
         self.assertIsInstance(data, dict)
         self.assertEqual(data['status'], 'OK')
+        
+    @async_test
+    async def test_get_bulk_ticker_details(self):
+        async with polygon.ReferenceClient(cred.KEY, True) as client:
+            data = await client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11')
+            data1 = await client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', sort='desc')
+            data2 = await client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', 
+                                                         custom_dates=['2022-06-28', '2022-06-27'])
+            data3 = await client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11', run_parallel=False)
+
+            self.assertIsInstance(data, OrderedDict)
+            self.assertIsInstance(data1, OrderedDict)
+            self.assertIsInstance(data2, OrderedDict)
+            self.assertIsInstance(data3, OrderedDict)
+            
+            self.assertTrue(len(data) == len(data3) == len(data1) == 4)
+            self.assertTrue(list(data1.keys())[-1] < list(data1.keys())[0])
+            self.assertTrue(len(data2), 6)
+
+        # without context manager
+        client = polygon.ReferenceClient(cred.KEY, True)
+        data = await client.get_bulk_ticker_details('AMD', '2022-07-08', '2022-07-11')
+        await client.close()
+        self.assertIsInstance(data, OrderedDict)
+        self.assertTrue(len(data) == 4)
 
     @async_test
     async def test_async_get_option_contract(self):

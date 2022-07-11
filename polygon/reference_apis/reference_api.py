@@ -1,5 +1,8 @@
 # ========================================================= #
 from .. import base_client
+import os
+from collections import OrderedDict
+import asyncio
 
 # ========================================================= #
 
@@ -193,6 +196,73 @@ class SyncReferenceClient(base_client.BaseClient):
             return _res
 
         return _res.json()
+    
+    def get_bulk_ticker_details(self, symbol: str, from_date=None, to_date=None, custom_dates: list = None,
+                                run_parallel: bool = True, warnings: bool = True, sort='asc',
+                                max_concurrent_workers: int = os.cpu_count() * 5) -> OrderedDict:
+        """
+        Get ticker details for a symbol for specified date range and/or dates.
+        Each response will have detailed information about the ticker and the company behind it (on THAT particular 
+        date) `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers__ticker>`__
+        
+        :param symbol: The ticker symbol to get data for
+        :param from_date: The start date of the date range. Must be specified if custom_dates is not supplied
+        :param to_date: The end date of the date range. Must be specified if custom_dates is not supplied
+        :param custom_dates: A list of dates, for which to get data for. You can specify this WITH a range. Each date 
+                             can be a ``date``, ``datetime`` object or a string ``YYYY-MM-DD``
+        :param run_parallel: If true (the default), it will use an internal ``ThreadPool`` to get the responses in
+                             parallel. **Note That** since python has the GIL restrictions, it would mean that if you
+                             have a ThreadPool of your own, only one ThreadPool will be running at a time and the
+                             other pool will wait. set to False to get all responses in sequence (will take time)
+        :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
+        :param sort: The order of sorting the final results. Defaults to ascending order of dates. See 
+                     :class:`polygon.enums.SortOrder` for choices
+        :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
+                                       threads are spawned in the internal thread pool. Defaults to ``your cpu core
+                                       count * 5``
+        :return: An OrderedDict where keys are dates, and values are corresponding ticker details.
+        """
+        
+        if custom_dates is None:
+            if from_date is None or to_date is None:
+                raise ValueError('You must supply either custom_dates or (from_date and to_date)')
+            else:
+                all_dates = self.get_dates_between(from_date, to_date)
+        else:
+            custom_dates = [self.normalize_datetime(dt, output_type='date') for dt in custom_dates]
+            all_dates = sorted(list(set(custom_dates + self.get_dates_between(from_date, to_date))))
+            
+        # Start off with the requests
+        futures, final_results, sort_order = OrderedDict(), OrderedDict(), self._change_enum(sort, str)
+        
+        if run_parallel:  # parallel run
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(max_workers=max_concurrent_workers) as pool:
+                for dt in all_dates:
+                    futures[dt] = pool.submit(self.get_ticker_details, symbol, dt)
+
+            for future in futures:
+                try:
+                    data = futures[future].result()
+                except:
+                    if warnings:
+                        print(f'No data for {symbol} on {future}. response: {future.result()}')
+                    data = None
+
+                final_results[future] = data
+
+            return final_results if sort_order == 'asc' else OrderedDict(reversed(list(final_results.items())))
+        
+        # Sequential Run
+        for dt in all_dates:
+            try:
+                data = self.get_ticker_details(symbol, dt)
+                final_results[dt] = data
+            except:
+                final_results[dt] = None
+            
+        return final_results if sort_order == 'asc' else OrderedDict(reversed(list(final_results.items())))
 
     def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """
@@ -948,6 +1018,74 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             return _res
 
         return _res.json()
+
+    async def get_bulk_ticker_details(self, symbol: str, from_date=None, to_date=None, custom_dates: list = None,
+                                      run_parallel: bool = True, warnings: bool = True, sort='asc',
+                                      max_concurrent_workers: int = os.cpu_count() * 5) -> OrderedDict:
+        """
+        Get ticker details for a symbol for specified date range and/or dates.
+        Each response will have detailed information about the ticker and the company behind it (on THAT particular 
+        date) `Official Docs <https://polygon.io/docs/stocks/get_v3_reference_tickers__ticker>`__
+        
+        :param symbol: The ticker symbol to get data for
+        :param from_date: The start date of the date range. Must be specified if custom_dates is not supplied
+        :param to_date: The end date of the date range. Must be specified if custom_dates is not supplied
+        :param custom_dates: A list of dates, for which to get data for. You can specify this WITH a range. Each date 
+                             can be a ``date``, ``datetime`` object or a string ``YYYY-MM-DD``
+        :param run_parallel: If true (the default), it will use coroutines/tasks to get the responses in
+                             parallel. Set to False to get all responses in sequence (will take time)
+        :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
+        :param sort: The order of sorting the final results. Defaults to ascending order of dates. See 
+                     :class:`polygon.enums.SortOrder` for choices
+        :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
+                                       coroutines are spawned in the internal thread pool. Defaults to 
+                                       ``your cpu core count * 5``
+        :return: An OrderedDict where keys are dates, and values are corresponding ticker details.
+        """
+        
+        if custom_dates is None:
+            if from_date is None or to_date is None:
+                raise ValueError('You must supply either custom_dates or (from_date and to_date)')
+            else:
+                all_dates = self.get_dates_between(from_date, to_date)
+        else:
+            custom_dates = [self.normalize_datetime(dt, output_type='date') for dt in custom_dates]
+            all_dates = sorted(list(set(custom_dates + self.get_dates_between(from_date, to_date))))
+            
+        # Start off with the requests
+        tasks, final_results, sort_order = OrderedDict(), OrderedDict(), self._change_enum(sort, str)
+        
+        if run_parallel:  # parallel run
+            semaphore = asyncio.Semaphore(max_concurrent_workers)
+            
+            for dt in all_dates:
+                tasks[dt] = asyncio.create_task(self.aw_task(self.get_ticker_details(symbol, dt), semaphore))
+                
+            await asyncio.gather(*tasks.values())
+
+            for task in tasks:
+                if isinstance(tasks[task].result(), dict):
+                    final_results[task] = tasks[task].result()
+                else:
+                    if warnings:
+                        print(f'Could not get data for {symbol} on {task}. Returned: {tasks[task].result()}')
+                        
+                    final_results[task] = None
+
+            return final_results if sort_order == 'asc' else OrderedDict(reversed(list(final_results.items())))
+        
+        # Sequential Run
+        for dt in all_dates:
+            try:
+                data = await self.get_ticker_details(symbol, dt)
+                final_results[dt] = data
+            except Exception as exc:
+                if warnings:
+                    print(f'Could not get data for {symbol} on {dt}. Exception: {str(exc)}')
+                    
+                final_results[dt] = None
+            
+        return final_results if sort_order == 'asc' else OrderedDict(reversed(list(final_results.items())))
 
     async def get_option_contract(self, ticker: str, as_of_date=None, raw_response: bool = False):
         """

@@ -131,11 +131,11 @@ class TestCrypto(unittest.TestCase):
     def test_get_aggregate_bars(self):
         with polygon.CryptoClient(cred.KEY) as client:
             data = client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), limit=30)
-            data2 = client.get_aggregate_bars('X:BTCUSD', datetime.date(2021, 9, 10), '2021-10-01',
-                                                    limit=30, raw_response=True)
+            data2 = client.get_aggregate_bars('BTCUSD', datetime.date(2021, 9, 10), '2021-10-01',
+                                              limit=30, raw_response=True)
             data4 = client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1), full_range=True,
                                               run_parallel=False, high_volatility=True)
-            data3 = client.get_aggregate_bars('X:BTCUSD', '2021-09-10', datetime.date(2021, 10, 1),  full_range=True,
+            data3 = client.get_aggregate_bars('BTCUSD', '2021-09-10', datetime.date(2021, 10, 1),  full_range=True,
                                               run_parallel=True, high_volatility=True)
             data5 = client.get_aggregate_bars('X:BTCUSD', '2021-06-10', datetime.date(2021, 10, 1),
                                               full_range=True, run_parallel=False, timespan='min',
@@ -143,6 +143,7 @@ class TestCrypto(unittest.TestCase):
             data6 = client.get_aggregate_bars('X:BTCUSD', '2021-06-10', datetime.date(2021, 10, 1),
                                               full_range=True, run_parallel=True, timespan='minute',
                                               high_volatility=True)
+            data7 = client.get_full_range_aggregate_bars('BTCUSD', '2021-06-10', '2021-10-01')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, Response)
@@ -151,12 +152,12 @@ class TestCrypto(unittest.TestCase):
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
             self.assertIsInstance(data6, list)
+            self.assertIsInstance(data7, list)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
             self.assertEqual(len(data3), len(data4))
-            self.assertEqual(len(data5), 164159)
-            self.assertEqual(len(data6), 164160)
+            self.assertTrue(len(data5) == len(data6) == len(data7) == 164159)
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY)
@@ -382,6 +383,7 @@ class TestCrypto(unittest.TestCase):
             data6 = await client.get_aggregate_bars('X:BTCUSD', '2021-06-10', datetime.date(2021, 10, 1),
                                                     full_range=True, run_parallel=True, timespan='minute',
                                                     high_volatility=True)
+            data7 = client.get_full_range_aggregate_bars('BTCUSD', '2021-06-10', '2021-10-01')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data2, HttpxResponse)
@@ -390,12 +392,12 @@ class TestCrypto(unittest.TestCase):
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
             self.assertIsInstance(data6, list)
+            self.assertIsInstance(data7, list)
 
             self.assertEqual(data['status'], 'OK')
             self.assertEqual(data2.json()['status'], 'OK')
             self.assertEqual(len(data3), len(data4))
-            self.assertEqual(len(data5), 164159)
-            self.assertEqual(len(data6), 164160)
+            self.assertTrue(len(data5) == len(data6) == len(data7) == 164159)
 
         # without context manager
         client = polygon.CryptoClient(cred.KEY, True)

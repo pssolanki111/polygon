@@ -118,6 +118,17 @@ class TestCommonMethods(unittest.TestCase):
                                  (datetime.datetime(2021, 6, 5, 0, 0, tzinfo=datetime.timezone.utc),
                                   datetime.datetime(2021, 8, 4, 0, 0, tzinfo=datetime.timezone.utc))])
         self.assertEqual(test4, [('2021-06-05', '2021-12-03')])
+        
+    def test_get_dates_between(self):
+        client = polygon.StocksClient('KEY')
+        
+        test1 = client.get_dates_between('2022-07-08', '2022-07-11')
+        test2 = client.get_dates_between('2022-07-08', '2022-07-11', include_to_date=False)
+        
+        self.assertEqual([client.normalize_datetime(x, 'str') for x in test1], 
+                         ['2022-07-08', '2022-07-09', '2022-07-10', '2022-07-11'])
+        self.assertEqual([client.normalize_datetime(x, 'str') for x in test2],
+                         ['2022-07-08', '2022-07-09', '2022-07-10'])
 
 
 # ========================================================= #
@@ -339,11 +350,13 @@ class TestStocks(unittest.TestCase):
                                               multiplier=1, full_range=True)
             data5 = client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='minute',
                                               multiplier=1, full_range=True, run_parallel=False)
+            data6 = client.get_full_range_aggregate_bars('SPY', '2021-06-01', '2021-12-03')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data3, dict)
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
+            self.assertIsInstance(data6, list)
             self.assertIsInstance(data1, Response)
             self.assertIsInstance(data2, Response)
 
@@ -354,8 +367,7 @@ class TestStocks(unittest.TestCase):
             self.assertLessEqual(len(data1.json()['results']), 10)
             self.assertLessEqual(len(data2.json()['results']), 10)
             self.assertLessEqual(len(data3['results']), 10)
-            self.assertEqual(len(data4), 104312)
-            self.assertEqual(len(data5), 104312)
+            self.assertTrue(len(data4) == len(data5) == len(data6) == 104312)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY)
@@ -725,11 +737,13 @@ class TestStocks(unittest.TestCase):
                                                     multiplier=1, full_range=True)
             data5 = await client.get_aggregate_bars('SPY', '2021-06-01', datetime.date(2021, 12, 3), timespan='minute',
                                                     multiplier=1, full_range=True, run_parallel=False)
+            data6 = await client.get_full_range_aggregate_bars('SPY', '2021-06-01', '2021-12-03')
 
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data3, dict)
             self.assertIsInstance(data4, list)
             self.assertIsInstance(data5, list)
+            self.assertIsInstance(data6, list)
             self.assertIsInstance(data1, HttpxResponse)
             self.assertIsInstance(data2, HttpxResponse)
 
@@ -740,8 +754,7 @@ class TestStocks(unittest.TestCase):
             self.assertLessEqual(len(data1.json()['results']), 10)
             self.assertLessEqual(len(data2.json()['results']), 10)
             self.assertLessEqual(len(data3['results']), 10)
-            self.assertEqual(len(data4), 104312)
-            self.assertEqual(len(data5), 104312)
+            self.assertTrue(len(data4) == len(data5) == len(data6) == 104312)
 
         # Testing without Context Manager
         client = polygon.StocksClient(cred.KEY, True)

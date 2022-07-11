@@ -1,4 +1,4 @@
-# `polygon`: A Polygon.io API Wrapper
+# `polygon`: A Complete Polygon.io API Wrapper
 
 [![Discord](https://img.shields.io/discord/903351697995337820)](https://discord.gg/jPkARduU6N) [![Documentation Status](https://readthedocs.org/projects/polygon/badge/?version=latest)](https://polygon.readthedocs.io/en/latest/Getting-Started.html) [![pypi](https://img.shields.io/pypi/v/polygon?label=latest%20version)](https://pypi.org/project/polygon/) [![Downloads](https://static.pepy.tech/personalized-badge/polygon?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/polygon) [![CodeFactor](https://www.codefactor.io/repository/github/pssolanki111/polygon/badge/main)](https://www.codefactor.io/repository/github/pssolanki111/polygon/overview/main) [![ff](https://img.shields.io/github/issues-raw/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/issues) [![fd](https://img.shields.io/github/contributors/pssolanki111/polygon)](https://github.com/pssolanki111/polygon/graphs/contributors) [![Licenses](https://img.shields.io/pypi/l/polygon)](https://github.com/pssolanki111/polygon/blob/main/LICENSE) [![gh](https://img.shields.io/github/followers/pssolanki111?label=Github%20Follows)](https://github.com/pssolanki111)                                                          
 
@@ -13,15 +13,15 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 - Async support for REST endpoints
 - Built In stream reconnection functionality (Experimental, async streamer only)
 - Full builtin Pagination support (with internal merging of responses)
-- Extensive Option Symbology supporting 5+ option symbol formats 
-- Better Aggregate Bars functionality (useful for **bulk** historical OCHLV) and other simpler helper functions
+- **Bulk** data download functions: bulk OCHLV aggregates bars, bulk ticker details etc.
+- Extensive Option Symbology supporting 6 option symbol formats 
 
 and a lot more...
 
-## How do I use `polygon`
+## How Do I Use `polygon`
 
 The complete description of everything you need to know is available in the [Documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) which has answers to 
-any question you might have with example uses included wherever needed. Docs is a must-read for most people.
+any question you might have with example uses included wherever needed. Docs are a must-read for most people.
 
 - For examples to get started with, see the [examples](https://github.com/pssolanki111/polygon/tree/main/EXAMPLES)
 - For an advanced use case example code involving redis queue and postgresql database, check out 
@@ -33,10 +33,10 @@ any question you might have with example uses included wherever needed. Docs is 
 - The [documentation](https://polygon.readthedocs.io/en/latest/Getting-Started.html) also contain TONS of sample 
   code snippets wherever necessary.
 
-### Here is a quick setup guide with a few examples
+### Quick Setup Guide With Examples
 
 Before you do anything, you'll need to have a polygon account and get your API key. 
-Visit [your dashboard](https://polygon.io/dashboard/api-keys) to get your API key.
+Visit [Your Dashboard](https://polygon.io/dashboard/api-keys) to get yours.
 
 Next, you'd need to install `polygon`
 
@@ -46,11 +46,9 @@ pip install polygon
 
 **and You're good to Go!** 
 
-You can also install optional dependencies (orjson, uvloop) as outlined in [Install Guide](https://polygon.readthedocs.io/en/latest/Getting-Started.html#installing-polygon) 
-
 Here are a few quick usage examples.
 
-### Getting a stock's previous day OCHLV
+### Getting a Stock's Previous Day OCHLV
 
 ```python
 import polygon
@@ -64,7 +62,7 @@ previous_close = stocks_client.get_previous_close('AMD')
 print(previous_close)
 ```
 
-### An Async example for REST endpoints - previous close
+### An Async Example for REST endpoints - Previous Close
 
 ```python
 import polygon
@@ -83,7 +81,7 @@ if __name__ == '__main__':
     asyncio.run(main())
 ```
 
-### A streaming example (callback based)
+### A Streaming Example (Callback Based)
 
 ```python
 import polygon
@@ -102,7 +100,7 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-### An Async streaming example
+### An Async Streaming Example
 
 ```python
 import asyncio
@@ -132,7 +130,7 @@ This only scratches the surface of the library.
 Latest development source code of the library can be found on the 
 [development branch](https://github.com/pssolanki111/polygon/tree/dev)
 
-## what if I need help?
+## What if I need help?
 
 We have a helpful & vibrant community in our [Discord Server](https://discord.gg/jPkARduU6N). Join in to ask a 
 question, share your ideas or observations or to just chat with interesting people, or maybe just for lurking :eyes:
@@ -142,21 +140,21 @@ See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) o
 ## Quick Links for `Speed Runners`
 
 - [Getting Started](https://polygon.readthedocs.io/en/latest/Getting-Started.html) - a must-read for almost everyone
-- [Async support for REST endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)  || [Pagination Support](https://polygon.readthedocs.io/en/latest/Getting-Started.html#pagination-support)
-- Documentation for all [Stocks APIs](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Options APIs](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
-- Documentation for all [Forex APIs](https://polygon.readthedocs.io/en/latest/Forex.html) || [Crypto APIs](https://polygon.readthedocs.io/en/latest/Crypto.html)
-- Documentation for [Callback Streaming](https://polygon.readthedocs.io/en/latest/Callback-Streaming.html) || [Async Streaming](https://polygon.readthedocs.io/en/latest/Async-Streaming.html)
+- [Async support for HTTP endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)
+- [Bulk Data Download Functions](https://polygon.readthedocs.io/en/latest/bulk_data_download_functions.html)
+- [Pagination Support](https://polygon.readthedocs.io/en/latest/Getting-Started.html#pagination-support) || [Option Symbology](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols)
+- [Stocks](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Options](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
+- [Forex & Crypto](https://polygon.readthedocs.io/en/latest/Forex_Crypto.html)
+- [Callback Streaming](https://polygon.readthedocs.io/en/latest/Callback-Streaming.html) || [Async Streaming](https://polygon.readthedocs.io/en/latest/Async-Streaming.html)
 - [Easy guide to enums](https://polygon.readthedocs.io/en/latest/using_enums.html) || [Library Interface Docs](https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html)
-- [Docs on Option Symbology]() 
-- [Docs on bugs, discussions, wikis and FAQs](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html)
-- [Contribution and License](https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html)
+- [bugs, discussions, wikis and FAQs](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html)
 
 ## What else?
 
 - Bug reports, suggestions and pull requests are always welcome.
 - See [Contributing](https://polygon.readthedocs.io/en/latest/contrib_and_license.html) if you wish to contribute.
 - Read [This](https://polygon.readthedocs.io/en/latest/bugs_discussions_wikis_faqs.html) before raising a bug.
-- [Changelog](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md) for the project is available within the same repository
+- [CHANGELOG](https://github.com/pssolanki111/polygon/blob/main/CHANGELOG.md) for the project is available within the same repository
 - `polygon` is released under the [MIT License](https://github.com/pssolanki111/polygon/blob/main/LICENSE)
 
 ---

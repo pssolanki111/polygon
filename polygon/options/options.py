@@ -561,6 +561,55 @@ class SyncOptionsClient(base_client.BaseClient):
         return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                               max_concurrent_workers, warnings, adjusted=adjusted,
                                               multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
+    
+    def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
+                                      adjusted: bool = True, sort='asc', run_parallel: bool = True, 
+                                      max_concurrent_workers: int = cpu_count() * 5,
+                                      warnings: bool = True, high_volatility: bool = False):
+        """
+        Get BULK full range aggregate bars (OCHLV candles) for an option contract.
+        For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
+        `Official Docs
+        <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
+
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+                       ``X:``
+        :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
+                          ``YYYY-MM-DD``
+        :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
+        :param multiplier: The size of the timespan multiplier
+        :param timespan: The size of the time window. Defaults to minute candles. see :class:`polygon.enums.Timespan`
+                         for choices
+        :param adjusted: Whether the results are adjusted for splits. By default, results are adjusted.
+                         Set this to False to get results that are NOT adjusted for splits.
+        :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
+                     Defaults to ``asc`` (oldest at the top)
+        :param run_parallel: Only considered if ``full_range=True``. If set to true (default True), it will run an
+                             internal ThreadPool to get the responses. This is fine to do if you are not running your
+                             own ThreadPool. If you have many tickers to get aggs for, it's better to either use the
+                             async version of it OR set this to False and spawn threads for each ticker yourself.
+        :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
+                                       controls how many worker threads to use in internal ThreadPool
+        :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
+        :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
+                                miss any data due to 50k candle limit. Defaults to False.
+        :return: a single list with all the candles.
+        """
+        if run_parallel:  # Parallel Run
+            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
+            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                  max_concurrent_workers, warnings, adjusted=adjusted,
+                                                  multiplier=multiplier, sort=sort, limit=50_000,
+                                                  timespan=timespan)
+
+        # Sequential Run
+        time_chunks = [from_date, to_date]
+        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                              max_concurrent_workers, warnings, adjusted=adjusted,
+                                              multiplier=multiplier, sort=sort, limit=50_000,
+                                              timespan=timespan)
 
     def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
                      max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
@@ -934,6 +983,55 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
                                                     max_concurrent_workers, warnings, adjusted=adjusted,
                                                     multiplier=multiplier, sort=sort, limit=limit,
+                                                    timespan=timespan)
+    
+    async def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
+                                            adjusted: bool = True, sort='asc', run_parallel: bool = True, 
+                                            max_concurrent_workers: int = cpu_count() * 5,
+                                            warnings: bool = True, high_volatility: bool = False):
+        """
+        Get BULK full range aggregate bars (OCHLV candles) for an option contract
+        For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
+        `Official Docs
+        <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
+
+        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+                       ``X:``
+        :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
+                          ``YYYY-MM-DD``
+        :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
+        :param multiplier: The size of the timespan multiplier
+        :param timespan: The size of the time window. Defaults to minute candles. see :class:`polygon.enums.Timespan`
+                         for choices
+        :param adjusted: Whether the results are adjusted for splits. By default, results are adjusted.
+                         Set this to False to get results that are NOT adjusted for splits.
+        :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
+                     Defaults to ``asc`` (oldest at the top)
+        :param run_parallel: Only considered if ``full_range=True``. If set to true (default True), it will run an
+                             internal ThreadPool to get the responses. This is fine to do if you are not running your
+                             own ThreadPool. If you have many tickers to get aggs for, it's better to either use the
+                             async version of it OR set this to False and spawn threads for each ticker yourself.
+        :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
+                                       controls how many worker threads to use in internal ThreadPool
+        :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
+        :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
+                                miss any data due to 50k candle limit. Defaults to False.
+        :return: a single list with all the candles.
+        """
+        if run_parallel:  # Parallel Run
+            time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
+            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                        max_concurrent_workers, warnings, adjusted=adjusted,
+                                                        multiplier=multiplier, sort=sort, limit=50_000,
+                                                        timespan=timespan)
+
+        # Sequential Run
+        time_chunks = [from_date, to_date]
+        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
+                                                    max_concurrent_workers, warnings, adjusted=adjusted,
+                                                    multiplier=multiplier, sort=sort, limit=50_000,
                                                     timespan=timespan)
 
     async def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,

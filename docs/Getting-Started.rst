@@ -4,7 +4,8 @@
 Getting Started
 ===============
 
-Welcome to ``polygon``. Read this page to quickly install and configure this library to write your first Polygon Python application.
+Welcome to ``polygon``. Read this page to quickly install and configure this library to write your first Polygon 
+Python application.
 
 **It is highly recommended to read this page for everyone since it contains everything you need to get started with the library**
 
@@ -37,23 +38,6 @@ To confirm the install worked, try importing the package as such
   import polygon
 
 If this doesn't throw any errors, the install worked. You may proceed to next steps now.
-
-Optional Libraries
-~~~~~~~~~~~~~~~~~~
-
-You can also install the library with **optional dependencies** (you can skip them if you don't need their functionalities)
-
-.. code-block:: shell
-
-  pip install uvloop  # this will install uvloop, see the uvloop section below to know how to use uvloop for faster performance on pure async programs
-
-  # OR
-
-  pip install orjson  # this will install orjson lib. Polygon lib would use orjson if available for streaming clients only. This enables fast json decoding of responses
-
-  # OR to get both
-
-  pip install orjson, uvloop  # Note that uvloop is only available on Unix platforms as of now
 
 .. _create_and_use_header:
 
@@ -364,87 +348,6 @@ If any of these methods return False, it means no more pages are available.
 
   print(f'all pages received. total pages: {len(all_responses)}')
 
-
-.. _better_aggs_header:
-
-Better Aggregate Bars function
-------------------------------
-
-This is a new method added to the library, making it easy to get historical price candles (OCHLV) with ease. The lib does most of the heavy lifting internally,
-and provides you with a single list which would have ALL the candles.
-
-The functionality is available on both sync (normal) client and also on asyncio based client.
-
-**WHY though??**
-  so the aggregate bars endpoints have a weird thing where they don't have any pagination and the number of maximum candles in one response to 50k only.
-  Now usually this is fine if you only seek minute candles for a month for example. But what if you need historical prices for last 10 years?
-
-  The library attempts to solve that challenge for you. Depending on whether you tell it to run in parallel or sequentially (info on how to customize behavior is below), the
-  function will grab ALL the responses in the **date range you specify**, will drop duplicates, will drop candles which do not fall under the original time range specified by you.
-  merge the response, return a single list with all the data in there.
-
-For most people, the default values should be enough, but for the ones who hate themselves ( :P ), it is possible to customize the behavior however they like.
-
-Note that the methods/functions are the same for all aggregate clients (stocks, options, forex and crypto). Knowing it once is enough for all other clients
-
-How the Hell do I use it then
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
--  First things first, the argument to supply to enable the new aggs functionality is passing ``full_range=True`` to your ``client.get_aggregate_bars()`` call.
-
-   for example: ``stocks_client.get_aggregate_bars('AMD', '2005-06-28', '2021-03-08', full_range=True)``
-
--  The above example will split the larger timeframe into smaller ones, and request them in parallel using a ThreadPool (sync client) or a set of coroutines (async client)
-
--  If you don't want it to run in parallel (recommended to run parallel though), you can just specify ``run_parallel=False``. doing that will make the library request data one by
-   one, using the last response received as the new start point until end date is reached. This might be useful if you're running a thread pool of your own and don't want the internal
-   thread pool to mess with your own thread pool. **on async client, always prefer to run parallel**
-
--  The parallel versions (on both threaded and async clients) always split the larger range into smaller ones (45 days for minute frequency, 60 days for hour frequency,
-   close to 10 years for others). If you find yourself dealing with a very highly volatile symbol (eg spy or some crypto symbols which are traded for a high timespan) and
-   the 50k limit is causing some data to be stripped off, you can add the additional argument ``high_volatility=True``. This will make the library further reduce its time chunk size
-
--  By default it will also print some warnings if they occur. You can turn off those warnings using ``warnings=False``. Only do it if necessary though.
-
--  When working with the parallel versions, you also have the ability to specify how many concurrent threads/coroutines you wish to spawn using ``max_concurrent_workers=a new number``
-   ONLY change it if you know you need it. This can sometimes help reduce loads or gain performance boost depending on whether it's increased or decreased.
-   The default is ``your cpu core count * 5``
-
--  By default, the results returned will be in ascending order (oldest candles first in the final list). To change that simply specify descending order
-   . You can either pass the enum :class:`polygon.enums.SortOrder` (recommended) or pass a string ``sort='desc'``.
-
-I want to do it manually, but could use some help
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Oh sure, You can also do that. the function which actually splits large timeframes to smaller ones, can be used to get a list of smaller timeframes
-with their own start and end times.
-
-Then you can iterate over the list and make requests yourself. Don't do that unless you have to though. It's always better to use built in lib functions
-
-anyways, the function you want to call is ``split_date_range()``. You can call this method like so:
-
-.. code-block:: python
-
-  import polygon
-
-  client = polygon.StocksClient('KEY')
-
-  time_frames = client.split_date_range(start_date, end_date, timespan='minute')
-
-This method also accepts a few more arguments described below:
-
-.. automethod:: polygon.base_client.Base.split_date_range
-   :noindex:
-
-
-so basically
-
--  By default the list returned will have newer timeframes first. To change that just pass ``reverse=False``
-
--  if the symbol you are dealing with is very volatile, so much that the 50k limit per response might be low, you can pass
-   ``high_volatility=True`` and lib will return timeframe in smaller chunks. (for eg, on minute aggs, 45 day chunks are default, for high volatile symbols
-   it will become 30 days)
-
 .. _async_support_header:
 
 Async Support for REST endpoints
@@ -533,6 +436,7 @@ Special Points
 
 * :ref:`stocks_header`
 * :ref:`options_header`
-* :ref:`forex_header` and :ref:`crypto_header`
+* :ref:`forex_and_crypto_header`
 * :ref:`callback_streaming_header` and :ref:`async_streaming_header`
+* :ref:`bulk_data_download_header`
 * :ref:`enums_header`

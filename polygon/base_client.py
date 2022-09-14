@@ -570,6 +570,237 @@ class BaseClient(Base):
             dupe_handler = current_dt
 
         return final_results
+    
+    # Technical Indicators
+    def _get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                 series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                 timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                 raw_response: bool = False):
+        """
+        Get the Simple Moving Average. COMMON method for all clients
+    
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the SMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the SMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/sma/{symbol.upper()}'
+        
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+        
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+        
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+        
+        res = self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+
+    def _get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                 series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                 timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                 raw_response: bool = False):
+        """
+        Get the Exponential Moving Average. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the EMA. i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the EMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the EMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/ema/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+
+        res = self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+    
+    def _get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
+                 series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                 timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                 raw_response: bool = False):
+        """
+        Get the Relative Strength Index. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate RSI are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate RSI. i.e. a window 
+                            size of 14 with daily aggregates would result in a 14 day RSI.
+        :param series_type: The prices in the aggregate which will be used to calculate RSI. 
+                            The default ``close`` will result in using close prices to calculate RSI.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns RSI.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/rsi/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+
+        res = self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+    
+    def _get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, long_window_size: int = 50,
+                  series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                  timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                  short_window_size: int = 50, signal_window_size: int = 50, raw_response: bool = False):
+        """
+        Get the Moving Average Convergence/Divergence. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param long_window_size: The long window size used to calculate the MACD data
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+                            The default ``close`` will result in using close prices to calculate the MACD.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the MACD.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param short_window_size: The short window size used to calculate the MACD data
+        :param signal_window_size: The window size used to calculate the MACD signal line.
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/ema/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'long_window': long_window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit,
+                 'short_window': short_window_size, 'signal_window': signal_window_size}
+
+        res = self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
 
 
 # ========================================================= #
@@ -955,6 +1186,238 @@ class BaseAsyncClient(Base):
             dupe_handler = current_dt
 
         return final_results
+
+    # Technical Indicators
+    async def _get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                       series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                       raw_response: bool = False):
+        """
+        Get the Simple Moving Average. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the SMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the SMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/sma/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+
+        res = await self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+
+    async def _get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                       series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                       raw_response: bool = False):
+        """
+        Get the Exponential Moving Average. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the EMA. i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the EMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the EMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/ema/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+
+        res = await self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+
+    async def _get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
+                       series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                       raw_response: bool = False):
+        """
+        Get the Relative Strength Index. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate RSI are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate RSI. i.e. a window 
+                            size of 14 with daily aggregates would result in a 14 day RSI.
+        :param series_type: The prices in the aggregate which will be used to calculate RSI. 
+                            The default ``close`` will result in using close prices to calculate RSI.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns RSI.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/rsi/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'window': window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit}
+
+        res = await self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
+
+    async def _get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, 
+                        long_window_size: int = 50, series_type='close', include_underlying: bool = False, 
+                        order='desc', limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, 
+                        timestamp_gte=None, short_window_size: int = 50, signal_window_size: int = 50,
+                        raw_response: bool = False):
+        """
+        Get the Moving Average Convergence/Divergence. COMMON method for all clients
+
+        :param symbol: The corrected symbol according to asset type
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param long_window_size: The long window size used to calculate the MACD data
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+                            The default ``close`` will result in using close prices to calculate the MACD.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the MACD.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param short_window_size: The short window size used to calculate the MACD data
+        :param signal_window_size: The window size used to calculate the MACD signal line.
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        _path = f'/v1/indicators/ema/{symbol.upper()}'
+
+        timestamp = self.normalize_datetime(timestamp, 'nts')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, 'nts')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, 'nts')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, 'nts')
+
+        timespan = self._change_enum(timespan)
+        series_type = self._change_enum(series_type)
+        order = self._change_enum(order)
+
+        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
+                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'timespan': timespan,
+                 'adjusted': adjusted, 'long_window': long_window_size, 'series_type': series_type,
+                 'expand_underlying': include_underlying, 'order': order, 'limit': limit,
+                 'short_window': short_window_size, 'signal_window': signal_window_size}
+
+        res = await self._get_response(_path, params=_data)
+        
+        if raw_response:
+            return res
+        
+        return res.json()
 
 
 # ========================================================= #

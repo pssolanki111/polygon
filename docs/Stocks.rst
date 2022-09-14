@@ -28,6 +28,38 @@ here is how the client initializer looks like:
 To use any of the below method, simply call it on the client you created above. so if you named your client ``client``,
 you'd call the methods as ``client.get_trades`` and so on. Async methods will need to be awaited, see :ref:`async_support_header`.
 
+SMA
+---
+
+Simple Moving Average. This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_sma
+   :noindex:
+
+EMA
+---
+
+Exponential Moving Average. This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_ema
+   :noindex:
+
+RSI
+---
+
+Relative Strength Index. This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_rsi
+   :noindex:
+
+MACD
+----
+
+Moving Average Convergence/Divergence. This endpoint supports pagination. Passing ``all_pages=True`` enables it. See :ref:`pagination_header` for better info
+
+.. automethod:: polygon.stocks.stocks.SyncStocksClient.get_macd
+   :noindex:
+
 Get Trades
 ----------
 

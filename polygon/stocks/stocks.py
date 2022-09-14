@@ -615,7 +615,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         :param direction: The direction of results. Defaults to gainers. See :class:`polygon.enums.SnapshotDirection`
                           for choices
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -629,6 +629,157 @@ class SyncStocksClient(base_client.BaseClient):
             return _res
 
         return _res.json()
+    
+    # Technical Indicators
+    def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                raw_response: bool = False):
+        """
+        Get the Simple Moving Average for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the SMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the SMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        return self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                             timestamp_gt, timestamp_gte, raw_response)
+    
+    def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                raw_response: bool = False):
+        """
+        Get the Exponential Moving Average for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the EMA. i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+                            The default ``close`` will result in using close prices to calculate the EMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the EMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        return self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                             timestamp_gt, timestamp_gte, raw_response)
+    
+    def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
+                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                raw_response: bool = False):
+        """
+        Get the Relative Strength Index for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the RSI. i.e. a window 
+                            size of 14 with daily aggregates would result in a 14 day RSI.
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+                            The default ``close`` will result in using close prices to calculate the RSI.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the RSI.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        return self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                             timestamp_gt, timestamp_gte, raw_response)
+    
+    def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, long_window_size: int = 50,
+                 series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                 timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
+                 short_window_size: int = 50, signal_window_size: int = 50,
+                 raw_response: bool = False):
+        """
+        Get the Moving Average Convergence/Divergence for a stock
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+                         adjusted for splits.
+        :param long_window_size: The long window size used to calculate the MACD data
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+                            The default ``close`` will result in using close prices to calculate the MACD.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the MACD.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param short_window_size: The short window size used to calculate the MACD data
+        :param signal_window_size: The window size used to calculate the MACD signal line.
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
+                             status code or inspect the headers. Defaults to False which returns the json decoded
+                             dictionary.
+        :return: The response object
+        """
+        return self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type, 
+                              include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt, 
+                              timestamp_gte, short_window_size, signal_window_size, raw_response)
 
 
 # ========================================================= #
@@ -1223,6 +1374,145 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             return _res
 
         return _res.json()
+
+    # Technical Indicators
+    async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+        """
+        Get the Simple Moving Average for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+                         are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+                            The default ``close`` will result in using close prices to calculate the SMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the SMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :return: The response object
+        """
+        return await self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                                   timestamp_gt, timestamp_gte)
+
+    async def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
+                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+        """
+        Get the Exponential Moving Average for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+                         are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the EMA. i.e. a window 
+                            size of 10 with daily aggregates would result in a 10 day moving average.
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+                            The default ``close`` will result in using close prices to calculate the EMA.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the EMA.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :return: The response object
+        """
+        return await self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                                   timestamp_gt, timestamp_gte)
+
+    async def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
+                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
+                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+        """
+        Get the Relative Strength Index for a Stock symbol
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+                         are NOT 
+                         adjusted for splits.
+        :param window_size: The window size used to calculate the RSI. i.e. a window 
+                            size of 14 with daily aggregates would result in a 14 day RSI.
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+                            The default ``close`` will result in using close prices to calculate the RSI.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the RSI.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :return: The response object
+        """
+        return await self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
+                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
+                                   timestamp_gt, timestamp_gte)
+
+    async def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
+                       long_window_size: int = 50, series_type='close', include_underlying: bool = False, 
+                       order='desc', limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, 
+                       timestamp_gte=None, short_window_size: int = 50, signal_window_size: int = 50):
+        """
+        Get the Moving Average Convergence/Divergence for a stock
+
+        :param symbol: The stock symbol
+        :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+                         for choices
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+                         are NOT 
+                         adjusted for splits.
+        :param long_window_size: The long window size used to calculate the MACD data
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+                            The default ``close`` will result in using close prices to calculate the MACD.
+                            See :class:`polygon.enums.SeriesType` for choices
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+                                   indicator in the response. Defaults to False which only returns the MACD.
+        :param order: The order in which to return the results, ordered by timestamp. 
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param limit: Limit the number of results returned, default is 5000 which is also the max
+        :param timestamp_lt: Only use results where timestamp is less than supplied value
+        :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
+        :param timestamp_gt: Only use results where timestamp is greater than supplied value
+        :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param short_window_size: The short window size used to calculate the MACD data
+        :param signal_window_size: The window size used to calculate the MACD signal line.
+        :return: The response object
+        """
+        return await self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
+                                    include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
+                                    timestamp_gte, short_window_size, signal_window_size)
 
 
 # ========================================================= #

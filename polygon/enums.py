@@ -431,6 +431,18 @@ class OptionSymbolFormat(enum.Enum):
     INTERACTIVE_BROKERAGE = 'ibkr'
 
 
+# INDICATORS
+# Indicator Series Type - Common
+class SeriesType(enum.Enum):
+    """
+    Series Type to be used for Indicators calculations
+    """
+    CLOSE = 'close'
+    OPEN = 'OPEN'
+    HIGH = 'HIGH'
+    LOW = 'LOW'
+    
+
 # ========================================================= #
 
 if __name__ == '__main__':

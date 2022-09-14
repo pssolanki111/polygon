@@ -5,6 +5,11 @@ All notable changes to the project are documented here.
 Version history is sorted from most recent release to the least recent
 
 ---
+
+## `v1.1.0` - (2022-09-13)
+
+-  Added the new technical Indicator endpoints to library. Includes SMA, EMA, RSI and MACD. See docs for more details.
+
 ## `v1.0.9` - (2022-07-11)
 
 - Added [Bulk Ticker Details](https://polygon.readthedocs.io/en/latest/bulk_data_download_functions.html#bulk-ticker-details). Thanks to @AlbusFrigoris for the suggestion.
@@ -16,6 +21,7 @@ Version history is sorted from most recent release to the least recent
 ---
 ## `v1.0.8` - (2022-06-25)
 
+- Docs for this version are available [Here](https://polygon.readthedocs.io/en/1.0.8/)
 - Removed orjson from REST clients, using `.json()` response method again due to a drop in multicore performance. 
   Thanks to @Baker XBL for the reports.
 - The option symbology is UPDATED and BETTER than ever. [Docs](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols) are re-written. Support for 6 symbol formats added.

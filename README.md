@@ -8,7 +8,8 @@ simple and elegant programmatic access over each endpoint. Functionalities inclu
 
 - Stocks and Options data
 - Forex and Crypto data
-- Websocket streaming (both callback and async based)
+- Real time Websocket streaming (both callback and async based)
+- Technical Indicators (SMA, EMA, RSI, MACD)
 - Market Info, News, Holidays, Schedules, Tickers, Conditions, Dividends, Splits
 - Async support for REST endpoints
 - Built In stream reconnection functionality (Experimental, async streamer only)

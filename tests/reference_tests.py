@@ -152,7 +152,18 @@ class TestReferences(unittest.TestCase):
             data1 = client.get_option_contracts('AMD', limit=10, contract_type='call', raw_response=True)
             data3 = client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2)
             data4 = client.get_option_contracts('AMD', limit=5, all_pages=True, max_pages=2, merge_all_pages=False)
-
+            
+            # as_of_date test to get historical contracts
+            one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
+            data_one_year_ago = client.get_option_contracts('AMD', all_pages=True, as_of_date=one_year_ago)
+            self.assertIsInstance(data_one_year_ago, list)
+            self.assertTrue(len(data_one_year_ago) > 0)
+            # as of one year ago, we must have at least one expiration date in the year and month of one_year_ago
+            # list of expiration dates with the day stripped
+            exp_year_and_month = [c['expiration_date'][:7] for c in data_one_year_ago]
+            self.assertIn(one_year_ago.strftime('%Y-%m'), exp_year_and_month)
+            
+        
             self.assertIsInstance(data, dict)
             self.assertIsInstance(data1, Response)
             self.assertIsInstance(data3, list)
@@ -475,6 +486,17 @@ class TestReferences(unittest.TestCase):
             self.assertEqual(len(data3), 10)
             self.assertEqual(len(data4), 2)
             self.assertEqual(data1.json()['status'], 'OK')
+
+
+            # as_of_date test to get historical contracts
+            one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
+            data_one_year_ago = await client.get_option_contracts('AMD', all_pages=True, as_of_date=one_year_ago)
+            self.assertIsInstance(data_one_year_ago, list)
+            self.assertTrue(len(data_one_year_ago) > 0)
+            # as of one year ago, we must have at least one expiration date in the year and month of one_year_ago
+            # list of expiration dates with the day stripped
+            exp_year_and_month = [c['expiration_date'][:7] for c in data_one_year_ago]
+            self.assertIn(one_year_ago.strftime('%Y-%m'), exp_year_and_month)
 
         # without context manager
         client = polygon.ReferenceClient(cred.KEY, True)

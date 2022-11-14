@@ -297,7 +297,8 @@ class SyncReferenceClient(base_client.BaseClient):
                              expiration_date=None, expiration_date_lt=None, expiration_date_lte=None,
                              expiration_date_gt=None, expiration_date_gte=None, order='asc', sort='expiration_date',
                              limit=1000, all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                             verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+                             verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False,
+                             as_of_date=None):
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
@@ -332,6 +333,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
+        :param as_of_date: Specify a point in time for contracts as of this date with format YYYY-MM-DD. Defaults to today's date.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
@@ -345,6 +347,8 @@ class SyncReferenceClient(base_client.BaseClient):
 
         expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
 
+        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -353,7 +357,8 @@ class SyncReferenceClient(base_client.BaseClient):
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
                  'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
-                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit,
+                 'as_of' : as_of_date}
 
         _res = self._get_response(_path, params=_data)
 
@@ -1121,7 +1126,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                                    expiration_date_gt=None, expiration_date_gte=None, order='asc',
                                    sort='expiration_date', limit=1000, all_pages: bool = False,
                                    max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                                   raw_page_responses: bool = False, raw_response: bool = False):
+                                   raw_page_responses: bool = False, raw_response: bool = False,
+                                   as_of_date=None):
         """
         List currently active options contracts
         `Official Docs <https://polygon.io/docs/options/get_v3_reference_options_contracts>`__
@@ -1156,6 +1162,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
+        :param as_of_date: Specify a point in time for contracts as of this date with format YYYY-MM-DD. Defaults to today's date.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
@@ -1169,6 +1176,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         expiration_date_gte = self.normalize_datetime(expiration_date_gte, output_type='str')
 
+        as_of_date = self.normalize_datetime(as_of_date, output_type='str')
+
         contract_type = self._change_enum(contract_type, str)
         sort, order = self._change_enum(sort, str), self._change_enum(order, str)
 
@@ -1177,7 +1186,8 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         _data = {'ticker': ticker, 'underlying_ticker': underlying_ticker, 'contract_type': contract_type,
                  'expiration_date': expiration_date, 'expiration_date.lt': expiration_date_lt,
                  'expiration_date.lte': expiration_date_lte, 'expiration_date.gt': expiration_date_gt,
-                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit}
+                 'expiration_date.gte': expiration_date_gte, 'order': order, 'sort': sort, 'limit': limit,
+                 'as_of': as_of_date}
 
         _res = await self._get_response(_path, params=_data)
 

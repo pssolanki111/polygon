@@ -33,10 +33,9 @@ Setting Up the Development Environment
 
 May not be needed for documentation improvements.
 
-Dependencies are listed in `requirements.txt <https://github.com/pssolanki111/polygon/blob/main/requirements.txt>`__.
-The list has ``sphinx`` and ``sphinx_rtd_theme`` which are only meant to build documentation.
+Dependencies are listed in `requirements.txt <https://github.com/pssolanki111/polygon/blob/main/requirements.txt>`__ and `requirements.dev <https://github.com/pssolanki111/polygon/blob/main/requirements.dev>`__.
 
-It is highly recommended to install the dependencies in a virtual environment to avoid messing with your global interpreter.
+It is highly recommended to install the dependencies in a virtual environment.
 
 .. code-block:: shell
 
@@ -50,17 +49,15 @@ Install the requirements using
 
 .. code-block:: shell
 
-  pip install -r requirements.txt
+  pip install -r requirements/requirements.txt
+  pip install -r requirements/requirements.dev
 
 **Now you can make your changes**
 
 Testing your changes
 ~~~~~~~~~~~~~~~~~~~~
 
-Currently the project uses the actual endpoints to perform tests (Suggestions/PRs for better testing mechanism are welcome)
-
-All test files are under directory ``tests``. You'd need a valid polygon API key to perform the tests as they are right now. If you don't have a
-subscription, just make the changes, test them the way you like and raise the PR. I'll test the changes before merging.
+Existing Test cases have been removed as part of release 1.1.1 in favor of REWRITING all test cases using a better approach. This will be a work in progress. Please feel free to contribute test cases written in **unittest/pytest**.
 
 However if you made changes to the documentation, run the below commands to build locally and test the documentation
 
@@ -76,5 +73,5 @@ Remember to document your changes like this library does already.
 License
 -------
 
-Don't kid yourself. You don't care what license does the project use, do you? Anyways the project is licensed under
+Don't kid yourself. You don't care what license the project uses, do you? Anyways the project is licensed under
 MIT License. See `License <https://github.com/pssolanki111/polygon/blob/main/LICENSE>`__ for more details.

@@ -6,6 +6,11 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.1.1` - (2023-09-21)
+
+-  `as_of` parameter now supported on option contract endpoint
+-  Restructure of requirements file and minor updates to documentation
+
 ## `v1.1.0` - (2022-09-13)
 
 -  Added the new technical Indicator endpoints to library. Includes SMA, EMA, RSI and MACD. See docs for more details.

@@ -385,6 +385,7 @@ Here is how you can use it grab the current price of a symbol
       stocks_client = polygon.StocksClient('API_KEY', True)
 
       current_price = await stocks_client.get_current_price('AMD')
+      await stocks_client.close()  # close the client when you're done
       print(current_price)
 
   if __name__ == '__main__':

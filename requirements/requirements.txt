@@ -1,0 +1,8 @@
+requests
+websocket-client
+websockets
+httpx
+orjson
+
+# Only needed for uvloop implementation - can NOT be installed on windows
+# uvloop

@@ -777,7 +777,7 @@ class BaseClient(Base):
                              dictionary.
         :return: The response object
         """
-        _path = f'/v1/indicators/ema/{symbol.upper()}'
+        _path = f'/v1/indicators/macd/{symbol.upper()}'
 
         timestamp = self.normalize_datetime(timestamp, 'nts')
         timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')
@@ -1394,7 +1394,7 @@ class BaseAsyncClient(Base):
                              dictionary.
         :return: The response object
         """
-        _path = f'/v1/indicators/ema/{symbol.upper()}'
+        _path = f'/v1/indicators/macd/{symbol.upper()}'
 
         timestamp = self.normalize_datetime(timestamp, 'nts')
         timestamp_lt = self.normalize_datetime(timestamp_lt, 'nts')

@@ -6,6 +6,10 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.1.2` - (2023-09-24)
+
+-  Fixed minor bug: Wrong underlying API call for `get_macd`. [#14](https://github.com/pssolanki111/polygon/issues/14)
+
 ## `v1.1.1` - (2023-09-21)
 
 -  `as_of` parameter now supported on option contract endpoint

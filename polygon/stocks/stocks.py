@@ -1110,7 +1110,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
                                  full_range: bool = False, run_parallel: bool = True,
-                                 max_concurrent_workers: int = cpu_count() * 5,  warnings: bool = True,
+                                 max_concurrent_workers: int = cpu_count() * 5, warnings: bool = True,
                                  info: bool = True, high_volatility: bool = False, raw_response: bool = False):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.

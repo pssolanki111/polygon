@@ -433,7 +433,7 @@ class BaseClient(Base):
 
     def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
                                   max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                  adjusted: bool = True, sort='asc', limit: int = 5000,
+                                  info: bool = True, adjusted: bool = True, sort='asc', limit: int = 5000,
                                   multiplier: int = 1, timespan='day') -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
@@ -447,6 +447,8 @@ class BaseClient(Base):
                              have a ThreadPool of your own, only one ThreadPool will be running at a time and the
                              other pool will wait. set to False to get all responses in sequence (will take time)
         :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
+        :param info: Defaults to True which prints mild level warnings / informational messages e.g. when
+                     there is no data in response but the response is otherwise OK. Set to False to disable
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        threads are spawned in the internal thread pool. Defaults to ``your cpu core
                                        count * 5``
@@ -461,13 +463,13 @@ class BaseClient(Base):
         :return: A single merged list of ALL candles/bars
         """
 
-        if run_parallel and warnings:
+        if run_parallel and info:
             print(f'WARNING: Running with threading will spawn an internal ThreadPool to get responses in parallel. '
                   f'It is fine if you are not running a ThreadPool of your own. But If you are, know that only one '
                   f'pool will run at a time due to python GIL restriction. Other pool will wait. You can pass '
                   f'warnings=False to disable this warning OR pass run_parallel=False to disable running internal '
                   f'thread pool')
-        if (not run_parallel) and warnings:
+        if (not run_parallel) and info:
             print(f'WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour '
                   f'aggs on a BIG time frame. If you have more than one symbol to run, it is suggested to run both '
                   f'of them in their own thread. You can pass warnings=False to disable this warning OR '
@@ -494,13 +496,19 @@ class BaseClient(Base):
                 try:
                     data = future.result()['results']
                 except KeyError:
-                    if warnings:
-                        print(f'No data returned. response: {future.result()}')
+                    if future.result().get("status") == "OK":
+                        if info:
+                            print(f'INFO: No data returned. response: {future.result()}')
+                    elif warnings:
+                        print(f'WARN: No data returned. response: {future.result()}')
                     continue
 
                 if len(data) < 1:
-                    if warnings:
-                        print(f'No data returned. response: {future.result()}')
+                    if future.result().get("status") == "OK":
+                        if info:
+                            print(f'INFO: No data returned. response: {future.result()}')
+                    elif warnings:
+                        print(f'WARN: No data returned. response: {future.result()}')
                     continue
 
                 final_results += [candle for candle in data if (candle['t'] > dupe_handler)]
@@ -530,8 +538,12 @@ class BaseClient(Base):
             try:
                 return res['results']
             except KeyError:
-                if warnings:
-                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                if res.get("status") == "OK":
+                    if info:
+                        print(f'INFO: no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                              f'{res}')
+                elif warnings:
+                    print(f'WARN: no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
                           f'{res}')
                 return []
 
@@ -547,8 +559,12 @@ class BaseClient(Base):
             try:
                 data = res['results']
             except KeyError:
-                if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
+                if res.get("status") == "OK":
+                    if info:
+                        print(f'INFO: No data found for {symbol} between {current_dt} and {end_dt} with '
+                              f'response: {res}. Terminating loop...')
+                elif warnings:
+                    print(f'WARN: No data found for {symbol} between {current_dt} and {end_dt} with '
                           f'response: {res}. Terminating loop...')
                 break
 
@@ -1052,7 +1068,7 @@ class BaseAsyncClient(Base):
 
     async def get_full_range_aggregates(self, fn, symbol: str, time_chunks: list, run_parallel: bool = True,
                                         max_concurrent_workers: int = os.cpu_count() * 5, warnings: bool = True,
-                                        adjusted: bool = True, sort='asc', limit: int = 5000,
+                                        info: bool = True, adjusted: bool = True, sort='asc', limit: int = 5000,
                                         multiplier: int = 1, timespan='day') -> list:
         """
         Internal helper function to fetch aggregate bars for BIGGER time ranges. Should only be used internally.
@@ -1066,6 +1082,8 @@ class BaseAsyncClient(Base):
                              have a ThreadPool of your own, only one ThreadPool will be running at a time and the
                              other pool will wait. set to False to get all responses in sequence (will take time)
         :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
+        :param info: Defaults to True which prints mild warnings and informational messages. E.g. if the
+                     response came back with no data but otherwise it was a valid response
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        coroutines are spawned internally. Defaults to ``your cpu core count * 5``.
                                        An ``asyncio.Semaphore()`` is used behind the scenes.
@@ -1080,7 +1098,7 @@ class BaseAsyncClient(Base):
         :return: A single merged list of ALL candles/bars
         """
 
-        if (not run_parallel) and warnings:
+        if (not run_parallel) and info:
             print(f'WARNING: Running sequentially can take a lot of time especially if you are pulling minute/hour '
                   f'aggs on a BIG time frame. If you have more than one symbols to run, it is suggested to run one '
                   f'coroutine for each ticker. You can pass warnings=False to disable this warning OR '
@@ -1108,13 +1126,19 @@ class BaseAsyncClient(Base):
                 try:
                     data = future['results']
                 except KeyError:
-                    if warnings:
-                        print(f'No data returned. Response: {future}')
+                    if future.get("status") == "OK":
+                        if info:
+                            print(f'INFO: No data returned. Response: {future}')
+                    elif warnings:
+                        print(f'WARN: No data returned. Response: {future}')
                     continue
 
                 if len(data) < 1:
-                    if warnings:
-                        print(f'No data returned. Response: {future}')
+                    if future.get("status") == "OK":
+                        if info:
+                            print(f'INFO: No data returned. Response: {future}')
+                    elif warnings:
+                        print(f'WARN: No data returned. Response: {future}')
                     continue
 
                 # final_results += [candle for candle in data if (candle['t'] > dupe_handler) and (
@@ -1146,8 +1170,12 @@ class BaseAsyncClient(Base):
             try:
                 return res['results']
             except KeyError:
-                if warnings:
-                    print(f'no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                if res.get("status") == "OK":
+                    if info:
+                        print(f'INFO: no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
+                              f'{res}')
+                elif warnings:
+                    print(f'WARN: no data returned for {symbol} for range {first_entry} to {end_dt}. Response: '
                           f'{res}')
                 return []
 
@@ -1163,8 +1191,12 @@ class BaseAsyncClient(Base):
             try:
                 data = res['results']
             except KeyError:
-                if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
+                if res.get("status") == "OK":
+                    if info:
+                        print(f'INFO: No data found for {symbol} between {current_dt} and {end_dt} with '
+                              f'response: {res}. Terminating loop...')
+                elif warnings:
+                    print(f'WARN: No data found for {symbol} between {current_dt} and {end_dt} with '
                           f'response: {res}. Terminating loop...')
                 break
 

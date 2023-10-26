@@ -597,8 +597,9 @@ class SyncReferenceClient(base_client.BaseClient):
                                 period_of_report_date=None, period_of_report_date_lt=None,
                                 period_of_report_date_lte=None, period_of_report_date_gt=None,
                                 period_of_report_date_gte=None, time_frame=None, include_sources: bool = False,
-                                order='asc', limit: int = 50, sort='filing_date',
-                                raw_response: bool = False):
+                                order='asc', limit: int = 50, sort='filing_date', all_pages: bool = False,
+                                max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
+                                raw_page_responses: bool = False, raw_response: bool = False):
         """
         Get historical financial data for a stock ticker. The financials data is extracted from XBRL from company SEC
         filings using `this methodology <http://xbrl.squarespace.com/understanding-sec-xbrl-financi/>`__
@@ -634,6 +635,19 @@ class SyncReferenceClient(base_client.BaseClient):
         :param limit: number of max results to obtain. defaults to 50.
         :param sort: Sort field key used for ordering. 'filing_date' default. see
                      :class:`polygon.enums.StockFinancialsSortKey` for choices.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -677,10 +691,14 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if raw_response:
-            return _res
+        if not all_pages:  # don't you dare paginating!!
+            if raw_response:
+                return _res
 
-        return _res.json()
+            return _res.json()
+
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
+                              raw_page_responses=raw_page_responses)
 
     def get_stock_splits(self, ticker: str = None, execution_date=None, reverse_split: bool = None, order: str = 'asc',
                          sort: str = 'execution_date', limit: int = 1000, ticker_lt=None, ticker_lte=None,

@@ -6,6 +6,12 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.1.3` - (2023-11-14)
+
+-  Gracefully handle JSON Parser issues (Thanks @MuradGithub for the contribution)
+-  Add `info` log level handler to pagination methods (Thanks @MuradGithub for the contribution)
+-  Add `tos1` option symbol format. (Thanks @greko6 for bringing this up as [#16](https://github.com/pssolanki111/polygon/issues/16))
+
 ## `v1.1.2` - (2023-09-24)
 
 -  Fixed minor bug: Wrong underlying API call for `get_macd`. [#14](https://github.com/pssolanki111/polygon/issues/14)

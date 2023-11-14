@@ -349,7 +349,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -423,7 +423,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -447,7 +447,7 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                              raw_response: bool = False):
@@ -478,11 +478,11 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                            sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
+                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
                            warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
@@ -512,6 +512,8 @@ class SyncOptionsClient(base_client.BaseClient):
                              async version of it OR set this to False and spawn threads for each ticker yourself.
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
+        :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
+                     aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
                                 having a very high number of trades or being traded for a high duration (eg SPY, 
@@ -547,24 +549,24 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, adjusted=adjusted,
+                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                   multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, adjusted=adjusted,
+                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
                                               multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
     
     def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
                                       adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                      max_concurrent_workers: int = cpu_count() * 5,
+                                      max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
                                       warnings: bool = True, high_volatility: bool = False):
         """
         Get BULK full range aggregate bars (OCHLV candles) for an option contract.
@@ -590,6 +592,8 @@ class SyncOptionsClient(base_client.BaseClient):
                              async version of it OR set this to False and spawn threads for each ticker yourself.
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
+        :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
+                     aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
                                 having a very high number of trades or being traded for a high duration (eg SPY,
@@ -600,14 +604,14 @@ class SyncOptionsClient(base_client.BaseClient):
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, adjusted=adjusted,
+                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                   multiplier=multiplier, sort=sort, limit=50_000,
                                                   timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, adjusted=adjusted,
+                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
                                               multiplier=multiplier, sort=sort, limit=50_000,
                                               timespan=timespan)
 
@@ -649,7 +653,7 @@ class SyncOptionsClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -678,7 +682,7 @@ class SyncOptionsClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     # Technical Indicators
     def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
@@ -936,7 +940,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1010,7 +1014,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1034,7 +1038,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                                    raw_response: bool = False):
@@ -1065,13 +1069,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
                                  full_range: bool = False, run_parallel: bool = True,
-                                 max_concurrent_workers: int = cpu_count() * 5, warnings: bool = True,
-                                 high_volatility: bool = False, raw_response: bool = False):
+                                 max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
+                                 warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -1100,6 +1104,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                              async version of it OR set this to False and spawn threads for each ticker yourself.
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
+        :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
+                     aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
                                 having a very high number of trades or being traded for a high duration (eg SPY,
@@ -1135,26 +1141,26 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, adjusted=adjusted,
+                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                         multiplier=multiplier, sort=sort, limit=limit,
                                                         timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, adjusted=adjusted,
+                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                     multiplier=multiplier, sort=sort, limit=limit,
                                                     timespan=timespan)
     
     async def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
                                             adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                            max_concurrent_workers: int = cpu_count() * 5,
+                                            max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
                                             warnings: bool = True, high_volatility: bool = False):
         """
         Get BULK full range aggregate bars (OCHLV candles) for an option contract
@@ -1180,6 +1186,8 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                              async version of it OR set this to False and spawn threads for each ticker yourself.
         :param max_concurrent_workers: Only considered if ``run_parallel=True``. Defaults to ``your cpu cores * 5``.
                                        controls how many worker threads to use in internal ThreadPool
+        :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
+                     aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
                                 having a very high number of trades or being traded for a high duration (eg SPY,
@@ -1190,14 +1198,14 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
             return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, adjusted=adjusted,
+                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                         multiplier=multiplier, sort=sort, limit=50_000,
                                                         timespan=timespan)
 
         # Sequential Run
         time_chunks = [from_date, to_date]
         return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, adjusted=adjusted,
+                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
                                                     multiplier=multiplier, sort=sort, limit=50_000,
                                                     timespan=timespan)
 
@@ -1239,7 +1247,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1268,7 +1276,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     # Technical Indicators
     async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,

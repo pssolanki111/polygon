@@ -87,11 +87,10 @@ class SyncStocksClient(base_client.BaseClient):
                  'limit': limit}
 
         _res = self._get_response(_path, params=_data)
-
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -158,7 +157,7 @@ class SyncStocksClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -211,7 +210,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                       timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -278,7 +277,7 @@ class SyncStocksClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                               raw_page_responses=raw_page_responses)
@@ -302,7 +301,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
@@ -323,7 +322,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                              raw_response: bool = False):
@@ -353,7 +352,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                            sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
@@ -370,7 +369,7 @@ class SyncStocksClient(base_client.BaseClient):
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
         :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
-                         to false to get results that are NOT adjusted for splits.
+                         to False to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
                       Default 5000.
@@ -422,7 +421,7 @@ class SyncStocksClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -515,7 +514,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_previous_close(self, symbol: str, adjusted: bool = True,
                            raw_response: bool = False):
@@ -541,7 +540,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
@@ -564,7 +563,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_current_price(self, symbol: str) -> float:
         """
@@ -610,7 +609,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
         """
@@ -632,7 +631,7 @@ class SyncStocksClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
     
     # Technical Indicators
     def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
@@ -842,7 +841,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -909,7 +908,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -963,7 +962,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
                             timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
@@ -1030,7 +1029,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
                                     raw_page_responses=raw_page_responses)
@@ -1054,7 +1053,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_last_quote(self, symbol: str, raw_response: bool = False):
         """
@@ -1075,7 +1074,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
                                    raw_response: bool = False):
@@ -1105,7 +1104,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
                                  sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
@@ -1175,7 +1174,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         # The full range agg begins
         if run_parallel:  # Parallel Run
@@ -1267,7 +1266,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_previous_close(self, symbol: str, adjusted: bool = True,
                                  raw_response: bool = False):
@@ -1293,7 +1292,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_snapshot(self, symbol: str, raw_response: bool = False):
         """
@@ -1316,7 +1315,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_current_price(self, symbol: str) -> float:
         """
@@ -1358,7 +1357,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_gainers_and_losers(self, direction='gainers',
                                      raw_response: bool = False):
@@ -1381,7 +1380,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     # Technical Indicators
     async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,

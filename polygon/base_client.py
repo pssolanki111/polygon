@@ -7,6 +7,7 @@ from httpx import Response as HttpxResponse
 from enum import Enum
 import os
 import datetime
+import json
 
 # ========================================================= #
 
@@ -175,7 +176,16 @@ class Base:
 
         if isinstance(val, allowed_type) or val is None:
             return val
-        
+
+    @staticmethod
+    def to_json_safe(response: Union[Response, dict]) -> dict:
+        if isinstance(response, dict):
+            return response
+        try:
+            return response.json()
+        except json.decoder.JSONDecodeError as e:
+            return vars(e)
+
     def get_dates_between(self, from_date=None, to_date=None, include_to_date: bool = True) -> list:
         """
         Get a list of dates between the two specified dates (from_date and to_date)
@@ -269,7 +279,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
         """
@@ -288,7 +298,7 @@ class BaseClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_next_page(self, old_response: Union[Response, dict],
                       raw_response: bool = False) -> Union[Response, dict, bool]:
@@ -392,7 +402,7 @@ class BaseClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(_res.json())
+            container.append(self.to_json_safe(_res))
 
         return container
 
@@ -415,11 +425,11 @@ class BaseClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [self.to_json_safe(_res)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [self.to_json_safe(_res)] + self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []
@@ -561,17 +571,20 @@ class BaseClient(Base):
             except KeyError:
                 if res.get("status") == "OK":
                     if info:
-                        print(f'INFO: No data found for {symbol} between {current_dt} and {end_dt} with '
-                              f'response: {res}. Terminating loop...')
+                        print(f'INFO: No data found for {symbol} between '
+                              f'{datetime.datetime.fromtimestamp(current_dt/1e3)} and '
+                              f'{datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}.'
+                              f' Terminating loop...')
                 elif warnings:
-                    print(f'WARN: No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(f'WARN: No data found for {symbol} between {datetime.datetime.fromtimestamp(current_dt/1e3)}'
+                          f' and {datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}. '
+                          f'Terminating loop...')
                 break
 
             if len(data) < 1:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(f'No data found for {symbol} between {datetime.datetime.fromtimestamp(current_dt/1e3)} and '
+                          f'{datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}. Terminating loop...')
                 break
 
             temp_len = len(final_results)
@@ -643,7 +656,7 @@ class BaseClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
     def _get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
                  series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
@@ -700,7 +713,7 @@ class BaseClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
     
     def _get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
                  series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
@@ -757,7 +770,7 @@ class BaseClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
     
     def _get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, long_window_size: int = 50,
                   series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
@@ -816,7 +829,7 @@ class BaseClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
 
 # ========================================================= #
@@ -903,7 +916,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
@@ -922,7 +935,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_next_page(self, old_response: Union[HttpxResponse, dict],
                             raw_response: bool = False) -> Union[HttpxResponse, dict, bool]:
@@ -1027,7 +1040,7 @@ class BaseAsyncClient(Base):
                 container.append(_res)
                 continue
 
-            container.append(_res.json())
+            container.append(self.to_json_safe(_res))
 
         return container
 
@@ -1050,11 +1063,11 @@ class BaseAsyncClient(Base):
 
         # How many pages do you want?? YES!!!
         if merge_all_pages:  # prepare for a merge
-            pages = [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            pages = [self.to_json_safe(_res)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
         elif raw_page_responses:  # we don't need your help, adventurer (no merge, no decoding)
             return [_res] + await self.get_all_pages(_res, raw_responses=True, max_pages=max_pages, verbose=verbose)
         else:  # okay a little bit of help is fine  (no merge, only decoding)
-            return [_res.json()] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
+            return [self.to_json_safe(_res)] + await self.get_all_pages(_res, max_pages=max_pages, verbose=verbose)
 
         # We need your help adventurer  (decode and merge)
         container = []
@@ -1193,17 +1206,20 @@ class BaseAsyncClient(Base):
             except KeyError:
                 if res.get("status") == "OK":
                     if info:
-                        print(f'INFO: No data found for {symbol} between {current_dt} and {end_dt} with '
-                              f'response: {res}. Terminating loop...')
+                        print(f'INFO: No data found for {symbol} between '
+                              f'{datetime.datetime.fromtimestamp(current_dt/1e3)} and '
+                              f'{datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}. '
+                              f'Terminating loop...')
                 elif warnings:
-                    print(f'WARN: No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(f'WARN: No data found for {symbol} between {datetime.datetime.fromtimestamp(current_dt/1e3)}'
+                          f' and {datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}. '
+                          f'Terminating loop...')
                 break
 
             if len(data) < 1:
                 if warnings:
-                    print(f'No data found for {symbol} between {current_dt} and {end_dt} with '
-                          f'response: {res}. Terminating loop...')
+                    print(f'No data found for {symbol} between {datetime.datetime.fromtimestamp(current_dt/1e3)} '
+                          f'and {datetime.datetime.fromtimestamp(end_dt/1e3)} with response: {res}. Terminating loop...')
                 break
 
             temp_len = len(final_results)
@@ -1275,7 +1291,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
     async def _get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
                        series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
@@ -1332,7 +1348,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
     async def _get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
                        series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
@@ -1389,7 +1405,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
     async def _get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, 
                         long_window_size: int = 50, series_type='close', include_underlying: bool = False, 
@@ -1449,7 +1465,7 @@ class BaseAsyncClient(Base):
         if raw_response:
             return res
         
-        return res.json()
+        return self.to_json_safe(res)
 
 
 # ========================================================= #

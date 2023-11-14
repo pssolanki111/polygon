@@ -288,7 +288,7 @@ class BaseClient(Base):
     def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[Response, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
-        pagination (eg the tickers endpoint). If the response doesn't contain this attribute, either all pages were
+        pagination (e.g. the tickers endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination. Meant for internal use primarily.
 
         :param url: The next URL. As contained in ``next_url`` of the response.
@@ -313,7 +313,7 @@ class BaseClient(Base):
         remaining (which implies that you have reached the end of all pages or the endpoint doesn't support pagination).
 
         :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -340,7 +340,7 @@ class BaseClient(Base):
         pagination).
 
         :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -491,7 +491,7 @@ class BaseClient(Base):
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        threads are spawned in the internal thread pool. Defaults to ``your cpu core
                                        count * 5``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: Whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
@@ -705,7 +705,7 @@ class BaseClient(Base):
                          splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
         :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
-                            size of 10 with daily aggregates would result in a 10 day moving average.
+                            size of 10 with daily aggregates would result in a 10-day moving average.
         :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
@@ -785,7 +785,7 @@ class BaseClient(Base):
                          splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
         :param window_size: The window size used to calculate the EMA. i.e. a window
-                            size of 10 with daily aggregates would result in a 10 day moving average.
+                            size of 10 with daily aggregates would result in a 10-day moving average.
         :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
@@ -1086,7 +1086,7 @@ class BaseAsyncClient(Base):
 
         :param path: RESTful path for the endpoint. Available on the docs for the endpoint right above its name.
         :param params: Query Parameters to be supplied with the request. These are mapped 1:1 with the endpoint.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to check the
                              status code or inspect the headers. Defaults to True which returns the ``Response`` object.
         :return: A Response object by default. Make ``raw_response=False`` to get JSON decoded Dictionary
         """
@@ -1102,7 +1102,7 @@ class BaseAsyncClient(Base):
     async def get_page_by_url(self, url: str, raw_response: bool = False) -> Union[HttpxResponse, dict]:
         """
         Get the next page of a response. The URl is returned within ``next_url`` attribute on endpoints which support
-        pagination (eg the tickers' endpoint). If the response doesn't contain this attribute, either all pages were
+        pagination (e.g. the tickers' endpoint). If the response doesn't contain this attribute, either all pages were
         received or the endpoint doesn't have pagination. Meant for internal use primarily.
 
         :param url: The next URL. As contained in ``next_url`` of the response.
@@ -1128,7 +1128,7 @@ class BaseAsyncClient(Base):
         pagination) - Async method
 
         :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1155,7 +1155,7 @@ class BaseAsyncClient(Base):
         pagination) - Async method
 
         :param old_response: The most recent existing response. Can be either ``Response`` Object or Dictionaries
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1302,11 +1302,11 @@ class BaseAsyncClient(Base):
                              other pool will wait. set to False to get all responses in sequence (will take time)
         :param warnings: Defaults to True which prints warnings. Set to False to disable warnings.
         :param info: Defaults to True which prints mild warnings and informational messages. E.g. if the
-                     response came back with no data but otherwise it was a valid response
+                     response came back with no data, but otherwise it was a valid response
         :param max_concurrent_workers: This is only used if run_parallel is set to true. Controls how many worker
                                        coroutines are spawned internally. Defaults to ``your cpu core count * 5``.
                                        An ``asyncio.Semaphore()`` is used behind the scenes.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and

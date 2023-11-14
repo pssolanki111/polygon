@@ -146,7 +146,7 @@ The function you'd need is:
 .. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.change_handler
    :noindex:
 
-Note that you should never need to change handler for ``status`` ( which handles ``ev`` messages) unless you know you got a situation. Service prefixes just indicate which service (eg stock trades? options aggregates?)
+Note that you should never need to change handler for ``status`` ( which handles ``ev`` messages) unless you know you got a situation. Service prefixes just indicate which service (e.g. stock trades? options aggregates?)
 you want to change the handler.
 
 Closing the Stream

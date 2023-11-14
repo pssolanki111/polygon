@@ -51,13 +51,14 @@ def ReferenceClient(
 # ========================================================= #
 
 
+# noinspection PyBroadException
 class SyncReferenceClient(base_client.BaseClient):
     """
     These docs are not meant for general users. These are library API references. The actual docs will be
     available on the index page when they are prepared.
 
     This class implements all the References REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
@@ -116,7 +117,7 @@ class SyncReferenceClient(base_client.BaseClient):
                     Defaults to empty string which queries all CIKs.
         :param date: Specify a point in time to retrieve tickers available on that date. Defaults to the most recent
                      available date. Could be ``datetime``, ``date`` or a string ``YYYY-MM-DD``
-        :param search: Search for terms within the ticker and/or company name. for eg ``MS`` will match matching symbols
+        :param search: Search for terms within the ticker and/or company name. for e.g. ``MS`` will match matching symbols
         :param active: Specify if the tickers returned should be actively traded on the queried date. Default is True
         :param sort: The field to sort the results on. Default is ticker. If the search query parameter is present,
                      sort is ignored and results are ordered by relevance. See :class:`polygon.enums.TickerSortType`
@@ -138,7 +139,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -177,7 +178,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -188,7 +189,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -205,7 +206,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -217,7 +218,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
                      information from SEC filings, we compare this date with the period of report date on the SEC
                      filing. Defaults to the most recent available date.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -234,7 +235,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_bulk_ticker_details(
         self,
@@ -321,7 +322,7 @@ class SyncReferenceClient(base_client.BaseClient):
                        to build and work with option symbols
         :param as_of_date: Specify a point in time for the contract. You can pass a ``datetime`` or ``date`` object or
                            a string in format ``YYYY-MM-DD``. Defaults to today's date
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -338,7 +339,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_option_contracts(
         self,
@@ -392,7 +393,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :param as_of_date: Specify a point in time for contracts as of this date with format YYYY-MM-DD. Defaults to today's date.
@@ -437,7 +438,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -495,7 +496,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -538,7 +539,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -641,7 +642,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -737,7 +738,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -798,7 +799,7 @@ class SyncReferenceClient(base_client.BaseClient):
                            originate from 10-Q filings. Note: Most companies do not file quarterly reports for Q4 and
                            instead include those financials in their annual report, so some companies my not return
                            quarterly financials for Q4. See :class:`polygon.enums.StockFinancialsTimeframe` for choices.
-        :param include_sources: Whether or not to include the xpath and formula attributes for each financial data
+        :param include_sources: whether to include the xpath and formula attributes for each financial data
                                 point. See the xpath and formula response attributes for more info. ``False`` by default
         :param order: Order results based on the sort field. 'asc' by default. See :class:`polygon.enums.SortOrder`
                       for choices.
@@ -818,7 +819,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -878,7 +879,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -941,7 +942,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -985,7 +986,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -994,7 +995,7 @@ class SyncReferenceClient(base_client.BaseClient):
         Get upcoming market holidays and their open/close times.
         `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_upcoming>`__
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1007,14 +1008,14 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets.
         `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_now>`__
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1027,7 +1028,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     def get_conditions(
         self,
@@ -1073,7 +1074,7 @@ class SyncReferenceClient(base_client.BaseClient):
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1100,7 +1101,7 @@ class SyncReferenceClient(base_client.BaseClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
@@ -1111,7 +1112,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         :param asset_class: filter by asset class. See :class:`polygon.enums.AssetClass` for choices.
         :param locale: Filter by locale name. See :class:`polygon.enums.Locale`
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1128,7 +1129,7 @@ class SyncReferenceClient(base_client.BaseClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
 
 # ========================================================= #
@@ -1140,7 +1141,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
     available on the index page when they are prepared.
 
     This class implements all the References REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import ReferenceClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(
@@ -1210,7 +1211,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                     Defaults to empty string which queries all CIKs.
         :param date: Specify a point in time to retrieve tickers available on that date. Defaults to the most recent
                      available date. Could be ``datetime``, ``date`` or a string ``YYYY-MM-DD``
-        :param search: Search for terms within the ticker and/or company name. for eg ``MS`` will match matching symbols
+        :param search: Search for terms within the ticker and/or company name. for e.g. ``MS`` will match matching symbols
         :param active: Specify if the tickers returned should be actively traded on the queried date. Default is True
         :param sort: The field to sort the results on. Default is ticker. If the search query parameter is present,
                      sort is ignored and results are ordered by relevance. See :class:`polygon.enums.TickerSortType`
@@ -1232,7 +1233,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1271,7 +1272,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -1284,7 +1285,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         :param asset_class: Filter by asset class. see :class:`polygon.enums.AssetClass` for choices
         :param locale: Filter by locale. See :class:`polygon.enums.Locale` for choices
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1301,7 +1302,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_ticker_details(self, symbol: str, date=None, raw_response: bool = False):
         """
@@ -1313,7 +1314,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param date: Specify a point in time to get information about the ticker available on that date. When retrieving
                      information from SEC filings, we compare this date with the period of report date on the SEC
                      filing. Defaults to the most recent available date.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1330,7 +1331,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_bulk_ticker_details(
         self,
@@ -1418,7 +1419,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                        to build and work with option symbols
         :param as_of_date: Specify a point in time for the contract. You can pass a ``datetime`` or ``date`` object or
                            a string in format ``YYYY-MM-DD``. Defaults to today's date
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1435,7 +1436,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_option_contracts(
         self,
@@ -1489,7 +1490,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :param as_of_date: Specify a point in time for contracts as of this date with format YYYY-MM-DD. Defaults to today's date.
@@ -1534,7 +1535,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -1594,7 +1595,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1637,7 +1638,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -1742,7 +1743,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1838,7 +1839,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -1901,7 +1902,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
                            originate from 10-Q filings. Note: Most companies do not file quarterly reports for Q4 and
                            instead include those financials in their annual report, so some companies my not return
                            quarterly financials for Q4. See :class:`polygon.enums.StockFinancialsTimeframe` for choices.
-        :param include_sources: Whether or not to include the xpath and formula attributes for each financial data
+        :param include_sources: whether to include the xpath and formula attributes for each financial data
                                 point. See the xpath and formula response attributes for more info. ``False`` by default
         :param order: Order results based on the sort field. 'asc' by default. See :class:`polygon.enums.SortOrder`
                       for choices.
@@ -1921,7 +1922,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1981,7 +1982,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -2046,7 +2047,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -2090,7 +2091,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -2101,7 +2102,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         Get upcoming market holidays and their open/close times - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_upcoming>`__
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -2114,14 +2115,14 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_market_status(self, raw_response: bool = False):
         """
         Get the current trading status of the exchanges and overall financial markets - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v1_marketstatus_now>`__
 
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -2134,7 +2135,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
     async def get_conditions(
         self,
@@ -2179,7 +2180,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -2205,7 +2206,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             if raw_response:
                 return _res
 
-            return _res.json()
+            return self.to_json_safe(_res)
 
         return await self._paginate(
             _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
@@ -2218,7 +2219,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         :param asset_class: filter by asset class. See :class:`polygon.enums.AssetClass` for choices.
         :param locale: Filter by locale name. See :class:`polygon.enums.Locale`
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -2235,7 +2236,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         if raw_response:
             return _res
 
-        return _res.json()
+        return self.to_json_safe(_res)
 
 
 # ========================================================= #

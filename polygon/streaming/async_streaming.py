@@ -38,7 +38,7 @@ class AsyncStreamClient:
     you need to stream using an ``callback`` based stream client, see :ref:`callback_streamer_client_interface_header`.
 
     This class implements all the websocket endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import AsyncStreamClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import AsyncStreamClient`` or ``import polygon`` (which allows you to access all names easily)
 
     Creating the client is as simple as: ``client = AsyncStreamClient('MY_API_KEY', 'other_options')``
 
@@ -46,7 +46,7 @@ class AsyncStreamClient:
     process messages. All methods have sane default values and almost everything can be customized.
 
     Type Hinting tells you what data type a parameter is supposed to be. You should always use ``enums`` for most
-    parameters to avoid supplying error prone values.
+    parameters to avoid supplying error-prone values.
 
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
@@ -321,7 +321,7 @@ class AsyncStreamClient:
         Reconnects the stream. Existing subscriptions (ones before disconnections) are persisted and automatically
         re-subscribed when reconnection succeeds. All the handlers are also automatically restored. Returns a tuple
         based on success status. While this instance method is supposed to be used internally, it is possible to
-        utilize this in your your custom attempts of reconnection implementation. Feel free to
+        utilize this in your custom attempts of reconnection implementation. Feel free to
         `share your implementations with the community <https://github.com/pssolanki111/polygon/wiki>`__ if you find
         success :)
 

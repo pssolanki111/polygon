@@ -32,7 +32,7 @@ class StreamClient:
     you need to stream using an ``asyncio`` based stream client, see :ref:`async_streamer_client_interface_header`.
 
     This class implements all the websocket endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import StreamClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import StreamClient`` or ``import polygon`` (which allows you to access all names easily)
 
     Creating the client is as simple as: ``client = StreamClient('MY_API_KEY', 'other_options')``
 
@@ -73,7 +73,7 @@ class StreamClient:
                          close_status_code, close_message). Default handler is :meth:`_default_on_close`
         :param on_error: Function to be called when an error is encountered. Function should accept one arg (
                          exception object). Default handler is :meth:`_default_on_error`
-        :param enable_connection_logs: Whether or not to print debug info related to the stream connection.
+        :param enable_connection_logs: whether to print debug info related to the stream connection.
                                        Helpful for debugging.
         """
 

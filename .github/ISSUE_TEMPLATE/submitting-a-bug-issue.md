@@ -22,7 +22,7 @@ what did you expect it to do?
 Only if you have them and they add value to the report and make the issue easier to understand.
 
 **Environment Details:**
- - Operating System: eg Arch, Ubuntu, Window 10 
+ - Operating System: e.g. Arch, Ubuntu, Window 10 
  - Library Version [e.g. 1.0.1]
  - Any other tech env details you think might be relevant
 

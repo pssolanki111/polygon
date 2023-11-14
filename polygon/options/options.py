@@ -11,6 +11,7 @@ SYMBOL_FORMATS = {
     "polygon": "{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}",
     "tda": "{symbol}_{mm}{dd}{yy}{_type}{strike}.{strike_dec}",
     "tos": ".{symbol}{mm}{dd}{yy}{_type}{strike}.{strike_dec}",
+    "tos1": ".{symbol}{yy}{mm}{dd}{_type}{strike}.{strike_dec}",
     "ibkr": "{symbol} {yy}{mm}{dd}{_type}{strike}{strike_dec}",
     "tradier": "{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}",
     "trade_station": "{symbol} {yy}{mm}{dd}{_type}{strike}.{strike_dec}",
@@ -301,7 +302,7 @@ class SyncOptionsClient(base_client.BaseClient):
     available on the index page when they are prepared.
 
     This class implements all the Options REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
@@ -332,7 +333,7 @@ class SyncOptionsClient(base_client.BaseClient):
         using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/options/get_v3_trades__optionsticker>`__
 
-        :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
+        :param option_symbol: The options ticker symbol to get trades for. for e.g. ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
@@ -362,7 +363,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -394,7 +395,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -426,7 +427,7 @@ class SyncOptionsClient(base_client.BaseClient):
         using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/options/get_v3_quotes__optionsticker>`__
 
-        :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
+        :param option_symbol: The options ticker symbol to get quotes for. for e.g. ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by quote timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
@@ -456,7 +457,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -502,7 +503,7 @@ class SyncOptionsClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/options/get_v2_last_trade__optionsticker>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -522,13 +523,13 @@ class SyncOptionsClient(base_client.BaseClient):
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
 
-        :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
+        :param symbol: The option symbol we want daily-OCHLV for. e.g. ``O:FB210903C00700000``. You can pass it with or
                        without the prefix ``O:``
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
                      ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -571,12 +572,12 @@ class SyncOptionsClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
+        :param symbol: The ticker symbol of the contract. e.g. ``O:FB210903C00700000``. You can pass in with or without
                        the prefix ``O:``
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
@@ -597,10 +598,10 @@ class SyncOptionsClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -687,7 +688,7 @@ class SyncOptionsClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -709,7 +710,7 @@ class SyncOptionsClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -763,7 +764,7 @@ class SyncOptionsClient(base_client.BaseClient):
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
 
-        :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
+        :param underlying_symbol: The underlying ticker symbol of the option contract. e.g. ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
                               easy to work with option symbols in polygon or tda formats.
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -779,7 +780,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -804,9 +805,9 @@ class SyncOptionsClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -1107,7 +1108,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     available on the index page when they are prepared.
 
     This class implements all the Options REST endpoints for async uses. Note that you should always import names from
-    top level. eg: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names
+    top level. e.g.: ``from polygon import OptionsClient`` or ``import polygon`` (which allows you to access all names
     easily)
     """
 
@@ -1150,7 +1151,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         contracts using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/options/get_v3_trades__optionsticker>`__
 
-        :param option_symbol: The options ticker symbol to get trades for. for eg ``O:TSLA210903C00700000``. you can
+        :param option_symbol: The options ticker symbol to get trades for. for e.g. ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by trade timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
@@ -1180,7 +1181,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1246,7 +1247,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         using many filter parameters such as underlying symbol etc.
         `Official Docs <https://polygon.io/docs/options/get_v3_quotes__optionsticker>`__
 
-        :param option_symbol: The options ticker symbol to get quotes for. for eg ``O:TSLA210903C00700000``. you can
+        :param option_symbol: The options ticker symbol to get quotes for. for e.g. ``O:TSLA210903C00700000``. you can
                               pass the symbol with or without the prefix ``O:``
         :param timestamp: Query by quote timestamp. You can supply a ``date``, ``datetime`` object or a ``nanosecond
                           UNIX timestamp`` or a string in format: ``YYYY-MM-DD``.
@@ -1276,7 +1277,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1324,7 +1325,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/options/get_v2_last_trade__optionsticker>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say
                              check the status code or inspect the headers. Defaults to False which returns the json
                              decoded dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
@@ -1344,13 +1345,13 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
 
-        :param symbol: The option symbol we want daily-OCHLV for. eg ``O:FB210903C00700000``. You can pass it with or
+        :param symbol: The option symbol we want daily-OCHLV for. e.g. ``O:FB210903C00700000``. You can pass it with or
                        without the prefix ``O:``
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
                      ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1393,12 +1394,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the contract. eg ``O:FB210903C00700000``. You can pass in with or without
+        :param symbol: The ticker symbol of the contract. e.g. ``O:FB210903C00700000``. You can pass in with or without
                        the prefix ``O:``
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
@@ -1419,10 +1420,10 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1509,7 +1510,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1531,7 +1532,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -1585,7 +1586,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
 
-        :param underlying_symbol: The underlying ticker symbol of the option contract. eg ``AMD``
+        :param underlying_symbol: The underlying ticker symbol of the option contract. e.g. ``AMD``
         :param option_symbol: the option symbol. You can use use the :ref:`option_symbols_header` section to make it
                               easy to work with option symbols in polygon or tda formats.
         :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
@@ -1601,7 +1602,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1628,9 +1629,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
 
         :param ticker: The ticker symbol of the options contract. Eg: ``O:TSLA210903C00700000``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say
                              check the status code or inspect the headers. Defaults to False which returns the json
                              decoded dictionary.
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.

@@ -56,7 +56,7 @@ class SyncCryptoClient(base_client.BaseClient):
     available on the index page when they are prepared.
 
     This class implements all the crypto REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
@@ -86,7 +86,7 @@ class SyncCryptoClient(base_client.BaseClient):
                        I'm trying to  think of a good way to implement pagination in the library for these endpoints
                        which do not return a ``next_url`` attribute.
         :param limit: Limit the size of the response, max 10000. Default 500
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -128,7 +128,7 @@ class SyncCryptoClient(base_client.BaseClient):
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
 
-        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
+        :param symbol: The ticker symbol you want trades for. e.g. ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
@@ -157,7 +157,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -205,7 +205,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -230,9 +230,9 @@ class SyncCryptoClient(base_client.BaseClient):
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param date: The date of the requested open/close. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -275,7 +275,7 @@ class SyncCryptoClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -283,7 +283,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :param multiplier: The size of the timespan multiplier
         :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
                      Defaults to ``asc`` (oldest at the top)
@@ -302,10 +302,10 @@ class SyncCryptoClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -392,7 +392,7 @@ class SyncCryptoClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -414,7 +414,7 @@ class SyncCryptoClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -459,9 +459,9 @@ class SyncCryptoClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
-        :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
+        :param adjusted:  whether the results are adjusted for splits. By default, results are adjusted. Set
                           this to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -485,11 +485,11 @@ class SyncCryptoClient(base_client.BaseClient):
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without the
                        prefix ``X:``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -513,7 +513,7 @@ class SyncCryptoClient(base_client.BaseClient):
         `Official Docs <hhttps://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -539,8 +539,8 @@ class SyncCryptoClient(base_client.BaseClient):
         traded cryptocurrency symbol.
         `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker>`__
 
-        :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
-        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        :param symbol: Symbol of the currency pair. e.g.: ``X:BTCUSD``. you can specify with or without prefix ``X:``
+        :param raw_response: whether to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -562,7 +562,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -583,7 +583,7 @@ class SyncCryptoClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book>`__
 
-        :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:``
+        :param symbol: The cryptocurrency ticker. e.g.: ``X:BTCUSD``. You can specify with or without the prefix ```X:``
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -875,7 +875,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     available on the index page when they are prepared.
 
     This class implements all the crypto REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(
@@ -916,7 +916,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                        I'm trying to  think of a good way to implement pagination in the library for these endpoints
                        which do not return a ``next_url`` attribute.
         :param limit: Limit the size of the response, max 10000. Default 500
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -958,7 +958,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
 
-        :param symbol: The ticker symbol you want trades for. eg ``X:BTC-USD``. you can pass with or without the
+        :param symbol: The ticker symbol you want trades for. e.g. ``X:BTC-USD``. you can pass with or without the
                        prefix ``C:``
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
@@ -987,7 +987,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1037,7 +1037,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1062,9 +1062,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :param from_symbol: The "from" symbol of the pair.
         :param to_symbol: The "to" symbol of the pair.
         :param date: The date of the requested open/close. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1107,7 +1107,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1115,7 +1115,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :param multiplier: The size of the timespan multiplier
         :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Order of sorting the results. See :class:`polygon.enums.SortOrder` for available choices.
                      Defaults to ``asc`` (oldest at the top)
@@ -1134,10 +1134,10 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1224,7 +1224,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1246,7 +1246,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -1291,9 +1291,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
-        :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
+        :param adjusted:  whether the results are adjusted for splits. By default, results are adjusted. Set
                           this to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1317,11 +1317,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without the
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without the
                        prefix ``X:``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1345,7 +1345,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1371,8 +1371,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         traded cryptocurrency symbol - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker>`__
 
-        :param symbol: Symbol of the currency pair. eg: ``X:BTCUSD``. you can specify with or without prefix ``X:``
-        :param raw_response: Whether or not to return the Response Object. Useful for when you need to say check the
+        :param symbol: Symbol of the currency pair. e.g.: ``X:BTCUSD``. you can specify with or without prefix ``X:``
+        :param raw_response: whether to return the Response Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1394,7 +1394,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1415,8 +1415,8 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto_tickers__ticker__book>`__
 
-        :param symbol: The cryptocurrency ticker. eg: ``X:BTCUSD``. You can specify with or without the prefix ```X:``.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param symbol: The cryptocurrency ticker. e.g.: ``X:BTCUSD``. You can specify with or without the prefix ```X:``.
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object

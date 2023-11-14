@@ -56,7 +56,7 @@ class SyncForexClient(base_client.BaseClient):
     available on the index page when they are prepared.
 
     This class implements all the Forex REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import ForexClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import ForexClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
@@ -85,7 +85,7 @@ class SyncForexClient(base_client.BaseClient):
                        I'm thinking about a good way to implement this type of pagination in the lib which doesn't
                        have a ``next_url`` in the response attributes.
         :param limit: Limit the size of the response, max 10000. Default 500
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -127,7 +127,7 @@ class SyncForexClient(base_client.BaseClient):
         Get NBBO Quotes for a forex ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/forex/get_v3_quotes__fxticker>`__
 
-        :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
+        :param symbol: The ticker symbol you want quotes for. e.g.: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
         :param order: sort order. see :class:`polygon.enums.SortOrder` for available choices. defaults to None
@@ -155,7 +155,7 @@ class SyncForexClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -202,7 +202,7 @@ class SyncForexClient(base_client.BaseClient):
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -241,7 +241,7 @@ class SyncForexClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix
+        :param symbol: The ticker symbol of the forex pair. e.g.: ``C:EURUSD``. You can supply with or without prefix
                        ``C:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -249,7 +249,7 @@ class SyncForexClient(base_client.BaseClient):
         :param multiplier: The size of the timespan multiplier
         :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. see :class:`polygon.enums.SortOrder` for available choices.
                      Defaults to ``asc`` which is oldest at the top.
@@ -268,10 +268,10 @@ class SyncForexClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -358,7 +358,7 @@ class SyncForexClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -380,7 +380,7 @@ class SyncForexClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -425,9 +425,9 @@ class SyncForexClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_grouped_locale_global_market_fx__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
-        :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
+        :param adjusted:  whether the results are adjusted for splits. By default, results are adjusted. Set
                           this to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -452,9 +452,9 @@ class SyncForexClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__prev>`__
 
         :param symbol: The ticker symbol of the forex pair.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -478,7 +478,7 @@ class SyncForexClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -504,8 +504,8 @@ class SyncForexClient(base_client.BaseClient):
         traded forex symbol.
         `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers__ticker>`__
 
-        :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param symbol: Symbol of the forex pair. e.g.: ``C:EURUSD``. You can supply with or without prefix ``C:``.
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -527,7 +527,7 @@ class SyncForexClient(base_client.BaseClient):
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -554,7 +554,7 @@ class SyncForexClient(base_client.BaseClient):
         :param to_symbol: The "to" symbol of the pair.
         :param amount: The amount to convert,
         :param precision: The decimal precision of the conversion. Defaults to 2 which is 2 decimal places accuracy.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -847,7 +847,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
     available on the index page when they are prepared.
 
     This class implements all the Forex REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import ForexClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import ForexClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(
@@ -887,7 +887,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                        I'm thinking about a good way to implement this type of pagination in the lib which doesn't
                        have a ``next_url`` in the response attributes.
         :param limit: Limit the size of the response, max 10000. Default 500
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -929,7 +929,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         Get NBBO Quotes for a forex ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/forex/get_v3_quotes__fxticker>`__
 
-        :param symbol: The ticker symbol you want quotes for. eg: ``C:EUR-USD``. you can pass with or without prefix C:
+        :param symbol: The ticker symbol you want quotes for. e.g.: ``C:EUR-USD``. you can pass with or without prefix C:
         :param timestamp: Query by trade timestamp. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD`` or a
                           nanosecond timestamp
         :param order: sort order. see :class:`polygon.enums.SortOrder` for available choices. defaults to None
@@ -957,7 +957,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1006,7 +1006,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         :param from_symbol: The "from" symbol of the forex currency pair.
         :param to_symbol: The "to" symbol of the forex currency pair.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1045,7 +1045,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix
+        :param symbol: The ticker symbol of the forex pair. e.g.: ``C:EURUSD``. You can supply with or without prefix
                        ``C:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1053,7 +1053,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param multiplier: The size of the timespan multiplier
         :param timespan: The size of the time window. Defaults to day candles. see :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted.
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted.
                          Set this to False to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. see :class:`polygon.enums.SortOrder` for available choices.
                      Defaults to ``asc`` which is oldest at the top.
@@ -1072,10 +1072,10 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1162,7 +1162,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1184,7 +1184,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -1229,9 +1229,9 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_grouped_locale_global_market_fx__date>`__
 
         :param date: The date for the aggregate window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
-        :param adjusted:  Whether or not the results are adjusted for splits. By default, results are adjusted. Set
+        :param adjusted:  whether the results are adjusted for splits. By default, results are adjusted. Set
                           this to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1256,9 +1256,9 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_aggs_ticker__forexticker__prev>`__
 
         :param symbol: The ticker symbol of the forex pair.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1282,7 +1282,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers>`__
 
         :param symbols: A list of tickers to get snapshots for.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1308,8 +1308,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         traded forex symbol - Async method
         `Official Docs <https://polygon.io/docs/forex/get_v2_snapshot_locale_global_markets_forex_tickers__ticker>`__
 
-        :param symbol: Symbol of the forex pair. eg: ``C:EURUSD``. You can supply with or without prefix ``C:``.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param symbol: Symbol of the forex pair. e.g.: ``C:EURUSD``. You can supply with or without prefix ``C:``.
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1331,7 +1331,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
 
         :param direction: The direction of the snapshot results to return. See :class:`polygon.enums.SnapshotDirection`
                           for available choices. Defaults to Gainers.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1358,7 +1358,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param to_symbol: The "to" symbol of the pair.
         :param amount: The amount to convert,
         :param precision: The decimal precision of the conversion. Defaults to 2 which is 2 decimal places accuracy.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1547,7 +1547,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: The response object

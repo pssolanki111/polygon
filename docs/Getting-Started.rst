@@ -200,7 +200,7 @@ string ``YYYY-MM-DD``. Some endpoints also accept millisecond/nanosecond timesta
 - If you pass a ``datetime`` object, and the endpoint accepts a timestamp, the lib will convert internally to a timestamp. If there is no
   timezone info attached to the object, ``UTC`` will be used.
 
-- If you come across situations where the returned data results are not complete or missing some values (for eg on aggregate bars endpoint),
+- If you come across situations where the returned data results are not complete or missing some values (for e.g. on aggregate bars endpoint),
   just pass your values as ``datetime`` values (if possible as a timestamp or with timezone information at least)
 
 - The lib makes its best efforts parsing what the supplied datetime/timestamp/date could mean in context of the relevant endpoint. The behavior is of course

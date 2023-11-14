@@ -55,7 +55,7 @@ class SyncStocksClient(base_client.BaseClient):
     available on the index page when they are prepared.
 
     This class implements all the Stocks REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
@@ -86,7 +86,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param timestamp_limit: The maximum timestamp allowed in the results. Default: None
         :param reverse: Reverse the order of the results. Default True: oldest first. Make it False for Newest first
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -160,7 +160,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -239,7 +239,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param timestamp_limit: The maximum timestamp allowed in the results. Default: None
         :param reverse: Reverse the order of the results. Default True: oldest first. Make it False for Newest first
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -314,7 +314,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -360,7 +360,7 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -381,7 +381,7 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -404,9 +404,9 @@ class SyncStocksClient(base_client.BaseClient):
         :param symbol: The ticker symbol we want daily-OCHLV for.
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
                      ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -453,7 +453,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to False to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
@@ -474,10 +474,10 @@ class SyncStocksClient(base_client.BaseClient):
         :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -561,7 +561,7 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -583,7 +583,7 @@ class SyncStocksClient(base_client.BaseClient):
         :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -628,9 +628,9 @@ class SyncStocksClient(base_client.BaseClient):
         `Official docs <https://polygon.io/docs/stocks/get_v2_aggs_grouped_locale_us_market_stocks__date>`__
 
         :param date: The date to get the data for. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -655,9 +655,9 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -682,7 +682,7 @@ class SyncStocksClient(base_client.BaseClient):
         <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -725,7 +725,7 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers>`__
 
         :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1035,7 +1035,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     available on the index page when they are prepared.
 
     This class implements all the Stocks REST endpoints. Note that you should always import names from top level.
-    eg: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
+    e.g.: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
     def __init__(
@@ -1077,7 +1077,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param timestamp_limit: The maximum timestamp allowed in the results. Default: None
         :param reverse: Reverse the order of the results. Default True: oldest first. Make it False for Newest first
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1152,7 +1152,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1233,7 +1233,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param timestamp_limit: The maximum timestamp allowed in the results. Default: None
         :param reverse: Reverse the order of the results. Default True: oldest first. Make it False for Newest first
         :param limit: Limit the size of the response, max 50000 and default 5000.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1308,7 +1308,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
                                    Else, it will be a list of actual data for pages. This parameter is only
                                    considered if ``merge_all_pages`` is set to False. Default: False
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. This is ignored if pagination is set to True.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1356,7 +1356,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_last_trade__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1377,7 +1377,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1400,9 +1400,9 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param symbol: The ticker symbol we want daily-OCHLV for.
         :param date: The date/day of the daily-OCHLV to retrieve. Could be ``datetime`` or ``date`` or string
                      ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1449,7 +1449,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param from_date: The start of the aggregate time window. Could be ``datetime`` or ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
         :param sort: Sort the results by timestamp. See :class:`polygon.enums.SortOrder` for choices. ``asc`` default.
         :param limit: Limits the number of base aggregates queried to create the aggregate results. Max 50000 and
@@ -1470,10 +1470,10 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary. Will be ignored if ``full_range=True``
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object.
@@ -1557,7 +1557,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official Docs
         <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. eg: ``X:BTCUSD``. You can specify with or without prefix
+        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
                        ``X:``
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
@@ -1579,7 +1579,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param info: Set to False to disable printing mild warnings / informational messages if any when fetching the
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                having a very high number of trades or being traded for a high duration (e.g. SPY,
                                 Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :return: a single list with all the candles.
@@ -1624,9 +1624,9 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official docs <https://polygon.io/docs/stocks/get_v2_aggs_grouped_locale_us_market_stocks__date>`__
 
         :param date: The date to get the data for. Could be ``datetime`` or ``date`` or string ``YYYY-MM-DD``
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1650,9 +1650,9 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param adjusted: Whether or not the results are adjusted for splits. By default, results are adjusted. Set this
+        :param adjusted: whether the results are adjusted for splits. By default, results are adjusted. Set this
                          to false to get results that are NOT adjusted for splits.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1677,7 +1677,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers__stocksticker>`__
 
         :param symbol: The ticker symbol of the stock/equity.
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1714,7 +1714,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks_tickers>`__
 
         :param symbols: A comma separated list of tickers to get snapshots for. Defaults to ALL tickers
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
@@ -1741,7 +1741,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         :param direction: The direction of results. Defaults to gainers. See :class:`polygon.enums.SnapshotDirection`
                           for choices
-        :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
+        :param raw_response: whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object

@@ -1,3 +1,6 @@
+# Formatting (use command `black -l 120 .`)
+black
+
 # Only needed for documentation
 sphinx
 sphinx_rtd_theme

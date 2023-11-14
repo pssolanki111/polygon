@@ -6,6 +6,7 @@ import sys
 from typing import Union
 import websockets as wss
 from enum import Enum
+
 try:
     import orjson as json
 except ImportError:
@@ -14,8 +15,8 @@ except ImportError:
 # ========================================================= #
 
 
-HOST = 'socket.polygon.io'
-DELAYED_HOST = 'delayed.polygon.io'
+HOST = "socket.polygon.io"
+DELAYED_HOST = "delayed.polygon.io"
 
 
 # ========================================================= #
@@ -50,9 +51,19 @@ class AsyncStreamClient:
     Take a look at the `Official documentation <https://polygon.io/docs/websockets/getting-started>`__
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
-    def __init__(self, api_key: str, cluster, host=HOST, ping_interval: Union[int, None] = 20,
-                 ping_timeout: Union[int, None] = 19, max_message_size: int = 1048576,
-                 max_memory_queue: Union[int, None] = 32, read_limit: int = 65536, write_limit: int = 65536):
+
+    def __init__(
+        self,
+        api_key: str,
+        cluster,
+        host=HOST,
+        ping_interval: Union[int, None] = 20,
+        ping_timeout: Union[int, None] = 19,
+        max_message_size: int = 1048576,
+        max_memory_queue: Union[int, None] = 32,
+        read_limit: int = 65536,
+        write_limit: int = 65536,
+    ):
         """
         Initializes the stream client for async streaming
         `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
@@ -89,7 +100,7 @@ class AsyncStreamClient:
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url, self._attempts = f'wss://{self._change_enum(host, str)}/{self._market}', 0
+        self._url, self._attempts = f"wss://{self._change_enum(host, str)}/{self._market}", 0
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -121,9 +132,15 @@ class AsyncStreamClient:
         if key is None:
             key = self.KEY
 
-        self.WS = await wss.connect(self._url, ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
-                                    max_size=self._max_message_size, max_queue=self._max_memory_queue,
-                                    read_limit=self._read_limit, write_limit=self._write_limit)
+        self.WS = await wss.connect(
+            self._url,
+            ping_interval=self._ping_interval,
+            ping_timeout=self._ping_timeout,
+            max_size=self._max_message_size,
+            max_queue=self._max_memory_queue,
+            read_limit=self._read_limit,
+            write_limit=self._write_limit,
+        )
 
         _payload = '{"action":"auth","params":"%s"}' % key  # f-strings were trippin' here.
 
@@ -140,9 +157,9 @@ class AsyncStreamClient:
         """
 
         if self.WS is None:
-            raise ValueError('Looks like the socket is not open. Login Failed')
+            raise ValueError("Looks like the socket is not open. Login Failed")
 
-        get_logger().debug(f'Sending Data: {str(data)}')
+        get_logger().debug(f"Sending Data: {str(data)}")
 
         await self.WS.send(str(data))
 
@@ -154,7 +171,7 @@ class AsyncStreamClient:
         """
 
         if self.WS is None:
-            raise ValueError('Looks like the socket is not open. Login Failed')
+            raise ValueError("Looks like the socket is not open. Login Failed")
 
         _raw = await self.WS.recv()
 
@@ -162,8 +179,10 @@ class AsyncStreamClient:
             _data = json.loads(_raw)
 
         except Exception as exc:
-            raise ValueError(f'Unable to decode message string: {_raw}.\nUsually happens with invalid symbols.'
-                             f'\nException Message: {str(exc)}')
+            raise ValueError(
+                f"Unable to decode message string: {_raw}.\nUsually happens with invalid symbols."
+                f"\nException Message: {str(exc)}"
+            )
 
         return _data
 
@@ -195,7 +214,7 @@ class AsyncStreamClient:
             _msg = await self._recv()
 
             for msg in _msg:
-                handler = self._handlers[msg['ev']](msg)
+                handler = self._handlers[msg["ev"]](msg)
 
                 if inspect.isawaitable(handler):
                     asyncio.create_task(handler)
@@ -203,17 +222,21 @@ class AsyncStreamClient:
             return
 
         if not (isinstance(max_reconnection_attempts, int) or max_reconnection_attempts is False):
-            raise ValueError('max_reconnection_attempts must be a positive whole number or False (False NOT '
-                             'recommended as it disables the limit)')
+            raise ValueError(
+                "max_reconnection_attempts must be a positive whole number or False (False NOT "
+                "recommended as it disables the limit)"
+            )
 
         if not max_reconnection_attempts:
-            get_logger().warning('It is never recommended to allow Infinite reconnection attempts as this does not '
-                                 'account for when  Server has an outage\nor when the client loses access to '
-                                 'internet. It is suggested to Re-start the stream with a finite limit for attempts')
-            max_reconnection_attempts = float('inf')
+            get_logger().warning(
+                "It is never recommended to allow Infinite reconnection attempts as this does not "
+                "account for when  Server has an outage\nor when the client loses access to "
+                "internet. It is suggested to Re-start the stream with a finite limit for attempts"
+            )
+            max_reconnection_attempts = float("inf")
 
         elif max_reconnection_attempts < 1:
-            raise ValueError('max_reconnection_attempts must be a positive whole number')
+            raise ValueError("max_reconnection_attempts must be a positive whole number")
 
         while 1:
             try:
@@ -228,7 +251,7 @@ class AsyncStreamClient:
                             _msg = await self._recv()
 
                             for msg in _msg:
-                                handler = self._handlers[msg['ev']](msg)
+                                handler = self._handlers[msg["ev"]](msg)
 
                                 if inspect.isawaitable(handler):
                                     asyncio.create_task(handler)
@@ -237,24 +260,27 @@ class AsyncStreamClient:
 
                         # Right After reconnection to ensure we can actually communicate with the stream
                         except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-                            print(f'Exception: {str(exc)} || Not attempting reconnection as login/access failed. '
-                                  f'Terminating...')
+                            print(
+                                f"Exception: {str(exc)} || Not attempting reconnection as login/access failed. "
+                                f"Terminating..."
+                            )
                             return
 
                         except (wss.ConnectionClosedError, Exception) as exc:
                             # Verify there are more reconnection attempts remaining
                             if self._attempts < max_reconnection_attempts:
                                 print(
-                                    f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds '
-                                    f'and Attempting #{self._attempts + 1} '
-                                    f'Reconnection...')
+                                    f"Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds "
+                                    f"and Attempting #{self._attempts + 1} "
+                                    f"Reconnection..."
+                                )
                                 self._re = True
                                 self._attempts += 1
                                 self._auth = False
                                 await asyncio.sleep(reconnection_delay)
                                 continue
 
-                            print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
+                            print("Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...")
                             return
 
                     else:
@@ -264,28 +290,30 @@ class AsyncStreamClient:
                 _msg = await self._recv()
 
                 for msg in _msg:  # Processing messages. Using a dict to manage handlers to avoid using if-else :D
-                    handler = self._handlers[msg['ev']](msg)
+                    handler = self._handlers[msg["ev"]](msg)
 
                     if inspect.isawaitable(handler):
                         asyncio.create_task(handler)
 
             except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
-                print(f'Exception: {str(exc)} || Not attempting reconnection as login/access failed. Terminating...')
+                print(f"Exception: {str(exc)} || Not attempting reconnection as login/access failed. Terminating...")
                 return
 
             except (wss.ConnectionClosedError, Exception) as exc:
                 # Verify there are more reconnection attempts remaining
                 if self._attempts < max_reconnection_attempts:
-                    print(f'Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and '
-                          f'Attempting #{self._attempts + 1} '
-                          f'Reconnection...')
+                    print(
+                        f"Exception Encountered: {str(exc)}. Waiting for {reconnection_delay} seconds and "
+                        f"Attempting #{self._attempts + 1} "
+                        f"Reconnection..."
+                    )
                     self._re = True
                     self._attempts += 1
                     self._auth = False
                     await asyncio.sleep(reconnection_delay)
                     continue
 
-                print('Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...')
+                print("Maximum Reconnection Attempts Reached. Aborting Reconnection & Terminating...")
                 sys.exit(0)
 
     async def reconnect(self) -> tuple:
@@ -299,7 +327,7 @@ class AsyncStreamClient:
 
         :return: ``(True, message)`` if reconnection succeeds else ``(False, message)``
         """
-        get_logger().error('Attempting reconnection')
+        get_logger().error("Attempting reconnection")
 
         try:
             await self.login()
@@ -307,10 +335,10 @@ class AsyncStreamClient:
             for sub in self._subs:
                 await self._modify_sub(sub[0], sub[1])
 
-            return True, 'Reconnect Successful'
+            return True, "Reconnect Successful"
 
         except Exception as exc:
-            return False, f'Reconnect Failed. Exception: {str(exc)}'
+            return False, f"Reconnect Failed. Exception: {str(exc)}"
 
     async def _default_process_message(self, update):
         """
@@ -320,11 +348,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        if update['ev'] == 'status':
+        if update["ev"] == "status":
             print(update)
 
-            if update['status'] in ['auth_success', 'connected']:
-                if update['status'] == 'auth_success':
+            if update["status"] in ["auth_success", "connected"]:
+                if update["status"] == "auth_success":
                     self._attempts = 0
                 # get_logger().info(update['message'])
                 return
@@ -339,18 +367,34 @@ class AsyncStreamClient:
         """Assign default handler value to all stream setups. ONLY meant for internal use"""
         _handlers = {}
 
-        _apis = {'T': 'trades', 'Q': 'quotes', 'AM': 'agg_min', 'A': 'agg_sec',
-                 'LULD': 'stock_luld', 'NOI': 'stock_imbalances', 'C': 'forex_quotes', 'CA': 'forex_agg_min',
-                 'XT': 'crypto_trades', 'XQ': 'crypto_quotes', 'XL2': 'crypto_l2', 'XA': 'crypto_agg_min',
-                 'status': 'status'}
+        _apis = {
+            "T": "trades",
+            "Q": "quotes",
+            "AM": "agg_min",
+            "A": "agg_sec",
+            "LULD": "stock_luld",
+            "NOI": "stock_imbalances",
+            "C": "forex_quotes",
+            "CA": "forex_agg_min",
+            "XT": "crypto_trades",
+            "XQ": "crypto_quotes",
+            "XL2": "crypto_l2",
+            "XA": "crypto_agg_min",
+            "status": "status",
+        }
 
         for name in _apis.keys():
             _handlers[name] = self._default_process_message
 
         return _apis, _handlers
 
-    async def _modify_sub(self, symbols: Union[str, list, None], action: str = 'subscribe', _prefix: str = 'T.',
-                          force_uppercase_symbols: bool = True):
+    async def _modify_sub(
+        self,
+        symbols: Union[str, list, None],
+        action: str = "subscribe",
+        _prefix: str = "T.",
+        force_uppercase_symbols: bool = True,
+    ):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
         corresponding methods to subscribe or unsubscribe to stream.
@@ -366,27 +410,27 @@ class AsyncStreamClient:
         if not self._auth:
             await self.login()
 
-        if self._market in ['options']:
-            if symbols in [None, [], 'all']:
-                symbols = _prefix + '*'
+        if self._market in ["options"]:
+            if symbols in [None, [], "all"]:
+                symbols = _prefix + "*"
 
             elif isinstance(symbols, list):
                 if force_uppercase_symbols:
                     symbols = [symbol.upper() for symbol in symbols]
-                    
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
 
-        elif symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
-            
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol)}" for symbol in symbols])
+
+        elif symbols in [None, [], "all"]:
+            symbols = _prefix + "*"
+
         elif isinstance(symbols, str):
             pass
 
         elif isinstance(symbols, list):
             if force_uppercase_symbols:
                 symbols = [symbol.upper() for symbol in symbols]
-                
-            symbols = ','.join([_prefix + symbol for symbol in symbols])
+
+            symbols = ",".join([_prefix + symbol for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
@@ -394,8 +438,9 @@ class AsyncStreamClient:
         await self.WS.send(str(_payload))
 
     # STOCK Streams
-    async def subscribe_stock_trades(self, symbols: list = None, handler_function=None,
-                                     force_uppercase_symbols: bool = True):
+    async def subscribe_stock_trades(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time trades for provided symbol(s)
 
@@ -406,11 +451,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = "T"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
@@ -420,12 +465,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = "T"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_stock_quotes(self, symbols: list = None, handler_function=None, 
-                                     force_uppercase_symbols: bool = True):
+    async def subscribe_stock_quotes(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time quotes for provided symbol(s)
 
@@ -436,11 +482,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'Q'
+        _prefix = "Q"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
@@ -450,12 +496,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'Q'
+        _prefix = "Q"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_stock_minute_aggregates(self, symbols: list = None, handler_function=None,
-                                                force_uppercase_symbols: bool = True):
+    async def subscribe_stock_minute_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Minute Aggregates for provided symbol(s)
 
@@ -466,11 +513,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'AM'
+        _prefix = "AM"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
@@ -480,12 +527,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'AM'
+        _prefix = "AM"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_stock_second_aggregates(self, symbols: list = None, handler_function=None,
-                                                force_uppercase_symbols: bool = True):
+    async def subscribe_stock_second_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Seconds Aggregates for provided symbol(s)
 
@@ -496,11 +544,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'A'
+        _prefix = "A"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """
@@ -510,12 +558,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'A'
+        _prefix = "A"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_stock_limit_up_limit_down(self, symbols: list = None, handler_function=None, 
-                                                  force_uppercase_symbols: bool = True):
+    async def subscribe_stock_limit_up_limit_down(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time LULD Events for provided symbol(s)
 
@@ -526,11 +575,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'LULD'
+        _prefix = "LULD"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
@@ -540,12 +589,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'LULD'
+        _prefix = "LULD"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_stock_imbalances(self, symbols: list = None, handler_function=None,
-                                         force_uppercase_symbols: bool = True):
+    async def subscribe_stock_imbalances(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Imbalance Events for provided symbol(s)
 
@@ -556,11 +606,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'NOI'
+        _prefix = "NOI"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
@@ -570,13 +620,14 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'NOI'
+        _prefix = "NOI"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
     # OPTIONS Streams
-    async def subscribe_option_trades(self, symbols: list = None, handler_function=None, 
-                                      force_uppercase_symbols: bool = True):
+    async def subscribe_option_trades(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time options trades for provided ticker(s)
 
@@ -588,11 +639,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = "T"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_trades(self, symbols: list = None):
         """
@@ -603,12 +654,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'T'
+        _prefix = "T"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_option_quotes(self, symbols: list = None, handler_function=None, 
-                                      force_uppercase_symbols: bool = True):
+    async def subscribe_option_quotes(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time options quotes for provided ticker(s)
 
@@ -620,11 +672,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'Q'
+        _prefix = "Q"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_quotes(self, symbols: list = None):
         """
@@ -635,12 +687,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'Q'
+        _prefix = "Q"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_option_minute_aggregates(self, symbols: list = None, handler_function=None, 
-                                                 force_uppercase_symbols: bool = True):
+    async def subscribe_option_minute_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time options minute aggregates for given ticker(s)
 
@@ -652,11 +705,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'AM'
+        _prefix = "AM"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
@@ -667,12 +720,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'AM'
+        _prefix = "AM"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_option_second_aggregates(self, symbols: list = None, handler_function=None, 
-                                                 force_uppercase_symbols: bool = True):
+    async def subscribe_option_second_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time options second aggregates for given ticker(s)
 
@@ -684,11 +738,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'A'
+        _prefix = "A"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
@@ -699,13 +753,14 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'A'
+        _prefix = "A"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
     # FOREX Streams
-    async def subscribe_forex_quotes(self, symbols: list = None, handler_function=None, 
-                                     force_uppercase_symbols: bool = True):
+    async def subscribe_forex_quotes(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Forex Quotes for provided symbol(s)
 
@@ -717,11 +772,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'C'
+        _prefix = "C"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
@@ -732,12 +787,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'C'
+        _prefix = "C"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_forex_minute_aggregates(self, symbols: list = None, handler_function=None, 
-                                                force_uppercase_symbols: bool = True):
+    async def subscribe_forex_minute_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Forex Minute Aggregates for provided symbol(s)
 
@@ -749,11 +805,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'CA'
+        _prefix = "CA"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
@@ -764,13 +820,14 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'CA'
+        _prefix = "CA"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
     # CRYPTO Streams
-    async def subscribe_crypto_trades(self, symbols: list = None, handler_function=None, 
-                                      force_uppercase_symbols: bool = True):
+    async def subscribe_crypto_trades(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Crypto Trades for provided symbol(s)
 
@@ -783,11 +840,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XT'
+        _prefix = "XT"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
@@ -799,12 +856,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XT'
+        _prefix = "XT"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_crypto_quotes(self, symbols: list = None, handler_function=None, 
-                                      force_uppercase_symbols: bool = True):
+    async def subscribe_crypto_quotes(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Crypto Quotes for provided symbol(s)
 
@@ -817,11 +875,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XQ'
+        _prefix = "XQ"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
@@ -833,12 +891,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XQ'
+        _prefix = "XQ"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_crypto_minute_aggregates(self, symbols: list = None, handler_function=None, 
-                                                 force_uppercase_symbols: bool = True):
+    async def subscribe_crypto_minute_aggregates(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Crypto Minute Aggregates for provided symbol(s)
 
@@ -851,11 +910,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XA'
+        _prefix = "XA"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
@@ -867,12 +926,13 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XA'
+        _prefix = "XA"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_crypto_level2_book(self, symbols: list = None, handler_function=None, 
-                                           force_uppercase_symbols: bool = True):
+    async def subscribe_crypto_level2_book(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Get Real time Crypto Level 2 Book Data for provided symbol(s)
 
@@ -885,11 +945,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XL2'
+        _prefix = "XL2"
 
         self._handlers[_prefix] = handler_function
 
-        await self._modify_sub(symbols, _prefix=f'{_prefix}.', force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
@@ -901,9 +961,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = 'XL2'
+        _prefix = "XL2"
 
-        await self._modify_sub(symbols, action='unsubscribe', _prefix=f'{_prefix}.')
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
     # Convenience Functions
     async def change_handler(self, service_prefix, handler_function):
@@ -915,7 +975,7 @@ class AsyncStreamClient:
         :param handler_function: The new handler function to assign for this service
         :return: None
         """
-        if self._change_enum(service_prefix, str) == 'status':
+        if self._change_enum(service_prefix, str) == "status":
             self._handlers[self._apis[self._change_enum(service_prefix, str)]] = handler_function
             return
 
@@ -928,17 +988,21 @@ class AsyncStreamClient:
                 return val.value
 
             except AttributeError:
-                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                                 f'Please consider using the  specified enum in the docs for this function or recheck '
-                                 f'the value supplied.')
+                raise ValueError(
+                    f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                    f"Please consider using the  specified enum in the docs for this function or recheck "
+                    f"the value supplied."
+                )
 
         if isinstance(allowed_type, list):
             if type(val) in allowed_type:
                 return val
 
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
+            raise ValueError(
+                f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                f"Please consider using the  specified enum in the docs for this function or recheck "
+                f"the value supplied."
+            )
 
         if isinstance(val, allowed_type) or val is None:
             return val
@@ -947,7 +1011,7 @@ class AsyncStreamClient:
 # ========================================================= #
 
 
-def ensure_prefix(symbol: str, _prefix: str = 'O:'):
+def ensure_prefix(symbol: str, _prefix: str = "O:"):
     """
     ensuring prefixes in symbol names. to be used internally by forex, crypto and options
 
@@ -956,15 +1020,15 @@ def ensure_prefix(symbol: str, _prefix: str = 'O:'):
     :return: capitalized prefixed symbol.
     """
 
-    if symbol.upper().startswith(_prefix) or symbol == '*':
+    if symbol.upper().startswith(_prefix) or symbol == "*":
         return symbol.upper()
 
-    return f'{_prefix}{symbol.upper()}'
+    return f"{_prefix}{symbol.upper()}"
 
 
 # ========================================================= #
 
-if __name__ == '__main__':
-    print('Don\'t You Dare Running Lib Files Directly :/')
+if __name__ == "__main__":
+    print("Don't You Dare Running Lib Files Directly :/")
 
 # ========================================================= #

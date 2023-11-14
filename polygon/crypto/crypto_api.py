@@ -6,9 +6,16 @@ from os import cpu_count
 # ========================================================= #
 
 
-def CryptoClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                 pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                 write_timeout: int = 10):
+def CryptoClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST crypto endpoints.
 
@@ -35,8 +42,9 @@ def CryptoClient(api_key: str, use_async: bool = False, connect_timeout: int = 1
     if not use_async:
         return SyncCryptoClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncCryptoClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                             max_keepalive, write_timeout)
+    return AsyncCryptoClient(
+        api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+    )
 
 
 # ========================================================= #
@@ -55,8 +63,15 @@ class SyncCryptoClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_historic_trades(self, from_symbol: str, to_symbol: str, date, offset: Union[str, int] = None,
-                            limit: int = 500, raw_response: bool = False):
+    def get_historic_trades(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        offset: Union[str, int] = None,
+        limit: int = 500,
+        raw_response: bool = False,
+    ):
         """
         Get historic trade ticks for a cryptocurrency pair.
         `Official Docs
@@ -77,13 +92,12 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         offset = self.normalize_datetime(offset)
 
-        _path = f'/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'offset': offset,
-                 'limit': limit}
+        _data = {"offset": offset, "limit": limit}
 
         _res = self._get_response(_path, params=_data)
 
@@ -92,10 +106,24 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                   timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_trades(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
@@ -136,21 +164,28 @@ class SyncCryptoClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{ensure_prefix(symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -160,8 +195,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
@@ -177,7 +211,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}'
+        _path = f"/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}"
 
         _res = self._get_response(_path)
 
@@ -186,8 +220,9 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False):
+    def get_daily_open_close(
+        self, from_symbol: str, to_symbol: str, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day.
         `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
@@ -203,11 +238,11 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -216,11 +251,24 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
-                           adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           info: bool = True, warnings: bool = True, high_volatility: bool = False,
-                           raw_response: bool = False):
+    def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="day",
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
@@ -265,22 +313,21 @@ class SyncCryptoClient(base_client.BaseClient):
         """
 
         if not full_range:
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            to_date = self.normalize_datetime(to_date, output_type="nts", _dir="end")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
-
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = self._get_response(_path, params=_data)
 
@@ -292,24 +339,55 @@ class SyncCryptoClient(base_client.BaseClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit,
-                                                  timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit,
-                                              timespan=timespan)
-    
-    def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                      adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                      max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                                      warnings: bool = True, high_volatility: bool = False):
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+    ):
         """
-        Get BULK full range aggregate bars (OCHLV candles) for a crypto pair. 
+        Get BULK full range aggregate bars (OCHLV candles) for a crypto pair.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
@@ -343,17 +421,37 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=50_000,
-                                                  timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=50_000,
-                                              timespan=timespan)
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -369,11 +467,11 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/global/market/crypto/{date}'
+        _path = f"/v2/aggs/grouped/locale/global/market/crypto/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -382,8 +480,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False):
+    def get_previous_close(self, symbol: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair.
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
@@ -398,9 +495,9 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -423,11 +520,11 @@ class SyncCryptoClient(base_client.BaseClient):
         """
 
         if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
+            raise ValueError("symbols must be supplied as a list of tickers")
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers"
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        _data = {"tickers": ",".join([x.upper() for x in symbols])}
 
         _res = self._get_response(_path, params=_data)
 
@@ -449,7 +546,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}"
 
         _res = self._get_response(_path)
 
@@ -458,7 +555,7 @@ class SyncCryptoClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
+    def get_gainers_and_losers(self, direction="gainers", raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets.
         `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
@@ -471,7 +568,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}"
 
         _res = self._get_response(_path)
 
@@ -493,7 +590,7 @@ class SyncCryptoClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book"
 
         _res = self._get_response(_path)
 
@@ -503,29 +600,42 @@ class SyncCryptoClient(base_client.BaseClient):
         return self.to_json_safe(_res)
 
     # Technical Indicators
-    def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+    def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Simple Moving Average for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -538,33 +648,59 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
+        return self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+    def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Exponential Moving Average for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -577,33 +713,59 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
+        return self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+    def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Relative Strength Index for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -616,32 +778,60 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
+        return self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                 long_window_size: int = 50, series_type='close', include_underlying: bool = False, order='desc', 
-                 limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                 short_window_size: int = 50, signal_window_size: int = 50, raw_response: bool = False):
+    def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+        raw_response: bool = False,
+    ):
         """
         Get the Moving Average Convergence/Divergence for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -656,12 +846,28 @@ class SyncCryptoClient(base_client.BaseClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
-                              include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
-                              timestamp_gte, short_window_size, signal_window_size, raw_response)
+        return self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+            raw_response,
+        )
 
 
 # ========================================================= #
+
 
 class AsyncCryptoClient(base_client.BaseAsyncClient):
     """
@@ -672,15 +878,30 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
     eg: ``from polygon import CryptoClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+        )
 
     # Endpoints
-    async def get_historic_trades(self, from_symbol: str, to_symbol: str,
-                                  date, offset: Union[str, int] = None, limit: int = 500,
-                                  raw_response: bool = False):
+    async def get_historic_trades(
+        self,
+        from_symbol: str,
+        to_symbol: str,
+        date,
+        offset: Union[str, int] = None,
+        limit: int = 500,
+        raw_response: bool = False,
+    ):
         """
         Get historic trade ticks for a cryptocurrency pair - Async method.
         `Official Docs
@@ -701,13 +922,12 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         offset = self.normalize_datetime(offset)
 
-        _path = f'/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/historic/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'offset': offset,
-                 'limit': limit}
+        _data = {"offset": offset, "limit": limit}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -716,10 +936,24 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_trades(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                         timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_trades(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a crypto ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/crypto/get_v3_trades__cryptoticker>`__
@@ -760,21 +994,28 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{ensure_prefix(symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -784,11 +1025,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
-    async def get_last_trade(self, from_symbol: str, to_symbol: str,
-                             raw_response: bool = False):
+    async def get_last_trade(self, from_symbol: str, to_symbol: str, raw_response: bool = False):
         """
         Get the last trade tick for a cryptocurrency pair - Async method
         `Official Docs
@@ -802,7 +1043,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}'
+        _path = f"/v1/last/crypto/{from_symbol.upper()}/{to_symbol.upper()}"
 
         _res = await self._get_response(_path)
 
@@ -811,8 +1052,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_daily_open_close(self, from_symbol: str, to_symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False):
+    async def get_daily_open_close(
+        self, from_symbol: str, to_symbol: str, date, adjusted: bool = True, raw_response: bool = False
+    ):
         """
         Get the open, close prices of a cryptocurrency symbol on a certain day - Async method
         `Official Docs: <https://polygon.io/docs/crypto/get_v1_open-close_crypto__from___to___date>`__
@@ -828,11 +1070,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}'
+        _path = f"/v1/open-close/crypto/{from_symbol.upper()}/{to_symbol.upper()}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -841,11 +1083,24 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='day',
-                                 adjusted: bool = True, sort='asc', limit: int = 5000, full_range: bool = False,
-                                 run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                                 info: bool = True, warnings: bool = True, high_volatility: bool = False,
-                                 raw_response: bool = False):
+    async def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="day",
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a cryptocurrency pair over a given date range in custom time window sizes.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘5’`` then 5-minute bars will be returned.
@@ -890,22 +1145,21 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
 
         if not full_range:
-
             from_date = self.normalize_datetime(from_date)
 
-            to_date = self.normalize_datetime(to_date, _dir='end')
+            to_date = self.normalize_datetime(to_date, _dir="end")
 
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = await self._get_response(_path, params=_data)
 
@@ -917,24 +1171,55 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit,
-                                                    timespan=timespan)
-    
-    async def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                            adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                            max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                                            warnings: bool = True, high_volatility: bool = False):
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    async def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+    ):
         """
-        Get BULK full range aggregate bars (OCHLV candles) for a crypto pair. 
+        Get BULK full range aggregate bars (OCHLV candles) for a crypto pair.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
         `Official Docs
         <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__range__multiplier___timespan___from___to>`__
@@ -968,20 +1253,39 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=50_000,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=50_000,
-                                                    timespan=timespan)
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
-    async def get_grouped_daily_bars(self, date, adjusted: bool = True,
-                                     raw_response: bool = False):
+    async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the daily open, high, low, and close (OHLC) for the entire cryptocurrency market - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_grouped_locale_global_market_crypto__date>`__
@@ -995,11 +1299,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/global/market/crypto/{date}'
+        _path = f"/v2/aggs/grouped/locale/global/market/crypto/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1008,8 +1312,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False):
+    async def get_previous_close(self, symbol: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified cryptocurrency pair - Async method
         `Official Docs <https://polygon.io/docs/crypto/get_v2_aggs_ticker__cryptoticker__prev>`__
@@ -1024,9 +1327,9 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1049,11 +1352,11 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
 
         if not isinstance(symbols, list):
-            raise ValueError('symbols must be supplied as a list of tickers')
+            raise ValueError("symbols must be supplied as a list of tickers")
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers"
 
-        _data = {'tickers': ','.join([x.upper() for x in symbols])}
+        _data = {"tickers": ",".join([x.upper() for x in symbols])}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1075,7 +1378,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}"
 
         _res = await self._get_response(_path)
 
@@ -1084,8 +1387,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False):
+    async def get_gainers_and_losers(self, direction="gainers", raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in cryptocurrency markets - Async method
         `Official docs <https://polygon.io/docs/crypto/get_v2_snapshot_locale_global_markets_crypto__direction>`__
@@ -1098,7 +1400,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/{self._change_enum(direction, str)}"
 
         _res = await self._get_response(_path)
 
@@ -1120,7 +1422,7 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book'
+        _path = f"/v2/snapshot/locale/global/markets/crypto/tickers/{ensure_prefix(symbol).upper()}/book"
 
         _res = await self._get_response(_path)
 
@@ -1130,29 +1432,42 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         return self.to_json_safe(_res)
 
     # Technical Indicators
-    async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                      window_size: int = 50, series_type='close', include_underlying: bool = False, order='desc', 
-                      limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Simple Moving Average for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1165,33 +1480,59 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                      window_size: int = 50, series_type='close', include_underlying: bool = False, order='desc', 
-                      limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Exponential Moving Average for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1204,33 +1545,59 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                      window_size: int = 14, series_type='close', include_underlying: bool = False, order='desc', 
-                      limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Relative Strength Index for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1243,33 +1610,60 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                       long_window_size: int = 50, series_type='close', include_underlying: bool = False,
-                       order='desc', limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None,
-                       timestamp_gte=None, short_window_size: int = 50, signal_window_size: int = 50,
-                       raw_response: bool = False):
+    async def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+        raw_response: bool = False,
+    ):
         """
         Get the Moving Average Convergence/Divergence for a crypto pair
 
         :param symbol: The option symbol. You can pass it with or without the prefix ``X:``.
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1284,25 +1678,40 @@ class AsyncCryptoClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
-                                    include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
-                                    timestamp_gte, short_window_size, signal_window_size, raw_response)
+        return await self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+            raw_response,
+        )
 
 
 # ========================================================= #
 
 
 def ensure_prefix(sym: str):
-    if sym.upper().startswith('X:'):
+    if sym.upper().startswith("X:"):
         return sym.upper()
 
-    return f'X:{sym.upper()}'
+    return f"X:{sym.upper()}"
 
 
 # ========================================================= #
 
 
-if __name__ == '__main__':
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

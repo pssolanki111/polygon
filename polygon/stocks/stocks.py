@@ -5,9 +5,16 @@ from os import cpu_count
 # ========================================================= #
 
 
-def StocksClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                 pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                 write_timeout: int = 10):
+def StocksClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST Stocks endpoints.
 
@@ -34,8 +41,9 @@ def StocksClient(api_key: str, use_async: bool = False, connect_timeout: int = 1
     if not use_async:
         return SyncStocksClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncStocksClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                             max_keepalive, write_timeout)
+    return AsyncStocksClient(
+        api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+    )
 
 
 # ========================================================= #
@@ -54,8 +62,16 @@ class SyncStocksClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_trades(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                   limit: int = 5000, raw_response: bool = False):
+    def get_trades(
+        self,
+        symbol: str,
+        date,
+        timestamp: int = None,
+        timestamp_limit: int = None,
+        reverse: bool = True,
+        limit: int = 5000,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
@@ -71,20 +87,22 @@ class SyncStocksClient(base_client.BaseClient):
         :param reverse: Reverse the order of the results. Default True: oldest first. Make it False for Newest first
         :param limit: Limit the size of the response, max 50000 and default 5000.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
-                             status code or inspect the headers. Defaults to False which returns the json decoded 
+                             status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         timestamp = self.normalize_datetime(timestamp)
 
-        _path = f'/v2/ticks/stocks/trades/{symbol.upper()}/{date}'
+        _path = f"/v2/ticks/stocks/trades/{symbol.upper()}/{date}"
 
-        _data = {'timestamp': timestamp,
-                 'timestampimit': timestamp_limit,
-                 'reverse': 'true' if reverse else 'false',
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestampimit": timestamp_limit,
+            "reverse": "true" if reverse else "false",
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
         if raw_response:
@@ -92,10 +110,24 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                      verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_trades_v3(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_trades__stockticker>`__
@@ -135,21 +167,28 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{symbol}'
+        _path = f"/v3/trades/{symbol}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -159,23 +198,34 @@ class SyncStocksClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
     @staticmethod
     def get_trades_vx(*args, **kwargs):
-        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
-              f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
-              f'did not change :)')
+        print(
+            f"This method has been removed as polygon changed this endpoint to v3 (yeah I don't like that behavior "
+            f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
+            f"did not change :)"
+        )
 
     @staticmethod
     def get_quotes_vx(*args, **kwargs):
-        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
-              f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
-              f'did not change :)')
+        print(
+            f"This method has been removed as polygon changed this endpoint to v3 (yeah I don't like that behavior "
+            f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
+            f"did not change :)"
+        )
 
-    def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                   limit: int = 5000, raw_response: bool = False):
+    def get_quotes(
+        self,
+        symbol: str,
+        date,
+        timestamp: int = None,
+        timestamp_limit: int = None,
+        reverse: bool = True,
+        limit: int = 5000,
+        raw_response: bool = False,
+    ):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values.
@@ -195,15 +245,17 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         timestamp = self.normalize_datetime(timestamp)
 
-        _path = f'/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}'
+        _path = f"/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}"
 
-        _data = {'timestamp': timestamp,
-                 'timestampimit': timestamp_limit,
-                 'reverse': 'true' if reverse else 'false',
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestampimit": timestamp_limit,
+            "reverse": "true" if reverse else "false",
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -212,10 +264,24 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                      verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_quotes_v3(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_quotes__stockticker>`__
@@ -255,21 +321,28 @@ class SyncStocksClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/quotes/{symbol}'
+        _path = f"/v3/quotes/{symbol}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -279,8 +352,7 @@ class SyncStocksClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
@@ -294,7 +366,7 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/last/trade/{symbol.upper()}'
+        _path = f"/v2/last/trade/{symbol.upper()}"
 
         _res = self._get_response(_path)
 
@@ -315,7 +387,7 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/last/nbbo/{symbol.upper()}'
+        _path = f"/v2/last/nbbo/{symbol.upper()}"
 
         _res = self._get_response(_path)
 
@@ -324,8 +396,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False):
+    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date.
         `Official Docs <https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date>`__
@@ -341,11 +412,11 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{symbol.upper()}/{date}'
+        _path = f"/v1/open-close/{symbol.upper()}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -354,10 +425,24 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5,
-                           warnings: bool = True, info: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        info: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -400,21 +485,18 @@ class SyncStocksClient(base_client.BaseClient):
         """
 
         if not full_range:
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            to_date = self.normalize_datetime(to_date, output_type="nts", _dir="end")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
-
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+            _path = f"/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}"
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = self._get_response(_path, params=_data)
 
@@ -426,22 +508,53 @@ class SyncStocksClient(base_client.BaseClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit,
-                                                  timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                info=info,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit,
-                                              timespan=timespan)
-    
-    def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                      adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                      max_concurrent_workers: int = cpu_count() * 5,
-                                      warnings: bool = True, info: bool = True, high_volatility: bool = False):
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            info=info,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        info: bool = True,
+        high_volatility: bool = False,
+    ):
         """
         Get BULK full range aggregate bars (OCHLV candles) for a stock.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
@@ -477,17 +590,37 @@ class SyncStocksClient(base_client.BaseClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=50_000,
-                                                  timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                info=info,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=50_000,
-                                              timespan=timespan)
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            info=info,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
     def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -503,11 +636,11 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/us/market/stocks/{date}'
+        _path = f"/v2/aggs/grouped/locale/us/market/stocks/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -516,8 +649,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_previous_close(self, symbol: str, adjusted: bool = True,
-                           raw_response: bool = False):
+    def get_previous_close(self, symbol: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker.
         `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
@@ -531,9 +663,9 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
+        _path = f"/v2/aggs/ticker/{symbol.upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -556,7 +688,7 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/tickers/{symbol.upper()}'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/tickers/{symbol.upper()}"
 
         _res = self._get_response(_path)
 
@@ -579,10 +711,12 @@ class SyncStocksClient(base_client.BaseClient):
         _res = self.get_last_trade(symbol)
 
         try:
-            return _res['results']['p']
+            return _res["results"]["p"]
         except KeyError:
-            raise ValueError('Request failed. Make sure your API key is correct and your subscription has access to '
-                             f'the data you requested. Response from the API: {_res}')
+            raise ValueError(
+                "Request failed. Make sure your API key is correct and your subscription has access to "
+                f"the data you requested. Response from the API: {_res}"
+            )
 
     def get_snapshot_all(self, symbols: list = None, raw_response: bool = False):
         """
@@ -597,12 +731,12 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/tickers'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/tickers"
 
         if symbols is not None:
-            _data = {'tickers': ','.join([x.upper() for x in symbols])}
+            _data = {"tickers": ",".join([x.upper() for x in symbols])}
         else:
-            _data = {'tickers': None}
+            _data = {"tickers": None}
 
         _res = self._get_response(_path, params=_data)
 
@@ -611,7 +745,7 @@ class SyncStocksClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_gainers_and_losers(self, direction='gainers', raw_response: bool = False):
+    def get_gainers_and_losers(self, direction="gainers", raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets.
         `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks__direction>`__
@@ -624,7 +758,7 @@ class SyncStocksClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}"
 
         _res = self._get_response(_path)
 
@@ -632,31 +766,44 @@ class SyncStocksClient(base_client.BaseClient):
             return _res
 
         return self.to_json_safe(_res)
-    
+
     # Technical Indicators
-    def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+    def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Simple Moving Average for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -667,33 +814,59 @@ class SyncStocksClient(base_client.BaseClient):
                              dictionary.
         :return: The response object
         """
-        return self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
-    
-    def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+        return self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Exponential Moving Average for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -704,33 +877,59 @@ class SyncStocksClient(base_client.BaseClient):
                              dictionary.
         :return: The response object
         """
-        return self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
-    
-    def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+        return self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Relative Strength Index for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -741,33 +940,60 @@ class SyncStocksClient(base_client.BaseClient):
                              dictionary.
         :return: The response object
         """
-        return self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
-    
-    def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, long_window_size: int = 50,
-                 series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                 timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                 short_window_size: int = 50, signal_window_size: int = 50,
-                 raw_response: bool = False):
+        return self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+        raw_response: bool = False,
+    ):
         """
         Get the Moving Average Convergence/Divergence for a stock
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that are NOT
                          adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -780,9 +1006,24 @@ class SyncStocksClient(base_client.BaseClient):
                              dictionary.
         :return: The response object
         """
-        return self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type, 
-                              include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt, 
-                              timestamp_gte, short_window_size, signal_window_size, raw_response)
+        return self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+            raw_response,
+        )
 
 
 # ========================================================= #
@@ -797,15 +1038,31 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
     eg: ``from polygon import StocksClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+        )
 
     # Endpoints
-    async def get_trades(self, symbol: str, date,
-                         timestamp: int = None, timestamp_limit: int = None, reverse: bool = True,
-                         limit: int = 5000, raw_response: bool = False):
+    async def get_trades(
+        self,
+        symbol: str,
+        date,
+        timestamp: int = None,
+        timestamp_limit: int = None,
+        reverse: bool = True,
+        limit: int = 5000,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -826,15 +1083,17 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         timestamp = self.normalize_datetime(timestamp)
 
-        _path = f'/v2/ticks/stocks/trades/{symbol.upper()}/{date}'
+        _path = f"/v2/ticks/stocks/trades/{symbol.upper()}/{date}"
 
-        _data = {'timestamp': timestamp,
-                 'timestampimit': timestamp_limit,
-                 'reverse': 'true' if reverse else 'false',
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestampimit": timestamp_limit,
+            "reverse": "true" if reverse else "false",
+            "limit": limit,
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -843,10 +1102,24 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_trades_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                            timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_trades_v3(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_trades__stockticker>`__
@@ -886,21 +1159,28 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{symbol}'
+        _path = f"/v3/trades/{symbol}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -910,24 +1190,36 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
     @staticmethod
     async def get_trades_vx(*args, **kwargs):
-        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
-              f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
-              f'did not change :)')
+        print(
+            f"This method has been removed as polygon changed this endpoint to v3 (yeah I don't like that behavior "
+            f'either from polygon. Please use "get_trades_v3", you can use the exact same arguments. the function '
+            f"did not change :)"
+        )
 
     @staticmethod
     async def get_quotes_vx(*args, **kwargs):
-        print(f'This method has been removed as polygon changed this endpoint to v3 (yeah I don\'t like that behavior '
-              f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
-              f'did not change :)')
+        print(
+            f"This method has been removed as polygon changed this endpoint to v3 (yeah I don't like that behavior "
+            f'either from polygon. Please use "get_quotes_v3", you can use the exact same arguments. the function '
+            f"did not change :)"
+        )
 
-    async def get_quotes(self, symbol: str, date, timestamp: int = None, timestamp_limit: int = None,
-                         reverse: bool = True, limit: int = 5000,
-                         raw_response: bool = False):
+    async def get_quotes(
+        self,
+        symbol: str,
+        date,
+        timestamp: int = None,
+        timestamp_limit: int = None,
+        reverse: bool = True,
+        limit: int = 5000,
+        raw_response: bool = False,
+    ):
         """
         Get Quotes for a given ticker symbol on a specified date. The response from polygon seems to have a ``map``
         attribute which gives a mapping of attribute names to readable values - Async method
@@ -947,15 +1239,17 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
         timestamp = self.normalize_datetime(timestamp)
 
-        _path = f'/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}'
+        _path = f"/v2/ticks/stocks/nbbo/{symbol.upper()}/{date}"
 
-        _data = {'timestamp': timestamp,
-                 'timestampimit': timestamp_limit,
-                 'reverse': 'true' if reverse else 'false',
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestampimit": timestamp_limit,
+            "reverse": "true" if reverse else "false",
+            "limit": limit,
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -964,10 +1258,24 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_quotes_v3(self, symbol: str, timestamp: int = None, order=None, sort=None, limit: int = 5000,
-                            timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                            all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                            verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_quotes_v3(
+        self,
+        symbol: str,
+        timestamp: int = None,
+        order=None,
+        sort=None,
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get NBBO Quotes for a ticker symbol in a given time range.
         `Official Docs <https://polygon.io/docs/stocks/get_v3_quotes__stockticker>`__
@@ -1007,21 +1315,28 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/quotes/{symbol}'
+        _path = f"/v3/quotes/{symbol}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'limit': limit,
-                 'sort': self._change_enum(sort, str), 'order': self._change_enum(order, str)}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "limit": limit,
+            "sort": self._change_enum(sort, str),
+            "order": self._change_enum(order, str),
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1031,8 +1346,9 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
     async def get_last_trade(self, symbol: str, raw_response: bool = False):
         """
@@ -1046,7 +1362,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/last/trade/{symbol.upper()}'
+        _path = f"/v2/last/trade/{symbol.upper()}"
 
         _res = await self._get_response(_path)
 
@@ -1067,7 +1383,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/last/nbbo/{symbol.upper()}'
+        _path = f"/v2/last/nbbo/{symbol.upper()}"
 
         _res = await self._get_response(_path)
 
@@ -1076,8 +1392,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False):
+    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a stock symbol on a certain date - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date>`__
@@ -1093,11 +1408,11 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{symbol.upper()}/{date}'
+        _path = f"/v1/open-close/{symbol.upper()}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1106,11 +1421,24 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                                 sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                                 full_range: bool = False, run_parallel: bool = True,
-                                 max_concurrent_workers: int = cpu_count() * 5, warnings: bool = True,
-                                 info: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    async def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        info: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for a stock over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -1153,21 +1481,18 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         """
 
         if not full_range:
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            to_date = self.normalize_datetime(to_date, output_type="nts", _dir="end")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
-
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}'
+            _path = f"/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{timespan}/{from_date}/{to_date}"
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = await self._get_response(_path, params=_data)
 
@@ -1179,22 +1504,53 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                info=info,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit,
-                                                    timespan=timespan)
-    
-    async def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                            adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                            max_concurrent_workers: int = cpu_count() * 5,
-                                            warnings: bool = True, info: bool = True, high_volatility: bool = False):
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            info=info,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    async def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        warnings: bool = True,
+        info: bool = True,
+        high_volatility: bool = False,
+    ):
         """
         Get BULK full range aggregate bars (OCHLV candles) for a stock.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
@@ -1230,17 +1586,37 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=50_000,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                warnings,
+                info=info,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, warnings, info=info, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=50_000,
-                                                    timespan=timespan)
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            warnings,
+            info=info,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
     async def get_grouped_daily_bars(self, date, adjusted: bool = True, raw_response: bool = False):
         """
@@ -1255,11 +1631,11 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
                              dictionary.
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v2/aggs/grouped/locale/us/market/stocks/{date}'
+        _path = f"/v2/aggs/grouped/locale/us/market/stocks/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1268,8 +1644,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_previous_close(self, symbol: str, adjusted: bool = True,
-                                 raw_response: bool = False):
+    async def get_previous_close(self, symbol: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's OCHLV for the specified stock ticker - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__prev>`__
@@ -1283,10 +1658,10 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/aggs/ticker/{symbol.upper()}/prev'
+        _path = f"/v2/aggs/ticker/{symbol.upper()}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
-        
+        _data = {"adjusted": "true" if adjusted else "false"}
+
         _res = await self._get_response(_path, params=_data)
 
         if raw_response:
@@ -1308,7 +1683,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/tickers/{symbol.upper()}'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/tickers/{symbol.upper()}"
 
         _res = await self._get_response(_path)
 
@@ -1330,7 +1705,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         _res = await self.get_last_trade(symbol)
 
-        return _res['results']['p']
+        return _res["results"]["p"]
 
     async def get_snapshot_all(self, symbols: list = None, raw_response: bool = False):
         """
@@ -1345,12 +1720,12 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/tickers'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/tickers"
 
         if symbols is not None:
-            _data = {'tickers': ','.join([x.upper() for x in symbols])}
+            _data = {"tickers": ",".join([x.upper() for x in symbols])}
         else:
-            _data = {'tickers': None}
+            _data = {"tickers": None}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1359,8 +1734,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_gainers_and_losers(self, direction='gainers',
-                                     raw_response: bool = False):
+    async def get_gainers_and_losers(self, direction="gainers", raw_response: bool = False):
         """
         Get the current top 20 gainers or losers of the day in stocks/equities markets - Async method
         `Official Docs <https://polygon.io/docs/stocks/get_v2_snapshot_locale_us_markets_stocks__direction>`__
@@ -1373,7 +1747,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        _path = f'/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}'
+        _path = f"/v2/snapshot/locale/us/markets/stocks/{self._change_enum(direction, str)}"
 
         _res = await self._get_response(_path)
 
@@ -1383,29 +1757,42 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         return self.to_json_safe(_res)
 
     # Technical Indicators
-    async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+    async def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+    ):
         """
         Get the Simple Moving Average for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
-                         are NOT 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
+                         are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1413,33 +1800,58 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
         :return: The response object
         """
-        return await self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte)
+        return await self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+        )
 
-    async def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+    async def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+    ):
         """
         Get the Exponential Moving Average for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
-                         are NOT 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
+                         are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1447,33 +1859,58 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
         :return: The response object
         """
-        return await self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte)
+        return await self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+        )
 
-    async def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None):
+    async def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+    ):
         """
         Get the Relative Strength Index for a Stock symbol
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
-                         are NOT 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
+                         are NOT
                          adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1481,33 +1918,59 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
         :return: The response object
         """
-        return await self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte)
+        return await self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+        )
 
-    async def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                       long_window_size: int = 50, series_type='close', include_underlying: bool = False, 
-                       order='desc', limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, 
-                       timestamp_gte=None, short_window_size: int = 50, signal_window_size: int = 50):
+    async def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+    ):
         """
         Get the Moving Average Convergence/Divergence for a stock
 
         :param symbol: The stock symbol
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
-                         are NOT 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
+                         are NOT
                          adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1517,15 +1980,29 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         :param signal_window_size: The window size used to calculate the MACD signal line.
         :return: The response object
         """
-        return await self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
-                                    include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
-                                    timestamp_gte, short_window_size, signal_window_size)
+        return await self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+        )
 
 
 # ========================================================= #
 
 
-if __name__ == '__main__':  # Tests
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":  # Tests
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

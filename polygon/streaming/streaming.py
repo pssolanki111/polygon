@@ -9,8 +9,8 @@ from enum import Enum
 # ========================================================= #
 
 
-HOST = 'socket.polygon.io'
-DELAYED_HOST = 'delayed.polygon.io'
+HOST = "socket.polygon.io"
+DELAYED_HOST = "delayed.polygon.io"
 
 
 # ========================================================= #
@@ -46,8 +46,16 @@ class StreamClient:
     to get an idea of the stream, data formatting for messages and related useful stuff.
     """
 
-    def __init__(self, api_key: str, cluster, host=HOST, on_message=None, on_close=None,
-                 on_error=None, enable_connection_logs: bool = False):
+    def __init__(
+        self,
+        api_key: str,
+        cluster,
+        host=HOST,
+        on_message=None,
+        on_close=None,
+        on_error=None,
+        enable_connection_logs: bool = False,
+    ):
         """
         Initializes the callback function based stream client
         `Official Docs <https://polygon.io/docs/websockets/getting-started>`__
@@ -74,7 +82,7 @@ class StreamClient:
 
         self._host, self.KEY, self._cluster = self._change_enum(host, str), api_key, self._change_enum(cluster, str)
 
-        self._url, self._re, self._attempts = f'wss://{self._host}/{self._cluster}', None, 0
+        self._url, self._re, self._attempts = f"wss://{self._host}/{self._cluster}", None, 0
 
         self._subs = []
 
@@ -82,8 +90,13 @@ class StreamClient:
 
         self._skip_utf8_validation, self._enable_connection_logs = None, enable_connection_logs
 
-        self.WS = ws_client.WebSocketApp(self._url, on_message=self._default_on_msg, on_close=self._default_on_close,
-                                         on_error=self._default_on_error, on_open=self._default_on_open)
+        self.WS = ws_client.WebSocketApp(
+            self._url,
+            on_message=self._default_on_msg,
+            on_close=self._default_on_close,
+            on_error=self._default_on_error,
+            on_open=self._default_on_open,
+        )
 
         self.WS.on_close = on_close if on_close else self._default_on_close
         self.WS.on_error = on_error if on_error else self._default_on_error
@@ -101,8 +114,9 @@ class StreamClient:
         self.WS.close()
         return
 
-    def _start_stream(self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = '',
-                      skip_utf8_validation: bool = True):
+    def _start_stream(
+        self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = "", skip_utf8_validation: bool = True
+    ):
         """
         Starts the Stream Event Loop. The loop is infinite and will continue to run until the stream is
         terminated, either manually or due to an exception. This method is for internal use only. you should always
@@ -125,11 +139,16 @@ class StreamClient:
 
         self._skip_utf8_validation = skip_utf8_validation
 
-        self.WS.run_forever(ping_interval=self._ping_interval, ping_timeout=self._ping_timeout,
-                            ping_payload=self._ping_payload, skip_utf8_validation=self._skip_utf8_validation)
+        self.WS.run_forever(
+            ping_interval=self._ping_interval,
+            ping_timeout=self._ping_timeout,
+            ping_payload=self._ping_payload,
+            skip_utf8_validation=self._skip_utf8_validation,
+        )
 
-    def start_stream_thread(self, ping_interval: int = 21, ping_timeout: int = 20,  ping_payload: str = '',
-                            skip_utf8_validation: bool = True):
+    def start_stream_thread(
+        self, ping_interval: int = 21, ping_timeout: int = 20, ping_payload: str = "", skip_utf8_validation: bool = True
+    ):
         """
         Starts the Stream. This will not block the main thread and it spawns the streamer in its own thread.
 
@@ -147,26 +166,27 @@ class StreamClient:
         """
 
         try:
-            self._run_in_thread = threading.Thread(target=self._start_stream, args=(
-                                                   ping_interval, ping_timeout, ping_payload, skip_utf8_validation))
+            self._run_in_thread = threading.Thread(
+                target=self._start_stream, args=(ping_interval, ping_timeout, ping_payload, skip_utf8_validation)
+            )
             self._run_in_thread.start()
 
         except Exception as exc:
-            print(f'error encountered: {str(exc)}')
+            print(f"error encountered: {str(exc)}")
 
     def close_stream(self, *args, **kwargs):
         """
         Close the websocket connection. Wait for thread to finish if running.
         """
 
-        get_logger().info('Terminating Stream...')
+        get_logger().info("Terminating Stream...")
 
         self.WS.close()
 
         if self._run_in_thread:
             self._run_in_thread.join()
 
-        get_logger().info('Terminated')
+        get_logger().info("Terminated")
 
     def _authenticate(self):
         """
@@ -184,7 +204,7 @@ class StreamClient:
 
         self._auth.set()
 
-    def _modify_sub(self, symbols=None, action='subscribe', _prefix='T.', force_uppercase_symbols: bool = True):
+    def _modify_sub(self, symbols=None, action="subscribe", _prefix="T.", force_uppercase_symbols: bool = True):
         """
         Internal Function to send subscribe or unsubscribe requests to websocket. You should prefer using the
         corresponding methods to subscribe or unsubscribe to stream.
@@ -197,8 +217,8 @@ class StreamClient:
         :return: None
         """
 
-        if symbols in [None, [], 'all']:
-            symbols = _prefix + '*'
+        if symbols in [None, [], "all"]:
+            symbols = _prefix + "*"
 
         elif isinstance(symbols, str):
             pass
@@ -206,12 +226,12 @@ class StreamClient:
         else:
             if force_uppercase_symbols:
                 symbols = [x.upper() for x in symbols]
-                
-            if self._cluster in ['options']:                    
-                symbols = ','.join([f'{_prefix}{ensure_prefix(symbol)}' for symbol in symbols])
+
+            if self._cluster in ["options"]:
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol)}" for symbol in symbols])
 
             else:
-                symbols = ','.join([_prefix + symbol.upper() for symbol in symbols])
+                symbols = ",".join([_prefix + symbol.upper() for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
@@ -223,7 +243,7 @@ class StreamClient:
             self.WS.send(_payload)
 
         except ws_client._exceptions.WebSocketConnectionClosedException:
-            get_logger().error('Login Failed. Please recheck your API key and try again.')
+            get_logger().error("Login Failed. Please recheck your API key and try again.")
             return
 
         except Exception:
@@ -239,16 +259,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'T.'
+        _prefix = "T."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_trades(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'T.'
+        _prefix = "T."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_stock_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -259,16 +279,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'Q.'
+        _prefix = "Q."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_quotes(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'Q.'
+        _prefix = "Q."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_stock_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -279,16 +299,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'AM.'
+        _prefix = "AM."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'AM.'
+        _prefix = "AM."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_stock_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -299,16 +319,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'A.'
+        _prefix = "A."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'A.'
+        _prefix = "A."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_stock_limit_up_limit_down(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -319,16 +339,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'LULD.'
+        _prefix = "LULD."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'LULD.'
+        _prefix = "LULD."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_stock_imbalances(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -339,16 +359,16 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'NOI.'
+        _prefix = "NOI."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_stock_imbalances(self, symbols: list = None):
         """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
 
-        _prefix = 'NOI.'
+        _prefix = "NOI."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     # OPTIONS Streams
     def subscribe_option_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
@@ -361,9 +381,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'T.'
+        _prefix = "T."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_trades(self, symbols: list = None):
         """
@@ -374,9 +394,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'T.'
+        _prefix = "T."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_option_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -388,9 +408,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'Q.'
+        _prefix = "Q."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_quotes(self, symbols: list = None):
         """
@@ -401,9 +421,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'Q.'
+        _prefix = "Q."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_option_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -415,9 +435,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'AM.'
+        _prefix = "AM."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
@@ -428,9 +448,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'AM.'
+        _prefix = "AM."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_option_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -442,9 +462,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'A.'
+        _prefix = "A."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
@@ -455,9 +475,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'A.'
+        _prefix = "A."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     # FOREX Streams
     def subscribe_forex_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
@@ -470,9 +490,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'C.'
+        _prefix = "C."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_forex_quotes(self, symbols: list = None):
         """
@@ -482,9 +502,9 @@ class StreamClient:
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         """
 
-        _prefix = 'C.'
+        _prefix = "C."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_forex_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -496,9 +516,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'CA.'
+        _prefix = "CA."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
@@ -508,9 +528,9 @@ class StreamClient:
                         each Ticker must be in format: ``from/to``. For example: ``USD/CNH``.
         """
 
-        _prefix = 'CA.'
+        _prefix = "CA."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     # CRYPTO Streams
     def subscribe_crypto_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
@@ -524,9 +544,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XT.'
+        _prefix = "XT."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_trades(self, symbols: list = None):
         """
@@ -538,9 +558,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XT.'
+        _prefix = "XT."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_crypto_quotes(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -553,9 +573,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XQ.'
+        _prefix = "XQ."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
@@ -567,9 +587,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XQ.'
+        _prefix = "XQ."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_crypto_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -582,9 +602,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XA.'
+        _prefix = "XA."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
@@ -596,9 +616,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XA.'
+        _prefix = "XA."
 
-        self._modify_sub(symbols, 'unsubscribe', _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     def subscribe_crypto_level2_book(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -611,9 +631,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XL2.'
+        _prefix = "XL2."
 
-        self._modify_sub(symbols, 'subscribe', _prefix, force_uppercase_symbols=force_uppercase_symbols)
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
@@ -625,9 +645,9 @@ class StreamClient:
         :return: None
         """
 
-        _prefix = 'XL2.'
+        _prefix = "XL2."
 
-        self._modify_sub(symbols, 'subscribe', _prefix)
+        self._modify_sub(symbols, "subscribe", _prefix)
 
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):
@@ -638,7 +658,7 @@ class StreamClient:
         :return: None
         """
 
-        print('message received:\n', str(msg))
+        print("message received:\n", str(msg))
 
     @staticmethod
     def _default_on_close(_ws: ws_client.WebSocketApp, close_code, msg):
@@ -653,8 +673,10 @@ class StreamClient:
         if close_code is None:
             return
 
-        print(f'Closed. Close Code: {close_code} || Args: {None if msg == "" else msg}\nMost common reason for '
-              f'stream to be closed is incorrect API key OR internet issues')
+        print(
+            f'Closed. Close Code: {close_code} || Args: {None if msg == "" else msg}\nMost common reason for '
+            f"stream to be closed is incorrect API key OR internet issues"
+        )
 
     @staticmethod
     def _default_on_error(_ws: ws_client.WebSocketApp, error, *args):
@@ -665,7 +687,7 @@ class StreamClient:
         :return: None
         """
 
-        print('Error Encountered:\n', str(error))
+        print("Error Encountered:\n", str(error))
 
     def _default_on_open(self, _ws: ws_client.WebSocketApp, *args):
         """
@@ -684,25 +706,30 @@ class StreamClient:
                 return val.value
 
             except AttributeError:
-                raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                                 f'Please consider using the  specified enum in the docs for this function or recheck '
-                                 f'the value supplied.')
+                raise ValueError(
+                    f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                    f"Please consider using the  specified enum in the docs for this function or recheck "
+                    f"the value supplied."
+                )
 
         if isinstance(allowed_type, list):
             if type(val) in allowed_type:
                 return val
 
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
+            raise ValueError(
+                f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                f"Please consider using the  specified enum in the docs for this function or recheck "
+                f"the value supplied."
+            )
 
         if isinstance(val, allowed_type) or val is None:
             return val
 
+
 # ========================================================= #
 
 
-def ensure_prefix(symbol: str, _prefix: str = 'O:'):
+def ensure_prefix(symbol: str, _prefix: str = "O:"):
     """
     ensuring prefixes in symbol names. to be used internally by forex, crypto and options
 
@@ -711,15 +738,16 @@ def ensure_prefix(symbol: str, _prefix: str = 'O:'):
     :return: capitalized prefixed symbol.
     """
 
-    if symbol.upper().startswith(_prefix) or symbol == '*':
+    if symbol.upper().startswith(_prefix) or symbol == "*":
         return symbol.upper()
 
-    return f'{_prefix}{symbol.upper()}'
+    return f"{_prefix}{symbol.upper()}"
+
 
 # ========================================================= #
 
 
-if __name__ == '__main__':
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

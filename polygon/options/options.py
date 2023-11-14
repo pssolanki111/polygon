@@ -7,12 +7,14 @@ from enum import Enum
 
 # ========================================================= #
 
-SYMBOL_FORMATS = {'polygon': '{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}',
-                  'tda': '{symbol}_{mm}{dd}{yy}{_type}{strike}.{strike_dec}',
-                  'tos': '.{symbol}{mm}{dd}{yy}{_type}{strike}.{strike_dec}',
-                  'ibkr': '{symbol} {yy}{mm}{dd}{_type}{strike}{strike_dec}',
-                  'tradier': '{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}',
-                  'trade_station': '{symbol} {yy}{mm}{dd}{_type}{strike}.{strike_dec}'}
+SYMBOL_FORMATS = {
+    "polygon": "{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}",
+    "tda": "{symbol}_{mm}{dd}{yy}{_type}{strike}.{strike_dec}",
+    "tos": ".{symbol}{mm}{dd}{yy}{_type}{strike}.{strike_dec}",
+    "ibkr": "{symbol} {yy}{mm}{dd}{_type}{strike}{strike_dec}",
+    "tradier": "{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}",
+    "trade_station": "{symbol} {yy}{mm}{dd}{_type}{strike}.{strike_dec}",
+}
 
 # ========================================================= #
 # OPTION SYMBOL HELPERS                                     #
@@ -20,22 +22,23 @@ SYMBOL_FORMATS = {'polygon': '{symbol}{yy}{mm}{dd}{_type}{strike}{strike_dec}',
 
 
 # Commons
-def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price, 
-                        _format='polygon', prefix_o: bool = False) -> str:
+def build_option_symbol(
+    underlying_symbol: str, expiry, call_or_put, strike_price, _format="polygon", prefix_o: bool = False
+) -> str:
     """
-    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`. 
+    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`.
     Default format is ``polygon``.
-    
+
     :param underlying_symbol: The underlying stock ticker symbol.
     :param expiry: The expiry date for the option. You can pass this argument as ``datetime.datetime`` or
                    ``datetime.date`` object. Or a string in format: ``YYMMDD``. Using datetime objects is recommended.
     :param call_or_put: The option type. You can specify: ``c`` or ``call`` or ``p`` or ``put``. Capital letters are
                         also supported.
     :param strike_price: The strike price for the option. ALWAYS pass this as one number. ``145``, ``240.5``,
-                         ``15.003``, ``56``, ``129.02`` are all valid values. Try to keep up to 3 digits after the 
+                         ``15.003``, ``56``, ``129.02`` are all valid values. Try to keep up to 3 digits after the
                          decimal point
-    :param _format: The format to use when building symbol. Defaults to ``polygon``. Supported formats are ``polygon, 
-                    tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums, 
+    :param _format: The format to use when building symbol. Defaults to ``polygon``. Supported formats are ``polygon,
+                    tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums,
                     see :class:`polygon.enums.OptionSymbolFormat`
     :param prefix_o: Whether to prefix the symbol with ``O:``. It is needed by polygon endpoints. However, all the
                      library functions will automatically add this prefix if you pass in symbols without this prefix.
@@ -43,52 +46,58 @@ def build_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_pric
     :return: The option symbols string in the format specified
     """
     _format = _change_enum(_format)
-    
+
     if _format not in SYMBOL_FORMATS:
-        raise ValueError(f'Symbol format {_format} is not supported (yet?). Supported formats are: '
-                         f'{SYMBOL_FORMATS.keys()}')
-    
-    if _format in ['polygon', 'tradier']:
+        raise ValueError(
+            f"Symbol format {_format} is not supported (yet?). Supported formats are: " f"{SYMBOL_FORMATS.keys()}"
+        )
+
+    if _format in ["polygon", "tradier"]:
         return build_polygon_option_symbol(underlying_symbol, expiry, call_or_put, strike_price, prefix_o=prefix_o)
-    
+
     # post processing on input data
     if isinstance(expiry, (datetime.datetime, datetime.date)):
-        expiry = expiry.strftime('%y%m%d')
+        expiry = expiry.strftime("%y%m%d")
         yy, mm, dd = expiry[:2], expiry[2:4], expiry[4:]
 
     elif isinstance(expiry, str) and len(expiry) == 6:
         yy, mm, dd = expiry[:2], expiry[2:4], expiry[4:]
     else:
-        raise ValueError('Expiry string must have 6 characters & format must be: YYMMDD. You should prefer passing '
-                         'in a date or datetime object')
+        raise ValueError(
+            "Expiry string must have 6 characters & format must be: YYMMDD. You should prefer passing "
+            "in a date or datetime object"
+        )
 
-    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+    call_or_put = "C" if call_or_put.lower() in ["c", "call"] else "P"
 
     strike_price = int(float(strike_price)) if int(float(strike_price)) == float(strike_price) else strike_price
-    
-    if '.' in str(strike_price):
-        strike, strike_dec = int(str(strike_price).split('.')[0]), str(strike_price).split('.')[1][:3]
+
+    if "." in str(strike_price):
+        strike, strike_dec = int(str(strike_price).split(".")[0]), str(strike_price).split(".")[1][:3]
     else:
-        strike, strike_dec = str(int(strike_price)), ''
-        
-    if _format == 'ibkr':
-        strike_dec = strike_dec.ljust(3, '0') if strike_dec != '' else '000'
-        strike = str(strike).rjust(5, '0')
-    
+        strike, strike_dec = str(int(strike_price)), ""
+
+    if _format == "ibkr":
+        strike_dec = strike_dec.ljust(3, "0") if strike_dec != "" else "000"
+        strike = str(strike).rjust(5, "0")
+
     # build and return
-    return SYMBOL_FORMATS[_format].format(symbol=underlying_symbol, yy=yy, mm=mm, dd=dd, _type=call_or_put,
-                                          strike=strike, strike_dec=strike_dec).rstrip('.')
+    return (
+        SYMBOL_FORMATS[_format]
+        .format(symbol=underlying_symbol, yy=yy, mm=mm, dd=dd, _type=call_or_put, strike=strike, strike_dec=strike_dec)
+        .rstrip(".")
+    )
 
 
-def parse_option_symbol(option_symbol: str, _format='polygon', output_format='object'):
+def parse_option_symbol(option_symbol: str, _format="polygon", output_format="object"):
     """
-    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`. 
+    Generic function to build option symbols for ALL supported formats: :class:`polygon.enums.OptionSymbolFormat`.
     Default format is ``polygon``.
-    
+
     :param option_symbol: the option symbol you want to parse
-    :param _format: What format the symbol is in. If you don't know the format you can use the 
-                    ``detect_option_symbol_format`` function to detect the format (best effort detection). Supported 
-                    formats are ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use 
+    :param _format: What format the symbol is in. If you don't know the format you can use the
+                    ``detect_option_symbol_format`` function to detect the format (best effort detection). Supported
+                    formats are ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use
                     convenient enums, see :class:`polygon.enums.OptionSymbolFormat`. Default: ``polygon``
     :param output_format: Output format of the result. defaults to object. Set it to ``dict`` or ``list`` as needed.
     :return: The parsed info from symbol either as an object, list or a dict as indicated by ``output_format``.
@@ -97,22 +106,26 @@ def parse_option_symbol(option_symbol: str, _format='polygon', output_format='ob
     _format = _change_enum(_format)
 
     if _format not in SYMBOL_FORMATS:
-        raise ValueError(f'Symbol format {_format} is not supported (yet?). Supported formats are: '
-                         f'{SYMBOL_FORMATS.keys()}')
-    
-    if _format in ['polygon', 'tradier']:
+        raise ValueError(
+            f"Symbol format {_format} is not supported (yet?). Supported formats are: " f"{SYMBOL_FORMATS.keys()}"
+        )
+
+    if _format in ["polygon", "tradier"]:
         return parse_polygon_option_symbol(option_symbol, output_format)
 
     _obj = OptionSymbol(option_symbol, symbol_format=_format)
 
-    if output_format in ['list', list]:
+    if output_format in ["list", list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
 
-    elif output_format in ['dict', dict]:
-        _obj = {'underlying_symbol': _obj.underlying_symbol,
-                'strike_price': _obj.strike_price,
-                'expiry': _obj.expiry, 'call_or_put': _obj.call_or_put,
-                'option_symbol': _obj.option_symbol}
+    elif output_format in ["dict", dict]:
+        _obj = {
+            "underlying_symbol": _obj.underlying_symbol,
+            "strike_price": _obj.strike_price,
+            "expiry": _obj.expiry,
+            "call_or_put": _obj.call_or_put,
+            "option_symbol": _obj.option_symbol,
+        }
 
     return _obj
 
@@ -121,22 +134,23 @@ def convert_option_symbol_formats(option_symbol: str, from_format: str, to_forma
     """
     Convert an option symbol from one format to another within supported
     formats: :class:`polygon.enums.OptionSymbolFormat`
-    
+
     :param option_symbol: The option symbol you want to convert
-    :param from_format: The format in which the option symbol is currently in. If you don't know the format 
-                        you can use the ``detect_option_symbol_format`` function to detect the format 
-                        (best effort detection). Supported formats are ``polygon, tda, tos, ibkr, tradier, 
-                        trade_station``. If you prefer to use convenient enums, 
+    :param from_format: The format in which the option symbol is currently in. If you don't know the format
+                        you can use the ``detect_option_symbol_format`` function to detect the format
+                        (best effort detection). Supported formats are ``polygon, tda, tos, ibkr, tradier,
+                        trade_station``. If you prefer to use convenient enums,
                         see :class:`polygon.enums.OptionSymbolFormat`
-    :param to_format: The format to which you want to convert the option symbol. Supported formats are 
-                      ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums, 
+    :param to_format: The format to which you want to convert the option symbol. Supported formats are
+                      ``polygon, tda, tos, ibkr, tradier, trade_station``. If you prefer to use convenient enums,
                       see :class:`polygon.enums.OptionSymbolFormat`
     :return: The converted option symbol as a string
     """
-    _obj = parse_option_symbol(option_symbol, from_format, 'object')
-    
-    return build_option_symbol(_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price,
-                               _format=to_format)
+    _obj = parse_option_symbol(option_symbol, from_format, "object")
+
+    return build_option_symbol(
+        _obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _format=to_format
+    )
 
 
 def detect_option_symbol_format(option_symbol: str) -> Union[str, bool, list]:
@@ -145,30 +159,31 @@ def detect_option_symbol_format(option_symbol: str) -> Union[str, bool, list]:
     This function does basic detection according to some simple rules. Test well before using in production.
 
     :param option_symbol: The option symbol to check the format of
-    :return: Format's shorthand string or list of strings if able to recognize the format. ``False`` otherwise. 
+    :return: Format's shorthand string or list of strings if able to recognize the format. ``False`` otherwise.
              Possible shorthand strings are ``polygon, tda, tos, ibkr, tradier, trade_station``
     """
-    if option_symbol.startswith('.'):
-        return 'tos'
-    
-    if '_' in option_symbol:
-        return 'tda'
-    
-    if ' ' in option_symbol:
-        if '.' in option_symbol:
-            return 'trade_station'
-        
-        return ['ibkr', 'trade_station']
+    if option_symbol.startswith("."):
+        return "tos"
 
-    if option_symbol.startswith('O:') or len(option_symbol) > 15:
-        return 'polygon'
+    if "_" in option_symbol:
+        return "tda"
+
+    if " " in option_symbol:
+        if "." in option_symbol:
+            return "trade_station"
+
+        return ["ibkr", "trade_station"]
+
+    if option_symbol.startswith("O:") or len(option_symbol) > 15:
+        return "polygon"
 
     return False
 
 
 # Polygon Specific (also includes tradier since both have the same format)
-def build_polygon_option_symbol(underlying_symbol: str, expiry, call_or_put, strike_price,
-                                prefix_o: bool = False) -> str:
+def build_polygon_option_symbol(
+    underlying_symbol: str, expiry, call_or_put, strike_price, prefix_o: bool = False
+) -> str:
     """
     Build the option symbol from the details provided, in standard polygon format
 
@@ -186,26 +201,28 @@ def build_polygon_option_symbol(underlying_symbol: str, expiry, call_or_put, str
     """
 
     if isinstance(expiry, (datetime.datetime, datetime.date)):
-        expiry = expiry.strftime('%y%m%d')
+        expiry = expiry.strftime("%y%m%d")
 
     elif isinstance(expiry, str) and len(expiry) != 6:
-        raise ValueError('Expiry string must have 6 characters. Format is: YYMMDD')
+        raise ValueError("Expiry string must have 6 characters. Format is: YYMMDD")
 
-    call_or_put = 'C' if call_or_put.lower() in ['c', 'call'] else 'P'
+    call_or_put = "C" if call_or_put.lower() in ["c", "call"] else "P"
 
-    if '.' in str(strike_price):
-        strike, strike_dec = str(strike_price).split('.')[0].rjust(5, '0'), str(
-            strike_price).split('.')[1].ljust(3, '0')[:3]
+    if "." in str(strike_price):
+        strike, strike_dec = (
+            str(strike_price).split(".")[0].rjust(5, "0"),
+            str(strike_price).split(".")[1].ljust(3, "0")[:3],
+        )
     else:
-        strike, strike_dec = str(int(strike_price)).rjust(5, '0'), '000'
+        strike, strike_dec = str(int(strike_price)).rjust(5, "0"), "000"
 
     if prefix_o:
-        return f'O:{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+        return f"O:{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}"
 
-    return f'{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}'
+    return f"{underlying_symbol.upper()}{expiry}{call_or_put}{strike}{strike_dec}"
 
 
-def parse_polygon_option_symbol(option_symbol: str, output_format='object'):
+def parse_polygon_option_symbol(option_symbol: str, output_format="object"):
     """
     Function to parse an option symbol in standard polygon format
 
@@ -214,26 +231,36 @@ def parse_polygon_option_symbol(option_symbol: str, output_format='object'):
     :return: The parsed values either as an object, list or a dict as indicated by ``output_format``.
     """
 
-    _obj = OptionSymbol(option_symbol, symbol_format='polygon')
+    _obj = OptionSymbol(option_symbol, symbol_format="polygon")
 
-    if output_format in ['list', list]:
+    if output_format in ["list", list]:
         _obj = [_obj.underlying_symbol, _obj.expiry, _obj.call_or_put, _obj.strike_price, _obj.option_symbol]
 
-    elif output_format in ['dict', dict]:
-        _obj = {'underlying_symbol': _obj.underlying_symbol,
-                'strike_price': _obj.strike_price,
-                'expiry': _obj.expiry,
-                'call_or_put': _obj.call_or_put,
-                'option_symbol': _obj.option_symbol}
+    elif output_format in ["dict", dict]:
+        _obj = {
+            "underlying_symbol": _obj.underlying_symbol,
+            "strike_price": _obj.strike_price,
+            "expiry": _obj.expiry,
+            "call_or_put": _obj.call_or_put,
+            "option_symbol": _obj.option_symbol,
+        }
 
     return _obj
+
 
 # ========================================================= #
 
 
-def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 10, read_timeout: int = 10,
-                  pool_timeout: int = 10, max_connections: int = None, max_keepalive: int = None,
-                  write_timeout: int = 10):
+def OptionsClient(
+    api_key: str,
+    use_async: bool = False,
+    connect_timeout: int = 10,
+    read_timeout: int = 10,
+    pool_timeout: int = 10,
+    max_connections: int = None,
+    max_keepalive: int = None,
+    write_timeout: int = 10,
+):
     """
     Initiates a Client to be used to access all REST options endpoints.
 
@@ -260,8 +287,9 @@ def OptionsClient(api_key: str, use_async: bool = False, connect_timeout: int = 
     if not use_async:
         return SyncOptionsClient(api_key, connect_timeout, read_timeout)
 
-    return AsyncOptionsClient(api_key, connect_timeout, read_timeout, pool_timeout, max_connections,
-                              max_keepalive, write_timeout)
+    return AsyncOptionsClient(
+        api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+    )
 
 
 # ========================================================= #
@@ -280,10 +308,24 @@ class SyncOptionsClient(base_client.BaseClient):
         super().__init__(api_key, connect_timeout, read_timeout)
 
     # Endpoints
-    def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_trades(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -327,21 +369,28 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -351,13 +400,26 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
-    def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                   timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                   all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                   verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    def get_quotes(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -401,21 +463,28 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/quotes/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = self._get_response(_path, params=_data)
 
@@ -425,8 +494,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
     def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
@@ -440,7 +508,7 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
+        _path = f"/v2/last/trade/{ensure_prefix(ticker)}"
 
         _res = self._get_response(_path)
 
@@ -449,8 +517,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                             raw_response: bool = False):
+    def get_daily_open_close(self, symbol: str, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
@@ -467,11 +534,11 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+        _path = f"/v1/open-close/{ensure_prefix(symbol)}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -480,10 +547,24 @@ class SyncOptionsClient(base_client.BaseClient):
 
         return self.to_json_safe(_res)
 
-    def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                           sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day', full_range: bool = False,
-                           run_parallel: bool = True, max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                           warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -516,8 +597,8 @@ class SyncOptionsClient(base_client.BaseClient):
                      aggs. E.g. if there was no data in a response but the response had an OK status
         :param warnings: Set to False to disable printing warnings if any when fetching the aggs. Defaults to True.
         :param high_volatility: Specifies whether the symbol/security in question is highly volatile which just means
-                                having a very high number of trades or being traded for a high duration (eg SPY, 
-                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't 
+                                having a very high number of trades or being traded for a high duration (eg SPY,
+                                Bitcoin) If set to True, the lib will use a smaller chunk of time to ensure we don't
                                 miss any data due to 50k candle limit. Defaults to False.
         :param raw_response: Whether or not to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
@@ -527,22 +608,21 @@ class SyncOptionsClient(base_client.BaseClient):
         """
 
         if not full_range:
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            to_date = self.normalize_datetime(to_date, output_type="nts", _dir="end")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
-
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = self._get_response(_path, params=_data)
 
@@ -554,20 +634,53 @@ class SyncOptionsClient(base_client.BaseClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=limit, timespan=timespan)
-    
-    def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                      adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                      max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                                      warnings: bool = True, high_volatility: bool = False):
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+    ):
         """
         Get BULK full range aggregate bars (OCHLV candles) for an option contract.
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
@@ -603,21 +716,49 @@ class SyncOptionsClient(base_client.BaseClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                  max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                  multiplier=multiplier, sort=sort, limit=50_000,
-                                                  timespan=timespan)
+            return self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                              max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                              multiplier=multiplier, sort=sort, limit=50_000,
-                                              timespan=timespan)
+        return self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
-    def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                     max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                     raw_page_responses: bool = False, raw_response: bool = False):
+    def get_snapshot(
+        self,
+        underlying_symbol: str,
+        option_symbol: str,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
@@ -645,7 +786,7 @@ class SyncOptionsClient(base_client.BaseClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}"
 
         _res = self._get_response(_path)
 
@@ -655,11 +796,9 @@ class SyncOptionsClient(base_client.BaseClient):
 
             return self.to_json_safe(_res)
 
-        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                              raw_page_responses=raw_page_responses)
+        return self._paginate(_res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses)
 
-    def get_previous_close(self, ticker: str, adjusted: bool = True,
-                           raw_response: bool = False):
+    def get_previous_close(self, ticker: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract.
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
@@ -673,9 +812,9 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(ticker)}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = self._get_response(_path, params=_data)
 
@@ -685,31 +824,44 @@ class SyncOptionsClient(base_client.BaseClient):
         return self.to_json_safe(_res)
 
     # Technical Indicators
-    def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+    def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Simple Moving Average for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -721,36 +873,62 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: The response object
         """
         symbol = ensure_prefix(symbol)
-        
-        return self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
 
-    def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                raw_response: bool = False):
+        return self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Exponential Moving Average for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -762,36 +940,62 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: The response object
         """
         symbol = ensure_prefix(symbol)
-        
-        return self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
 
-    def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
-                series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None, 
-                raw_response: bool = False):
+        return self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Relative Strength Index for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -803,36 +1007,63 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: The response object
         """
         symbol = ensure_prefix(symbol)
-        
-        return self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                             include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                             timestamp_gt, timestamp_gte, raw_response)
 
-    def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                 long_window_size: int = 50, series_type='close', include_underlying: bool = False, order='desc', 
-                 limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                 short_window_size: int = 50, signal_window_size: int = 50,
-                 raw_response: bool = False):
+        return self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
+
+    def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+        raw_response: bool = False,
+    ):
         """
         Get the Moving Average Convergence/Divergence for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -846,10 +1077,25 @@ class SyncOptionsClient(base_client.BaseClient):
         :return: The response object
         """
         symbol = ensure_prefix(symbol)
-        
-        return self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
-                              include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
-                              timestamp_gte, short_window_size, signal_window_size, raw_response)
+
+        return self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+            raw_response,
+        )
 
 
 # ========================================================= #
@@ -865,16 +1111,39 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
     easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10, pool_timeout: int = 10,
-                 max_connections: int = None, max_keepalive: int = None, write_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive,
-                         write_timeout)
+    def __init__(
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+        )
 
     # Endpoints
-    async def get_trades(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000,
-                         order='asc', all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_trades(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get trades for an options ticker symbol in a given time range. Note that you need to have an option
         symbol in correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option
@@ -918,21 +1187,28 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/trades/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/trades/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -942,13 +1218,28 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
-    async def get_quotes(self, option_symbol: str, timestamp=None, timestamp_lt=None, timestamp_lte=None,
-                         timestamp_gt=None, timestamp_gte=None, sort='timestamp', limit: int = 5000, order='asc',
-                         all_pages: bool = False, max_pages: int = None, merge_all_pages: bool = True,
-                         verbose: bool = False, raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_quotes(
+        self,
+        option_symbol: str,
+        timestamp=None,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        sort="timestamp",
+        limit: int = 5000,
+        order="asc",
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get quotes for an options ticker symbol in a given time range. Note that you need to have an option symbol in
         correct format for this endpoint. You can use ``ReferenceClient.get_option_contracts`` to query option contracts
@@ -992,21 +1283,28 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        timestamp = self.normalize_datetime(timestamp, output_type='nts', unit='ns')
+        timestamp = self.normalize_datetime(timestamp, output_type="nts", unit="ns")
 
-        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type='nts', unit='ns')
+        timestamp_lt = self.normalize_datetime(timestamp_lt, output_type="nts", unit="ns")
 
-        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type='nts', unit='ns')
+        timestamp_lte = self.normalize_datetime(timestamp_lte, output_type="nts", unit="ns")
 
-        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type='nts', unit='ns')
+        timestamp_gt = self.normalize_datetime(timestamp_gt, output_type="nts", unit="ns")
 
-        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type='nts', unit='ns')
+        timestamp_gte = self.normalize_datetime(timestamp_gte, output_type="nts", unit="ns")
 
-        _path = f'/v3/quotes/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/quotes/{ensure_prefix(option_symbol)}"
 
-        _data = {'timestamp': timestamp, 'timestamp.lt': timestamp_lt, 'timestamp.lte': timestamp_lte,
-                 'timestamp.gt': timestamp_gt, 'timestamp.gte': timestamp_gte, 'order': order, 'sort': sort,
-                 'limit': limit}
+        _data = {
+            "timestamp": timestamp,
+            "timestamp.lt": timestamp_lt,
+            "timestamp.lte": timestamp_lte,
+            "timestamp.gt": timestamp_gt,
+            "timestamp.gte": timestamp_gte,
+            "order": order,
+            "sort": sort,
+            "limit": limit,
+        }
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1016,8 +1314,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
     async def get_last_trade(self, ticker: str, raw_response: bool = False):
         """
@@ -1031,7 +1330,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/last/trade/{ensure_prefix(ticker)}'
+        _path = f"/v2/last/trade/{ensure_prefix(ticker)}"
 
         _res = await self._get_response(_path)
 
@@ -1040,8 +1339,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True,
-                                   raw_response: bool = False):
+    async def get_daily_open_close(self, symbol: str, date, adjusted: bool = True, raw_response: bool = False):
         """
         Get the OCHLV and after-hours prices of a contract on a certain date.
         `Official Docs <https://polygon.io/docs/options/get_v1_open-close__optionsticker___date>`__
@@ -1058,11 +1356,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: A JSON decoded Dictionary by default. Make ``raw_response=True`` to get underlying response object
         """
 
-        date = self.normalize_datetime(date, output_type='str')
+        date = self.normalize_datetime(date, output_type="str")
 
-        _path = f'/v1/open-close/{ensure_prefix(symbol)}/{date}'
+        _path = f"/v1/open-close/{ensure_prefix(symbol)}/{date}"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1071,11 +1369,24 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         return self.to_json_safe(_res)
 
-    async def get_aggregate_bars(self, symbol: str, from_date, to_date, adjusted: bool = True,
-                                 sort='asc', limit: int = 5000, multiplier: int = 1, timespan='day',
-                                 full_range: bool = False, run_parallel: bool = True,
-                                 max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                                 warnings: bool = True, high_volatility: bool = False, raw_response: bool = False):
+    async def get_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        adjusted: bool = True,
+        sort="asc",
+        limit: int = 5000,
+        multiplier: int = 1,
+        timespan="day",
+        full_range: bool = False,
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get aggregate bars for an option contract over a given date range in custom time window sizes.
         For example, if ``timespan = ‘minute’`` and ``multiplier = ‘5’`` then 5-minute bars will be returned.
@@ -1119,22 +1430,21 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
 
         if not full_range:
+            from_date = self.normalize_datetime(from_date, output_type="nts")
 
-            from_date = self.normalize_datetime(from_date, output_type='nts')
+            to_date = self.normalize_datetime(to_date, output_type="nts", _dir="end")
 
-            to_date = self.normalize_datetime(to_date, output_type='nts', _dir='end')
-
-            if timespan == 'min':
-                timespan = 'minute'
+            if timespan == "min":
+                timespan = "minute"
 
             timespan, sort = self._change_enum(timespan, str), self._change_enum(sort, str)
 
-            _path = f'/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/' \
-                    f'{to_date}'
+            _path = (
+                f"/v2/aggs/ticker/{ensure_prefix(symbol).upper()}/range/{multiplier}/{timespan}/{from_date}/"
+                f"{to_date}"
+            )
 
-            _data = {'adjusted': 'true' if adjusted else 'false',
-                     'sort': sort,
-                     'limit': limit}
+            _data = {"adjusted": "true" if adjusted else "false", "sort": sort, "limit": limit}
 
             _res = await self._get_response(_path, params=_data)
 
@@ -1146,22 +1456,53 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         # The full range agg begins
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=limit,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=limit,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=limit,
-                                                    timespan=timespan)
-    
-    async def get_full_range_aggregate_bars(self, symbol: str, from_date, to_date, multiplier: int = 1, timespan='min',
-                                            adjusted: bool = True, sort='asc', run_parallel: bool = True, 
-                                            max_concurrent_workers: int = cpu_count() * 5, info: bool = True,
-                                            warnings: bool = True, high_volatility: bool = False):
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=limit,
+            timespan=timespan,
+        )
+
+    async def get_full_range_aggregate_bars(
+        self,
+        symbol: str,
+        from_date,
+        to_date,
+        multiplier: int = 1,
+        timespan="min",
+        adjusted: bool = True,
+        sort="asc",
+        run_parallel: bool = True,
+        max_concurrent_workers: int = cpu_count() * 5,
+        info: bool = True,
+        warnings: bool = True,
+        high_volatility: bool = False,
+    ):
         """
         Get BULK full range aggregate bars (OCHLV candles) for an option contract
         For example, if ``timespan=‘minute’`` and ``multiplier=‘1’`` then 5-minute bars will be returned.
@@ -1197,21 +1538,49 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
         if run_parallel:  # Parallel Run
             time_chunks = self.split_date_range(from_date, to_date, timespan, high_volatility=high_volatility)
-            return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                        max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                        multiplier=multiplier, sort=sort, limit=50_000,
-                                                        timespan=timespan)
+            return await self.get_full_range_aggregates(
+                self.get_aggregate_bars,
+                symbol,
+                time_chunks,
+                run_parallel,
+                max_concurrent_workers,
+                info,
+                warnings,
+                adjusted=adjusted,
+                multiplier=multiplier,
+                sort=sort,
+                limit=50_000,
+                timespan=timespan,
+            )
 
         # Sequential Run
         time_chunks = [from_date, to_date]
-        return await self.get_full_range_aggregates(self.get_aggregate_bars, symbol, time_chunks, run_parallel,
-                                                    max_concurrent_workers, info, warnings, adjusted=adjusted,
-                                                    multiplier=multiplier, sort=sort, limit=50_000,
-                                                    timespan=timespan)
+        return await self.get_full_range_aggregates(
+            self.get_aggregate_bars,
+            symbol,
+            time_chunks,
+            run_parallel,
+            max_concurrent_workers,
+            info,
+            warnings,
+            adjusted=adjusted,
+            multiplier=multiplier,
+            sort=sort,
+            limit=50_000,
+            timespan=timespan,
+        )
 
-    async def get_snapshot(self, underlying_symbol: str, option_symbol: str, all_pages: bool = False,
-                           max_pages: int = None, merge_all_pages: bool = True, verbose: bool = False,
-                           raw_page_responses: bool = False, raw_response: bool = False):
+    async def get_snapshot(
+        self,
+        underlying_symbol: str,
+        option_symbol: str,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
+        raw_response: bool = False,
+    ):
         """
         Get the snapshot of an option contract for a stock equity.
         `Official Docs <https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract>`__
@@ -1239,7 +1608,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
                  If pagination is set to True, will return a merged response of all pages for convenience.
         """
 
-        _path = f'/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}'
+        _path = f"/v3/snapshot/options/{underlying_symbol}/{ensure_prefix(option_symbol)}"
 
         _res = await self._get_response(_path)
 
@@ -1249,11 +1618,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
             return self.to_json_safe(_res)
 
-        return await self._paginate(_res, merge_all_pages, max_pages, verbose=verbose,
-                                    raw_page_responses=raw_page_responses)
+        return await self._paginate(
+            _res, merge_all_pages, max_pages, verbose=verbose, raw_page_responses=raw_page_responses
+        )
 
-    async def get_previous_close(self, ticker: str, adjusted: bool = True,
-                                 raw_response: bool = False):
+    async def get_previous_close(self, ticker: str, adjusted: bool = True, raw_response: bool = False):
         """
         Get the previous day's open, high, low, and close (OHLC) for the specified option contract - Async
         `Official Docs <https://polygon.io/docs/options/get_v2_aggs_ticker__optionsticker__prev>`__
@@ -1267,9 +1636,9 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :return: Either a Dictionary or a Response object depending on value of ``raw_response``. Defaults to Dict.
         """
 
-        _path = f'/v2/aggs/ticker/{ensure_prefix(ticker)}/prev'
+        _path = f"/v2/aggs/ticker/{ensure_prefix(ticker)}/prev"
 
-        _data = {'adjusted': 'true' if adjusted else 'false'}
+        _data = {"adjusted": "true" if adjusted else "false"}
 
         _res = await self._get_response(_path, params=_data)
 
@@ -1279,31 +1648,44 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         return self.to_json_safe(_res)
 
     # Technical Indicators
-    async def get_sma(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_sma(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Simple Moving Average for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the simple moving average are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window 
+        :param window_size: The window size used to calculate the simple moving average (SMA). i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the SMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the SMA.
                             The default ``close`` will result in using close prices to calculate the SMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the SMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1316,35 +1698,61 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_sma(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_sma(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_ema(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 50,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_ema(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Exponential Moving Average for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the EMA are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the EMA. i.e. a window 
+        :param window_size: The window size used to calculate the EMA. i.e. a window
                             size of 10 with daily aggregates would result in a 10 day moving average.
-        :param series_type: The prices in the aggregate which will be used to calculate the EMA. 
+        :param series_type: The prices in the aggregate which will be used to calculate the EMA.
                             The default ``close`` will result in using close prices to calculate the EMA.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the EMA.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1357,35 +1765,61 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_ema(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_ema(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_rsi(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True, window_size: int = 14,
-                      series_type='close', include_underlying: bool = False, order='desc', limit: int = 5000,
-                      timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, timestamp_gte=None,
-                      raw_response: bool = False):
+    async def get_rsi(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        window_size: int = 14,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        raw_response: bool = False,
+    ):
         """
         Get the Relative Strength Index for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the RSI are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
-        :param window_size: The window size used to calculate the RSI. i.e. a window 
+        :param window_size: The window size used to calculate the RSI. i.e. a window
                             size of 14 with daily aggregates would result in a 14 day RSI.
-        :param series_type: The prices in the aggregate which will be used to calculate the RSI. 
+        :param series_type: The prices in the aggregate which will be used to calculate the RSI.
                             The default ``close`` will result in using close prices to calculate the RSI.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the RSI.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1398,35 +1832,62 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_rsi(symbol, timestamp, timespan, adjusted, window_size, series_type,
-                                   include_underlying, order, limit, timestamp_lt, timestamp_lte,
-                                   timestamp_gt, timestamp_gte, raw_response)
+        return await self._get_rsi(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            raw_response,
+        )
 
-    async def get_macd(self, symbol: str, timestamp=None, timespan='day', adjusted: bool = True,
-                       long_window_size: int = 50, series_type='close', include_underlying: bool = False, 
-                       order='desc', limit: int = 5000, timestamp_lt=None, timestamp_lte=None, timestamp_gt=None, 
-                       timestamp_gte=None, short_window_size: int = 50, signal_window_size: int = 50,
-                       raw_response: bool = False):
+    async def get_macd(
+        self,
+        symbol: str,
+        timestamp=None,
+        timespan="day",
+        adjusted: bool = True,
+        long_window_size: int = 50,
+        series_type="close",
+        include_underlying: bool = False,
+        order="desc",
+        limit: int = 5000,
+        timestamp_lt=None,
+        timestamp_lte=None,
+        timestamp_gt=None,
+        timestamp_gte=None,
+        short_window_size: int = 50,
+        signal_window_size: int = 50,
+        raw_response: bool = False,
+    ):
         """
         Get the Moving Average Convergence/Divergence for an option contract
 
-        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build 
+        :param symbol: The option symbol. You can pass it with or without the prefix ``O:``. If you want to build
                        option symbols from details such as expiry and strike price, use the option symbol
                        `functions <https://polygon.readthedocs.io/en/latest/Options.html#creating-option-symbols>`__
         :param timestamp: Either a date with the format ``YYYY-MM-DD`` or a millisecond timestamp.
-        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan` 
+        :param timespan: Size of the aggregate time window. defaults to 'day'. See :class:`polygon.enums.Timespan`
                          for choices
-        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for 
-                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that 
+        :param adjusted: Whether the aggregates used to calculate the MACD are adjusted for
+                         splits. By default, aggregates are adjusted. Set this to ``False`` to get results that
                          are NOT adjusted for splits.
         :param long_window_size: The long window size used to calculate the MACD data
-        :param series_type: The prices in the aggregate which will be used to calculate the MACD. 
+        :param series_type: The prices in the aggregate which will be used to calculate the MACD.
                             The default ``close`` will result in using close prices to calculate the MACD.
                             See :class:`polygon.enums.SeriesType` for choices
-        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this 
+        :param include_underlying: Whether to include the OCHLV aggregates used to calculate this
                                    indicator in the response. Defaults to False which only returns the MACD.
-        :param order: The order in which to return the results, ordered by timestamp. 
-                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first) 
+        :param order: The order in which to return the results, ordered by timestamp.
+                      See :class:`polygon.enums.SortOrder` for choices. Defaults to Descending (most recent first)
         :param limit: Limit the number of results returned, default is 5000 which is also the max
         :param timestamp_lt: Only use results where timestamp is less than supplied value
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
@@ -1441,10 +1902,24 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         """
         symbol = ensure_prefix(symbol)
 
-        return await self._get_macd(symbol, timestamp, timespan, adjusted, long_window_size, series_type,
-                                    include_underlying, order, limit, timestamp_lt, timestamp_lte, timestamp_gt,
-                                    timestamp_gte, short_window_size, signal_window_size,
-                                    raw_response)
+        return await self._get_macd(
+            symbol,
+            timestamp,
+            timespan,
+            adjusted,
+            long_window_size,
+            series_type,
+            include_underlying,
+            order,
+            limit,
+            timestamp_lt,
+            timestamp_lte,
+            timestamp_gt,
+            timestamp_gte,
+            short_window_size,
+            signal_window_size,
+            raw_response,
+        )
 
 
 # ========================================================= #
@@ -1455,7 +1930,7 @@ class OptionSymbol:
     The custom object for parsed details from option symbols.
     """
 
-    def __init__(self, option_symbol: str, symbol_format='polygon'):
+    def __init__(self, option_symbol: str, symbol_format="polygon"):
         """
         Parses the details from symbol and creates attributes for the object.
 
@@ -1466,34 +1941,40 @@ class OptionSymbol:
         """
         if symbol_format not in SYMBOL_FORMATS:
             pass
-        
-        if option_symbol.startswith('O:'):
+
+        if option_symbol.startswith("O:"):
             option_symbol = option_symbol[2:]
-            
-        if symbol_format in ['polygon', 'tradier']:
+
+        if symbol_format in ["polygon", "tradier"]:
             self.underlying_symbol = option_symbol[:-15]
 
             _len = len(self.underlying_symbol)
 
             # filter for those Corrections Ian talked about
-            self.underlying_symbol = ''.join([x for x in self.underlying_symbol if not x.isdigit()])
+            self.underlying_symbol = "".join([x for x in self.underlying_symbol if not x.isdigit()])
 
-            self._expiry = option_symbol[_len:_len + 6]
+            self._expiry = option_symbol[_len : _len + 6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
-                                        int(self._expiry[2:4]), int(self._expiry[4:6]))
+            self.expiry = datetime.date(
+                int(datetime.date.today().strftime("%Y")[:2] + self._expiry[:2]),
+                int(self._expiry[2:4]),
+                int(self._expiry[4:6]),
+            )
 
             self.call_or_put = option_symbol[_len + 6].upper()
 
-            self.strike_price = int(option_symbol[_len + 7:]) / 1000
+            self.strike_price = int(option_symbol[_len + 7 :]) / 1000
 
-            self.strike_price = int(float(self.strike_price)) if int(
-                float(self.strike_price)) == float(self.strike_price) else self.strike_price
+            self.strike_price = (
+                int(float(self.strike_price))
+                if int(float(self.strike_price)) == float(self.strike_price)
+                else self.strike_price
+            )
 
-            self.option_symbol = f'{self.underlying_symbol}{option_symbol[_len:]}'
+            self.option_symbol = f"{self.underlying_symbol}{option_symbol[_len:]}"
 
-        elif symbol_format in ['tda', 'tos']:
-            if symbol_format == 'tos':
+        elif symbol_format in ["tda", "tos"]:
+            if symbol_format == "tos":
                 option_symbol, num = option_symbol[1:].upper(), 0
 
                 for char in option_symbol:
@@ -1502,46 +1983,60 @@ class OptionSymbol:
                         continue
                     break
 
-                option_symbol = f'{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}' \
-                                f'{option_symbol[num:num+2]}{option_symbol[num+6:]}'
+                option_symbol = (
+                    f"{option_symbol[:num]}_{option_symbol[num+2:num+4]}{option_symbol[num+4:num+6]}"
+                    f"{option_symbol[num:num+2]}{option_symbol[num+6:]}"
+                )
 
             # Usual flow
-            _split = option_symbol.split('_')
+            _split = option_symbol.split("_")
 
             self.underlying_symbol = _split[0]
 
             self._expiry = _split[1][:6]
 
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[4:6]),
-                                        int(self._expiry[:2]), int(self._expiry[2:4]))
+            self.expiry = datetime.date(
+                int(datetime.date.today().strftime("%Y")[:2] + self._expiry[4:6]),
+                int(self._expiry[:2]),
+                int(self._expiry[2:4]),
+            )
 
             self.call_or_put = _split[1][6]
 
-            self.strike_price = int(float(_split[1][7:])) if float(_split[1][7:]) == int(float(_split[1][7:])) else \
-                float(_split[1][7:])
+            self.strike_price = (
+                int(float(_split[1][7:])) if float(_split[1][7:]) == int(float(_split[1][7:])) else float(_split[1][7:])
+            )
 
             self.option_symbol = option_symbol
-            
-        elif symbol_format in ['trade_station', 'ibkr']:
-            split = option_symbol.split(' ')
+
+        elif symbol_format in ["trade_station", "ibkr"]:
+            split = option_symbol.split(" ")
             self.underlying_symbol, rem = split[0], split[1]
 
             self._expiry = rem[:6]
-            self.expiry = datetime.date(int(datetime.date.today().strftime('%Y')[:2] + self._expiry[:2]),
-                                        int(self._expiry[2:4]), int(self._expiry[4:6]))
-            
+            self.expiry = datetime.date(
+                int(datetime.date.today().strftime("%Y")[:2] + self._expiry[:2]),
+                int(self._expiry[2:4]),
+                int(self._expiry[4:6]),
+            )
+
             self.call_or_put = rem[6].upper()
 
-            self.strike_price = int(rem[7:]) / 1000 if symbol_format == 'ibkr' else float(rem[7:])
-            
-            self.strike_price = int(float(self.strike_price)) if int(
-                float(self.strike_price)) == float(self.strike_price) else self.strike_price
+            self.strike_price = int(rem[7:]) / 1000 if symbol_format == "ibkr" else float(rem[7:])
+
+            self.strike_price = (
+                int(float(self.strike_price))
+                if int(float(self.strike_price)) == float(self.strike_price)
+                else self.strike_price
+            )
 
             self.option_symbol = option_symbol
 
     def __repr__(self):
-        return f'Underlying Symbol: {self.underlying_symbol} || Expiry: {self.expiry} || ' \
-               f'Type: {self.call_or_put} || Strike Price: {self.strike_price}'
+        return (
+            f"Underlying Symbol: {self.underlying_symbol} || Expiry: {self.expiry} || "
+            f"Type: {self.call_or_put} || Strike Price: {self.strike_price}"
+        )
 
 
 def ensure_prefix(symbol: str):
@@ -1552,13 +2047,14 @@ def ensure_prefix(symbol: str):
     :param symbol: the option symbol to check
     """
     if len(symbol) < 15:
-        raise ValueError('Option symbol length must at least be 15 letters. See documentation on option symbols for '
-                         'more info')
+        raise ValueError(
+            "Option symbol length must at least be 15 letters. See documentation on option symbols for " "more info"
+        )
 
-    if symbol.upper().startswith('O:'):
+    if symbol.upper().startswith("O:"):
         return symbol.upper()
 
-    return f'O:{symbol.upper()}'
+    return f"O:{symbol.upper()}"
 
 
 def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
@@ -1567,17 +2063,21 @@ def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
             return val.value
 
         except AttributeError:
-            raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                             f'Please consider using the  specified enum in the docs for this function or recheck '
-                             f'the value supplied.')
+            raise ValueError(
+                f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+                f"Please consider using the  specified enum in the docs for this function or recheck "
+                f"the value supplied."
+            )
 
     if isinstance(allowed_type, list):
         if type(val) in allowed_type:
             return val
 
-        raise ValueError(f'The value supplied: ({val}) does not match the required type: ({allowed_type}). '
-                         f'Please consider using the  specified enum in the docs for this function or recheck '
-                         f'the value supplied.')
+        raise ValueError(
+            f"The value supplied: ({val}) does not match the required type: ({allowed_type}). "
+            f"Please consider using the  specified enum in the docs for this function or recheck "
+            f"the value supplied."
+        )
 
     if isinstance(val, allowed_type) or val is None:
         return val
@@ -1586,7 +2086,7 @@ def _change_enum(val: Union[str, Enum, float, int], allowed_type=str):
 # ========================================================= #
 
 
-if __name__ == '__main__':  # Tests
-    print('Don\'t You Dare Running Lib Files Directly')
+if __name__ == "__main__":  # Tests
+    print("Don't You Dare Running Lib Files Directly")
 
 # ========================================================= #

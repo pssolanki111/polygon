@@ -1,7 +1,7 @@
 from polygon import ReferenceClient
 
 
-KEY = 'API_KEY'
+KEY = "API_KEY"
 
 reference_client = ReferenceClient(KEY)
 
@@ -11,8 +11,8 @@ responses = []  # just creating a list to store all responses that we get. You c
 
 response = reference_client.get_tickers(limit=1000)
 
-while 'next_url' in response.keys():
+while "next_url" in response.keys():
     next_page = reference_client.get_next_page(response)
     responses.append(next_page)
 
-print(f'All pages received. Total pages: {len(responses)}')
+print(f"All pages received. Total pages: {len(responses)}")

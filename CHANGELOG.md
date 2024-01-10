@@ -6,6 +6,10 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.1.4` - (2023-01-10)
+
+-  Added `second` aggregate timespan as an enum. Thanks @Slade Wilson for letting me know.
+
 ## `v1.1.3` - (2023-11-14)
 
 -  Gracefully handle JSON Parser issues (Thanks @MuradGithub for the contribution)

@@ -10,6 +10,7 @@ test.py
 build
 polygon.egg-info
 dist
+.local
 *.pyc
 cred.py
 docs/_build

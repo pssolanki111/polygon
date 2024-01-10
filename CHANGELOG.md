@@ -6,7 +6,7 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
-## `v1.1.4` - (2023-01-10)
+## `v1.1.4 - v1.1.5` - (2024-01-10)
 
 -  Added `second` aggregate timespan as an enum. Thanks @Slade Wilson for letting me know.
 

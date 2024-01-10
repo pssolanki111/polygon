@@ -7,8 +7,8 @@ Bulk Data Download Functions
 This page documents all the bulk data download functions the library offers. New functions are added 
 based on community feedback. 
 
-To suggest a bulk download function which might be useful to be in the lib, 
-join our `Discord Server <https://discord.gg/jPkARduU6N>`__
+To suggest a bulk download function which might be useful to be in the lib or to provide feedback/questions on
+existing ones, join our `Discord Server <https://discord.gg/jPkARduU6N>`__
 
 Below is a short description of the available bulk data functions in the library
 
@@ -54,7 +54,7 @@ Enough Talking, Show me how to use it
 You may call this function in two ways,
 
 -  Calling the usual ``client.get_aggregate_bars()`` method and passing ``full_range=True``.
--  Directly calling ``client.get_full_range_aggregate_bars()`` (added in ``v1.0.9``)
+-  Directly calling ``client.get_full_range_aggregate_bars()`` (added in ``v1.0.9``) (do NOT use for now. There is a know issue to be fixed in a coming release)
 
 for example the below two calls are identical
 

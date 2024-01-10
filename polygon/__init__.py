@@ -1,9 +1,8 @@
 # ========================================================= #
-from .stocks import StocksClient
-from .streaming import StreamClient, AsyncStreamClient
-from .forex import ForexClient
+from . import enums
+from .base_client import BaseClient, BaseAsyncClient
 from .crypto import CryptoClient
-from .reference_apis import ReferenceClient
+from .forex import ForexClient
 from .options import (
     OptionsClient,
     build_option_symbol,
@@ -14,12 +13,13 @@ from .options import (
     convert_option_symbol_formats,
     detect_option_symbol_format,
 )
-from .base_client import BaseClient, BaseAsyncClient
-from . import enums
+from .reference_apis import ReferenceClient
+from .stocks import StocksClient
+from .streaming import StreamClient, AsyncStreamClient
 
 # ========================================================= #
 
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 # ========================================================= #

@@ -1,18 +1,20 @@
 # ========================================================= #
-import requests
-import httpx
-from typing import Union
-from requests.models import Response
-from httpx import Response as HttpxResponse
-from enum import Enum
-import os
 import datetime
 import json
+import os
+from enum import Enum
+from typing import Union
+
+import httpx
+import requests
+from httpx import Response as HttpxResponse
+from requests.models import Response
 
 # ========================================================= #
 
 
 TIME_FRAME_CHUNKS = {
+    "second": datetime.timedelta(hours=1),
     "minute": datetime.timedelta(days=45),
     "min": datetime.timedelta(days=45),
     "hour": datetime.timedelta(days=60),

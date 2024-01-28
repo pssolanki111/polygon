@@ -6,6 +6,10 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.1.6` - (2024-01-28)
+
+-  Add missing feature - pagination on Technical Indicator endpoints. Thanks `afestekjian` for reporting it.
+
 ## `v1.1.4 - v1.1.5` - (2024-01-10)
 
 -  Added `second` aggregate timespan as an enum. Thanks @Slade Wilson for letting me know.

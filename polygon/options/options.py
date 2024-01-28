@@ -489,7 +489,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -791,7 +791,7 @@ class SyncOptionsClient(base_client.BaseClient):
 
         _res = self._get_response(_path)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -840,6 +840,11 @@ class SyncOptionsClient(base_client.BaseClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -868,6 +873,19 @@ class SyncOptionsClient(base_client.BaseClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -889,7 +907,12 @@ class SyncOptionsClient(base_client.BaseClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     def get_ema(
@@ -907,6 +930,11 @@ class SyncOptionsClient(base_client.BaseClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -935,6 +963,19 @@ class SyncOptionsClient(base_client.BaseClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -956,7 +997,12 @@ class SyncOptionsClient(base_client.BaseClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     def get_rsi(
@@ -974,6 +1020,11 @@ class SyncOptionsClient(base_client.BaseClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1002,6 +1053,19 @@ class SyncOptionsClient(base_client.BaseClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1023,7 +1087,12 @@ class SyncOptionsClient(base_client.BaseClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     def get_macd(
@@ -1043,6 +1112,11 @@ class SyncOptionsClient(base_client.BaseClient):
         timestamp_gte=None,
         short_window_size: int = 50,
         signal_window_size: int = 50,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1072,6 +1146,19 @@ class SyncOptionsClient(base_client.BaseClient):
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
         :param short_window_size: The short window size used to calculate the MACD data
         :param signal_window_size: The window size used to calculate the MACD signal line.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1095,7 +1182,12 @@ class SyncOptionsClient(base_client.BaseClient):
             timestamp_gte,
             short_window_size,
             signal_window_size,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
 
@@ -1213,7 +1305,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1309,7 +1401,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1613,7 +1705,7 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1664,6 +1756,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1692,6 +1789,19 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1713,7 +1823,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     async def get_ema(
@@ -1731,6 +1846,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1759,6 +1879,19 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1780,7 +1913,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     async def get_rsi(
@@ -1798,6 +1936,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         timestamp_lte=None,
         timestamp_gt=None,
         timestamp_gte=None,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1826,6 +1969,19 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param timestamp_lte: Only use results where timestamp is less than or equal to supplied value
         :param timestamp_gt: Only use results where timestamp is greater than supplied value
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1847,7 +2003,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             timestamp_lte,
             timestamp_gt,
             timestamp_gte,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
     async def get_macd(
@@ -1867,6 +2028,11 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         timestamp_gte=None,
         short_window_size: int = 50,
         signal_window_size: int = 50,
+        all_pages: bool = False,
+        max_pages: int = None,
+        merge_all_pages: bool = True,
+            verbose: bool = False,
+            raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1896,6 +2062,19 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
         :param timestamp_gte: Only use results where timestamp is greater than or equal to supplied value
         :param short_window_size: The short window size used to calculate the MACD data
         :param signal_window_size: The window size used to calculate the MACD signal line.
+        :param all_pages: Whether to paginate through next/previous pages internally. Defaults to False. If set to True,
+                          it will try to paginate through all pages and merge all pages internally for you.
+        :param max_pages: how many pages to fetch. Defaults to None which fetches all available pages. Change to an
+                          integer to fetch at most that many pages. This param is only considered if ``all_pages``
+                          is set to True
+        :param merge_all_pages: If this is True, returns a single merged response having all the data. If False,
+                                returns a list of all pages received. The list can be either a list of response
+                                objects or decoded data itself, controlled by parameter ``raw_page_responses``.
+                                This argument is Only considered if ``all_pages`` is set to True. Default: True
+        :param verbose: Set to True to print status messages during the pagination process. Defaults to False.
+        :param raw_page_responses: If this is true, the list of pages will be a list of corresponding Response objects.
+                                   Else, it will be a list of actual data for pages. This parameter is only
+                                   considered if ``merge_all_pages`` is set to False. Default: False
         :param raw_response: Whether to return the ``Response`` Object. Useful for when you need to say check the
                              status code or inspect the headers. Defaults to False which returns the json decoded
                              dictionary.
@@ -1919,7 +2098,12 @@ class AsyncOptionsClient(base_client.BaseAsyncClient):
             timestamp_gte,
             short_window_size,
             signal_window_size,
-            raw_response,
+            all_pages,
+            max_pages,
+            merge_all_pages,
+            verbose,
+            raw_page_responses,
+            raw_response
         )
 
 

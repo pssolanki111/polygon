@@ -174,7 +174,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -434,7 +434,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -535,7 +535,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -734,7 +734,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -875,7 +875,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -982,7 +982,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1097,7 +1097,7 @@ class SyncReferenceClient(base_client.BaseClient):
 
         _res = self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1268,7 +1268,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1531,7 +1531,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1634,7 +1634,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1835,7 +1835,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -1978,7 +1978,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -2087,7 +2087,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 
@@ -2202,7 +2202,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
 
         _res = await self._get_response(_path, params=_data)
 
-        if not all_pages:  # don't you dare paginating!!
+        if not all_pages:  # don't you dare paginate!!
             if raw_response:
                 return _res
 

@@ -151,6 +151,15 @@ class StockFinancialsSortKey(enum.Enum):
     PERIOD_OF_REPORT_DATE = "period_of_report_date"
 
 
+# Index Snapshot Sort Key - Index APIs
+class IndexSnapshotSortKey(enum.Enum):
+    """
+    Sort field for method: ``IndexClient.get_snapshot()``
+    """
+
+    TICKER = "ticker"
+
+
 # Conditions Mapping Tick Type - Reference APIs
 class ConditionMappingTickType(enum.Enum):
     """

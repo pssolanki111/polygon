@@ -24,6 +24,7 @@
    Getting-Started
    Stocks
    Options
+   Indices
    References
    Forex_Crypto
    Callback-Streaming

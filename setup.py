@@ -5,7 +5,7 @@ with open("README.md") as file:
 
 setup(
     name="polygon",
-    version="1.1.6",
+    version="1.2.0",
     packages=[
         "polygon",
         "polygon.forex",

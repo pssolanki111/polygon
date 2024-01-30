@@ -6,6 +6,10 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.2.0` - (2024-01-30)
+
+-  Add support for all INDEX endpoints. Available as `IndexClient`
+
 ## `v1.1.6` - (2024-01-28)
 
 -  Add missing feature - pagination on Technical Indicator endpoints. Thanks `afestekjian` for reporting it.

@@ -590,8 +590,8 @@ class SyncForexClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -657,7 +657,7 @@ class SyncForexClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_ema(
@@ -678,8 +678,8 @@ class SyncForexClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -745,7 +745,7 @@ class SyncForexClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_rsi(
@@ -766,8 +766,8 @@ class SyncForexClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -833,7 +833,7 @@ class SyncForexClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_macd(
@@ -856,8 +856,8 @@ class SyncForexClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -926,7 +926,7 @@ class SyncForexClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
 
@@ -1486,8 +1486,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1553,7 +1553,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_ema(
@@ -1574,8 +1574,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1641,7 +1641,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_rsi(
@@ -1662,8 +1662,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1729,7 +1729,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_macd(
@@ -1752,8 +1752,8 @@ class AsyncForexClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1822,7 +1822,7 @@ class AsyncForexClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
 

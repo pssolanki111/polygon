@@ -561,8 +561,7 @@ class SyncStocksClient(base_client.BaseClient):
         `Official Docs
         <https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to>`__
 
-        :param symbol: The ticker symbol of the currency pair. e.g.: ``X:BTCUSD``. You can specify with or without prefix
-                       ``X:``
+        :param symbol: The ticker symbol of the stock. e.g.: ``AMD``.
         :param from_date: The start of the aggregate time window. Could be ``datetime``, ``date`` or string
                           ``YYYY-MM-DD``
         :param to_date: The end of the aggregate time window. Could be ``datetime``, ``date`` or string ``YYYY-MM-DD``
@@ -786,8 +785,8 @@ class SyncStocksClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -851,7 +850,7 @@ class SyncStocksClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_ema(
@@ -872,8 +871,8 @@ class SyncStocksClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -937,7 +936,7 @@ class SyncStocksClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_rsi(
@@ -958,8 +957,8 @@ class SyncStocksClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1023,7 +1022,7 @@ class SyncStocksClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     def get_macd(
@@ -1046,8 +1045,8 @@ class SyncStocksClient(base_client.BaseClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1114,7 +1113,7 @@ class SyncStocksClient(base_client.BaseClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
 
@@ -1867,8 +1866,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -1933,7 +1932,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_ema(
@@ -1954,8 +1953,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -2020,7 +2019,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_rsi(
@@ -2041,8 +2040,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -2107,7 +2106,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
     async def get_macd(
@@ -2130,8 +2129,8 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
         all_pages: bool = False,
         max_pages: int = None,
         merge_all_pages: bool = True,
-            verbose: bool = False,
-            raw_page_responses: bool = False,
+        verbose: bool = False,
+        raw_page_responses: bool = False,
         raw_response: bool = False,
     ):
         """
@@ -2199,7 +2198,7 @@ class AsyncStocksClient(base_client.BaseAsyncClient):
             merge_all_pages,
             verbose,
             raw_page_responses,
-            raw_response
+            raw_response,
         )
 
 

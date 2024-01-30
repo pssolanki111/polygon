@@ -11,6 +11,7 @@ setup(
         "polygon.forex",
         "polygon.crypto",
         "polygon.stocks",
+        "polygon.indices",
         "polygon.streaming",
         "polygon.reference_apis",
         "polygon.options",

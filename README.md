@@ -6,7 +6,7 @@
 `polygon` is a Complete Python Wrapper for [Polygon.io APIs](https://polygon.io/). It offers 
 simple and elegant programmatic access over each endpoint. Functionalities include but not limited to:
 
-- Stocks and Options data
+- Stocks, Index and Options data
 - Forex and Crypto data
 - Real time Websocket streaming (both callback and async based)
 - Technical Indicators (SMA, EMA, RSI, MACD)
@@ -144,7 +144,7 @@ See [Getting Help](https://polygon.readthedocs.io/en/latest/getting_help.html) o
 - [Async support for HTTP endpoints](https://polygon.readthedocs.io/en/latest/Getting-Started.html#async-support-for-rest-endpoints)
 - [Bulk Data Download Functions](https://polygon.readthedocs.io/en/latest/bulk_data_download_functions.html)
 - [Pagination Support](https://polygon.readthedocs.io/en/latest/Getting-Started.html#pagination-support) || [Option Symbology](https://polygon.readthedocs.io/en/latest/Options.html#working-with-option-symbols)
-- [Stocks](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Options](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
+- [Stocks](https://polygon.readthedocs.io/en/latest/Stocks.html) || [Indices](https://polygon.readthedocs.io/en/latest/Indices.html) || [Options](https://polygon.readthedocs.io/en/latest/Options.html) || [Reference APIs](https://polygon.readthedocs.io/en/latest/References.html)
 - [Forex & Crypto](https://polygon.readthedocs.io/en/latest/Forex_Crypto.html)
 - [Callback Streaming](https://polygon.readthedocs.io/en/latest/Callback-Streaming.html) || [Async Streaming](https://polygon.readthedocs.io/en/latest/Async-Streaming.html)
 - [Easy guide to enums](https://polygon.readthedocs.io/en/latest/using_enums.html) || [Library Interface Docs](https://polygon.readthedocs.io/en/latest/Library-Interface-Documentation.html)

@@ -6,6 +6,10 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.2.1` - (2024-08-03)
+
+-  Add Business websocket host as an enum
+
 ## `v1.2.0` - (2024-01-30)
 
 -  Add support for all INDEX endpoints. Available as `IndexClient`

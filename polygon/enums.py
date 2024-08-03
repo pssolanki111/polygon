@@ -402,6 +402,7 @@ class StreamHost(enum.Enum):
     """
 
     REAL_TIME = "socket.polygon.io"
+    BUSINESS = "business.polygon.io"
     DELAYED = "delayed.polygon.io"
 
 

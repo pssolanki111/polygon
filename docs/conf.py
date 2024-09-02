@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "polygon"
-copyright = "2024, P S Solanki"
-author = "P S Solanki"
+copyright = "2024, Pankaj Singh Solanki"
+author = "Pankaj Singh Solanki"
 
 # The full version, including alpha/beta/rc tags
-release = "1.2.1"
+release = "1.2.3"
 
 
 # -- General configuration ---------------------------------------------------

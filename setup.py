@@ -5,7 +5,7 @@ with open("README.md") as file:
 
 setup(
     name="polygon",
-    version="1.2.1",
+    version="1.2.3",
     packages=[
         "polygon",
         "polygon.forex",
@@ -18,8 +18,8 @@ setup(
     ],
     url="https://github.com/pssolanki111/polygon",
     license="MIT",
-    author="P S Solanki",
-    author_email="free_30_day_trial@google.com",
+    author="Pankaj Singh Solanki",
+    author_email="nice_try@fbi.com",
     description="A Complete Python Wrapper for Polygon.io APIs.",
     long_description=long_description,
     long_description_content_type="text/markdown",

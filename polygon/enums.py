@@ -264,6 +264,7 @@ class StreamCluster(enum.Enum):
     OPTIONS = "options"
     FOREX = "forex"
     CRYPTO = "crypto"
+    INDICES = "indices"
 
 
 # Options Contract Type - Common

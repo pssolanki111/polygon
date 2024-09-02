@@ -229,6 +229,8 @@ class StreamClient:
 
             if self._cluster in ["options"]:
                 symbols = ",".join([f"{_prefix}{ensure_prefix(symbol)}" for symbol in symbols])
+            elif self._cluster in ["indices"]:
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix='I:')}" for symbol in symbols])
 
             else:
                 symbols = ",".join([_prefix + symbol.upper() for symbol in symbols])
@@ -647,7 +649,108 @@ class StreamClient:
 
         _prefix = "XL2."
 
-        self._modify_sub(symbols, "subscribe", _prefix)
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
+    # INDICES Streams
+    def subscribe_indices_minute_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time minute aggregates for given index ticker symbol(s).
+
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market.
+                        You can pass the symbols with or without the prefix ``I:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "AM."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_indices_minute_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+
+        _prefix = "AM."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
+    def subscribe_indices_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time second aggregates for given index ticker symbol(s).
+
+        :param symbols: A list of tickers. Default is * which subscribes to ALL tickers in the market.
+                        You can pass the symbols with or without the prefix ``I:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "A."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_indices_second_aggregates(self, symbols: list = None):
+        """Unsubscribe from the stream service for the symbols specified. Defaults to all symbols."""
+
+        _prefix = "A."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
+    def subscribe_index_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time Value for given index ticker symbol
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without the prefix ``I:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+        if self._cluster != 'indices':
+            raise ValueError(f'This method is only available on Indices stream.')
+
+        _prefix = "V."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_indices_value(self, symbols: list = None):
+        """
+        Stream real-time Fair Market Value for given symbols
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without the prefix ``I:``
+        :return: None
+        """
+        if self._cluster != 'indices':
+            raise ValueError(f'This method is only available on Indices stream.')
+
+        _prefix = "V."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
+    def subscribe_fair_market_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time Fair Market Value for given symbols
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without their class prefix (O:, C:, X:, I:)
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "FMV."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_fair_market_value(self, symbols: list = None):
+        """
+        Stream real-time Fair Market Value for given symbols
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without their class prefix (O:, C:, X:, I:)
+        :return: None
+        """
+
+        _prefix = "FMV."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     @staticmethod
     def _default_on_msg(_ws: ws_client.WebSocketApp, msg):

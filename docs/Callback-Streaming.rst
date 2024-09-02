@@ -136,6 +136,20 @@ when closing the application. Not an absolute necessity but a good software prac
 
 **Streams**
 
+Common Streams
+--------------
+
+these streams are available in 4 clusters (stocks, options, forex, crypto) EXCEPT indices
+
+Fair Market Value (FMV)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.streaming.StreamClient.subscribe_fair_market_value
+   :noindex:
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_fair_market_value
+   :noindex:
+
+
 Stocks Streams
 --------------
 
@@ -277,7 +291,32 @@ Crypto Level 2 Book
 .. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_crypto_level2_book
    :noindex:
 
+Indices Streams
+---------------
 
+Minute Aggregates
+~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.streaming.StreamClient.subscribe_indices_minute_aggregates
+   :noindex:
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_indices_minute_aggregates
+   :noindex:
+
+Second Aggregates
+~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.streaming.StreamClient.subscribe_indices_second_aggregates
+   :noindex:
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_indices_second_aggregates
+   :noindex:
+
+Value
+~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.streaming.StreamClient.subscribe_index_value
+   :noindex:
+.. automethod:: polygon.streaming.streaming.StreamClient.unsubscribe_indices_value
+   :noindex:
 
 
 

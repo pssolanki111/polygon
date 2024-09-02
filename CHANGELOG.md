@@ -6,6 +6,11 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
+## `v1.2.3` - (2024-09-02)
+
+-  Add FMV (Fair Market Value) and Value (Indices) on the websocket streaming client
+-  Improve Indices Support for websocket streaming
+
 ## `v1.2.1` - (2024-08-03)
 
 -  Add Business websocket host as an enum

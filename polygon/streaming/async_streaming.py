@@ -7,6 +7,8 @@ from typing import Union
 import websockets as wss
 from enum import Enum
 
+from polygon.streaming.constants import STREAM_CLUSTER_PREFIX_MAP
+
 try:
     import orjson as json
 except ImportError:
@@ -94,13 +96,13 @@ class AsyncStreamClient:
                             equal to asyncio’s default. Don't change if you're unsure what it implies.
         """
 
-        self.KEY, self._market, self._re = api_key, self._change_enum(cluster, str), None
+        self.KEY, self._cluster, self._re = api_key, self._change_enum(cluster, str), None
 
         self.WS, self._subs = None, []
 
         self._apis, self._handlers = self._default_handlers_and_apis()
 
-        self._url, self._attempts = f"wss://{self._change_enum(host, str)}/{self._market}", 0
+        self._url, self._attempts = f"wss://{self._change_enum(host, str)}/{self._cluster}", 0
 
         self._ping_interval, self._ping_timeout = ping_interval, ping_timeout
 
@@ -410,27 +412,22 @@ class AsyncStreamClient:
         if not self._auth:
             await self.login()
 
-        if self._market in ["options"]:
-            if symbols in [None, [], "all"]:
-                symbols = _prefix + "*"
-
-            elif isinstance(symbols, list):
-                if force_uppercase_symbols:
-                    symbols = [symbol.upper() for symbol in symbols]
-
-                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol)}" for symbol in symbols])
-
-        elif symbols in [None, [], "all"]:
+        if symbols in [None, [], "all"]:
             symbols = _prefix + "*"
 
         elif isinstance(symbols, str):
             pass
 
-        elif isinstance(symbols, list):
+        else:
             if force_uppercase_symbols:
-                symbols = [symbol.upper() for symbol in symbols]
+                symbols = [x.upper() for x in symbols]
 
-            symbols = ",".join([_prefix + symbol for symbol in symbols])
+            if self._cluster in ["stocks"]:
+                symbols = ",".join([_prefix + symbol for symbol in symbols])
+            else:
+                cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}"
+                                    for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
@@ -1024,20 +1021,23 @@ class AsyncStreamClient:
 
         await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
 
-    async def subscribe_index_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
+    async def subscribe_index_value(self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Value for given index ticker symbol
 
         :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
                         You can pass in the symbols with or without the prefix ``I:``
+        :param handler_function: The function which you'd want to call to process messages received from this
+                                 subscription. Defaults to None which uses the default process message function.
         :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
-        if self._market != 'indices':
+        if self._cluster != 'indices':
             raise ValueError(f'This method is only available on Indices stream.')
 
         _prefix = "V"
 
+        self._handlers[_prefix] = handler_function
         await self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_index_value(self, symbols: list = None):
@@ -1048,25 +1048,28 @@ class AsyncStreamClient:
                         You can pass in the symbols with or without the prefix ``I:``
         :return: None
         """
-        if self._market != 'indices':
+        if self._cluster != 'indices':
             raise ValueError(f'This method is only available on Indices stream.')
 
         _prefix = "V"
 
         await self._modify_sub(symbols, "unsubscribe", _prefix)
 
-    async def subscribe_fair_market_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
+    async def subscribe_fair_market_value(self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True):
         """
         Stream real-time Fair Market Value for given symbols
 
         :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
                         You can pass in the symbols with or without their class prefix (O:, C:, X:, I:)
+        :param handler_function: The function which you'd want to call to process messages received from this
+                                 subscription. Defaults to None which uses the default process message function.
         :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
 
         _prefix = "FMV"
 
+        self._handlers[_prefix] = handler_function
         await self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_fair_market_value(self, symbols: list = None):

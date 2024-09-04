@@ -6,7 +6,11 @@ Version history is sorted from most recent release to the least recent
 
 ---
 
-## `v1.2.3` - (2024-09-02)
+## `v1.2.4` - (2024-09-04)
+
+-  Fix issues with FMV handler function, and sync client prefixes
+
+## `v1.2.2 & 1.2.3` - (2024-09-02)
 
 -  Add FMV (Fair Market Value) and Value (Indices) on the websocket streaming client
 -  Improve Indices Support for websocket streaming

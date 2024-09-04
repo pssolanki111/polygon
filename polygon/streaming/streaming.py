@@ -6,6 +6,8 @@ from typing import Union
 import websocket as ws_client
 from enum import Enum
 
+from polygon.streaming.constants import STREAM_CLUSTER_PREFIX_MAP
+
 # ========================================================= #
 
 
@@ -227,13 +229,12 @@ class StreamClient:
             if force_uppercase_symbols:
                 symbols = [x.upper() for x in symbols]
 
-            if self._cluster in ["options"]:
-                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol)}" for symbol in symbols])
-            elif self._cluster in ["indices"]:
-                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix='I:')}" for symbol in symbols])
-
+            if self._cluster in ["stocks"]:
+                symbols = ",".join([_prefix + symbol for symbol in symbols])
             else:
-                symbols = ",".join([_prefix + symbol.upper() for symbol in symbols])
+                cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}"
+                                    for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)

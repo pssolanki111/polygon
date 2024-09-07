@@ -233,8 +233,7 @@ class StreamClient:
                 symbols = ",".join([_prefix + symbol for symbol in symbols])
             else:
                 cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
-                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}"
-                                    for symbol in symbols])
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}" for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
@@ -704,8 +703,8 @@ class StreamClient:
         :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
-        if self._cluster != 'indices':
-            raise ValueError(f'This method is only available on Indices stream.')
+        if self._cluster != "indices":
+            raise ValueError(f"This method is only available on Indices stream.")
 
         _prefix = "V."
 
@@ -719,8 +718,8 @@ class StreamClient:
                         You can pass in the symbols with or without the prefix ``I:``
         :return: None
         """
-        if self._cluster != 'indices':
-            raise ValueError(f'This method is only available on Indices stream.')
+        if self._cluster != "indices":
+            raise ValueError(f"This method is only available on Indices stream.")
 
         _prefix = "V."
 

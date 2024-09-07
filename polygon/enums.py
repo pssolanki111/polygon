@@ -430,6 +430,10 @@ class StreamServicePrefix(enum.Enum):
     OPTION_QUOTES = "Q"
     OPTION_MINUTE_AGGREGATES = "AM"
     OPTION_SECOND_AGGREGATES = "A"
+    FAIR_MARKET_VALUE = "FMV"
+    INDICES_MINUTE_AGGREGATES = "AM"
+    INDICES_SECOND_AGGREGATES = "A"
+    INDICES_VALUE = "V"
 
 
 # Timespan - common

@@ -219,7 +219,7 @@ class AsyncStreamClient:
                 handler = self._handlers[msg["ev"]](msg)
 
                 if inspect.isawaitable(handler):
-                    asyncio.create_task(handler)
+                    asyncio.ensure_future(handler)
 
             return
 
@@ -256,7 +256,7 @@ class AsyncStreamClient:
                                 handler = self._handlers[msg["ev"]](msg)
 
                                 if inspect.isawaitable(handler):
-                                    asyncio.create_task(handler)
+                                    asyncio.ensure_future(handler)
 
                             self._re = False
 
@@ -295,7 +295,7 @@ class AsyncStreamClient:
                     handler = self._handlers[msg["ev"]](msg)
 
                     if inspect.isawaitable(handler):
-                        asyncio.create_task(handler)
+                        asyncio.ensure_future(handler)
 
             except wss.ConnectionClosedOK as exc:  # PROD: ensure login errors are turned on
                 print(f"Exception: {str(exc)} || Not attempting reconnection as login/access failed. Terminating...")
@@ -382,6 +382,8 @@ class AsyncStreamClient:
             "XQ": "crypto_quotes",
             "XL2": "crypto_l2",
             "XA": "crypto_agg_min",
+            "FMV": "fair_market_value",
+            "V": "value",
             "status": "status",
         }
 
@@ -426,8 +428,7 @@ class AsyncStreamClient:
                 symbols = ",".join([_prefix + symbol for symbol in symbols])
             else:
                 cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
-                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}"
-                                    for symbol in symbols])
+                symbols = ",".join([f"{_prefix}{ensure_prefix(symbol, _prefix=cluster_prefix)}" for symbol in symbols])
 
         self._subs.append((symbols, action))
         _payload = '{"action":"%s", "params":"%s"}' % (action.lower(), symbols)
@@ -448,11 +449,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "T"
+        _prefix = "T."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_trades(self, symbols: list = None):
         """
@@ -462,9 +463,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "T"
+        _prefix = "T."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_stock_quotes(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -479,11 +480,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "Q"
+        _prefix = "Q."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_quotes(self, symbols: list = None):
         """
@@ -493,9 +494,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "Q"
+        _prefix = "Q."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_stock_minute_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -510,11 +511,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_minute_aggregates(self, symbols: list = None):
         """
@@ -524,9 +525,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_stock_second_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -541,11 +542,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_second_aggregates(self, symbols: list = None):
         """
@@ -555,9 +556,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_stock_limit_up_limit_down(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -572,11 +573,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "LULD"
+        _prefix = "LULD."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_limit_up_limit_down(self, symbols: list = None):
         """
@@ -586,9 +587,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "LULD"
+        _prefix = "LULD."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_stock_imbalances(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -603,11 +604,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "NOI"
+        _prefix = "NOI."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_stock_imbalances(self, symbols: list = None):
         """
@@ -617,9 +618,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "NOI"
+        _prefix = "NOI."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     # OPTIONS Streams
     async def subscribe_option_trades(
@@ -636,11 +637,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "T"
+        _prefix = "T."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_trades(self, symbols: list = None):
         """
@@ -651,9 +652,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "T"
+        _prefix = "T."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_option_quotes(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -669,11 +670,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "Q"
+        _prefix = "Q."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_quotes(self, symbols: list = None):
         """
@@ -684,9 +685,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "Q"
+        _prefix = "Q."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_option_minute_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -702,11 +703,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_minute_aggregates(self, symbols: list = None):
         """
@@ -717,9 +718,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_option_second_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -735,11 +736,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_option_second_aggregates(self, symbols: list = None):
         """
@@ -750,9 +751,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     # FOREX Streams
     async def subscribe_forex_quotes(
@@ -769,11 +770,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "C"
+        _prefix = "C."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_forex_quotes(self, symbols: list = None):
         """
@@ -784,9 +785,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "C"
+        _prefix = "C."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_forex_minute_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -802,11 +803,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "CA"
+        _prefix = "CA."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_forex_minute_aggregates(self, symbols: list = None):
         """
@@ -817,9 +818,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "CA"
+        _prefix = "CA."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     # CRYPTO Streams
     async def subscribe_crypto_trades(
@@ -837,11 +838,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XT"
+        _prefix = "XT."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_trades(self, symbols: list = None):
         """
@@ -853,9 +854,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XT"
+        _prefix = "XT."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_crypto_quotes(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -872,11 +873,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XQ"
+        _prefix = "XQ."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_quotes(self, symbols: list = None):
         """
@@ -888,9 +889,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XQ"
+        _prefix = "XQ."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_crypto_minute_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -907,11 +908,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XA"
+        _prefix = "XA."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_minute_aggregates(self, symbols: list = None):
         """
@@ -923,9 +924,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XA"
+        _prefix = "XA."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_crypto_level2_book(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -942,11 +943,11 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XL2"
+        _prefix = "XL2."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_crypto_level2_book(self, symbols: list = None):
         """
@@ -958,9 +959,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "XL2"
+        _prefix = "XL2."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     # INDICES Streams
     async def subscribe_indices_minute_aggregates(
@@ -977,20 +978,20 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_indices_minute_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream for the supplied ticker symbols.
         """
 
-        _prefix = "AM"
+        _prefix = "AM."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
     async def subscribe_indices_second_aggregates(
         self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
@@ -1006,22 +1007,24 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
 
-        await self._modify_sub(symbols, _prefix=f"{_prefix}.", force_uppercase_symbols=force_uppercase_symbols)
+        await self._modify_sub(symbols, _prefix=_prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_indices_second_aggregates(self, symbols: list = None):
         """
         Unsubscribe from the stream for the supplied ticker symbols.
         """
 
-        _prefix = "A"
+        _prefix = "A."
 
-        await self._modify_sub(symbols, action="unsubscribe", _prefix=f"{_prefix}.")
+        await self._modify_sub(symbols, action="unsubscribe", _prefix=_prefix)
 
-    async def subscribe_index_value(self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True):
+    async def subscribe_index_value(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Stream real-time Value for given index ticker symbol
 
@@ -1032,12 +1035,12 @@ class AsyncStreamClient:
         :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
         :return: None
         """
-        if self._cluster != 'indices':
-            raise ValueError(f'This method is only available on Indices stream.')
+        if self._cluster != "indices":
+            raise ValueError(f"This method is only available on Indices stream.")
 
-        _prefix = "V"
+        _prefix = "V."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
         await self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_index_value(self, symbols: list = None):
@@ -1048,14 +1051,16 @@ class AsyncStreamClient:
                         You can pass in the symbols with or without the prefix ``I:``
         :return: None
         """
-        if self._cluster != 'indices':
-            raise ValueError(f'This method is only available on Indices stream.')
+        if self._cluster != "indices":
+            raise ValueError(f"This method is only available on Indices stream.")
 
-        _prefix = "V"
+        _prefix = "V."
 
         await self._modify_sub(symbols, "unsubscribe", _prefix)
 
-    async def subscribe_fair_market_value(self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True):
+    async def subscribe_fair_market_value(
+        self, symbols: list = None, handler_function=None, force_uppercase_symbols: bool = True
+    ):
         """
         Stream real-time Fair Market Value for given symbols
 
@@ -1067,9 +1072,9 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "FMV"
+        _prefix = "FMV."
 
-        self._handlers[_prefix] = handler_function
+        self._handlers[_prefix.rstrip(".")] = handler_function if handler_function else self._default_process_message
         await self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
 
     async def unsubscribe_fair_market_value(self, symbols: list = None):
@@ -1081,7 +1086,7 @@ class AsyncStreamClient:
         :return: None
         """
 
-        _prefix = "FMV"
+        _prefix = "FMV."
 
         await self._modify_sub(symbols, "unsubscribe", _prefix)
 

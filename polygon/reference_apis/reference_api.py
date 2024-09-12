@@ -360,6 +360,7 @@ class SyncReferenceClient(base_client.BaseClient):
         verbose: bool = False,
         raw_page_responses: bool = False,
         raw_response: bool = False,
+        expired:bool = False,
         as_of_date=None,
     ):
         """
@@ -430,6 +431,7 @@ class SyncReferenceClient(base_client.BaseClient):
             "sort": sort,
             "limit": limit,
             "as_of": as_of_date,
+            "expired": expired
         }
 
         _res = self._get_response(_path, params=_data)

@@ -6,6 +6,10 @@ Version history is sorted from the most recent release to the least recent
 
 ---
 
+## `v1.2.6` - (2024-12-13)
+
+-  Add `expired` parameter on Get Option Contracts endpoint (Reference APIs)
+
 ## `v1.2.5` - (2024-09-07)
 
 -  FMV on the async client is finally fixed.

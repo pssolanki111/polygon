@@ -24,7 +24,7 @@ copyright = "2024, Pankaj Singh Solanki"
 author = "Pankaj Singh Solanki"
 
 # The full version, including alpha/beta/rc tags
-release = "1.2.5"
+release = "1.2.6"
 
 
 # -- General configuration ---------------------------------------------------

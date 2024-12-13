@@ -346,6 +346,7 @@ class SyncReferenceClient(base_client.BaseClient):
         underlying_ticker: str = None,
         ticker: str = None,
         contract_type=None,
+        expired: bool = False,
         expiration_date=None,
         expiration_date_lt=None,
         expiration_date_lte=None,
@@ -369,6 +370,7 @@ class SyncReferenceClient(base_client.BaseClient):
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
         :param contract_type: Query by the type of contract. see :class:`polygon.enums.OptionsContractType` for choices
+        :param expired: Set to True to query for expired contracts. Defaults to False.
         :param expiration_date: Query by contract expiration date. either ``datetime``, ``date`` or string
                                 ``YYYY-MM-DD``
         :param expiration_date_lt: expiration date less than given value
@@ -430,6 +432,7 @@ class SyncReferenceClient(base_client.BaseClient):
             "sort": sort,
             "limit": limit,
             "as_of": as_of_date,
+            "expired": expired,
         }
 
         _res = self._get_response(_path, params=_data)
@@ -1443,6 +1446,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         underlying_ticker: str = None,
         ticker: str = None,
         contract_type=None,
+        expired: bool = False,
         expiration_date=None,
         expiration_date_lt=None,
         expiration_date_lte=None,
@@ -1466,6 +1470,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
         :param underlying_ticker: Query for contracts relating to an underlying stock ticker.
         :param ticker: Query for a contract by option ticker.
         :param contract_type: Query by the type of contract. see :class:`polygon.enums.OptionsContractType` for choices
+        :param expired: Set to true to query for expired contracts. Defaults to False.
         :param expiration_date: Query by contract expiration date. either ``datetime``, ``date`` or string
                                 ``YYYY-MM-DD``
         :param expiration_date_lt: expiration date less than given value
@@ -1527,6 +1532,7 @@ class AsyncReferenceClient(base_client.BaseAsyncClient):
             "sort": sort,
             "limit": limit,
             "as_of": as_of_date,
+            "expired": expired,
         }
 
         _res = await self._get_response(_path, params=_data)

@@ -15,6 +15,7 @@ from .options import (
 )
 from .reference_apis import ReferenceClient
 from .stocks import StocksClient
+from .indices import IndexClient
 from .streaming import StreamClient, AsyncStreamClient
 
 # ========================================================= #

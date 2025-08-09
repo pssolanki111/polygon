@@ -751,8 +751,19 @@ class AsyncIndexClient(base_client.BaseAsyncClient):
     e.g.: ``from polygon import IndexClient`` or ``import polygon`` (which allows you to access all names easily)
     """
 
-    def __init__(self, api_key: str, connect_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(api_key, connect_timeout, read_timeout)
+    def __init__(
+            self,
+            api_key: str,
+            connect_timeout: int = 10,
+            read_timeout: int = 10,
+            pool_timeout: int = 10,
+            max_connections: int = None,
+            max_keepalive: int = None,
+            write_timeout: int = 10,
+    ):
+        super().__init__(
+            api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout
+        )
 
     async def get_previous_close(self, symbol: str, raw_response: bool = False):
         """

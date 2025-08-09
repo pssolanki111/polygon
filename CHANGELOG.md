@@ -6,6 +6,10 @@ Version history is sorted from the most recent release to the least recent
 
 ---
 
+## `v1.2.7` - (2025-08-09)
+
+-  Fix missing import for IndexClient and bad AsyncIndexClient __init__ signature.
+
 ## `v1.2.6` - (2024-12-13)
 
 -  Add `expired` parameter on Get Option Contracts endpoint (Reference APIs)

@@ -752,14 +752,14 @@ class AsyncIndexClient(base_client.BaseAsyncClient):
     """
 
     def __init__(
-            self,
-            api_key: str,
-            connect_timeout: int = 10,
-            read_timeout: int = 10,
-            pool_timeout: int = 10,
-            max_connections: int = None,
-            max_keepalive: int = None,
-            write_timeout: int = 10,
+        self,
+        api_key: str,
+        connect_timeout: int = 10,
+        read_timeout: int = 10,
+        pool_timeout: int = 10,
+        max_connections: int = None,
+        max_keepalive: int = None,
+        write_timeout: int = 10,
     ):
         super().__init__(
             api_key, connect_timeout, read_timeout, pool_timeout, max_connections, max_keepalive, write_timeout

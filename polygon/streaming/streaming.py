@@ -229,7 +229,7 @@ class StreamClient:
             if force_uppercase_symbols:
                 symbols = [x.upper() for x in symbols]
 
-            if self._cluster in ["stocks"]:
+            if self._cluster in ["stocks", "forex", "crypto"]:  # These do not require a symbol prefix
                 symbols = ",".join([_prefix + symbol for symbol in symbols])
             else:
                 cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
@@ -250,6 +250,36 @@ class StreamClient:
 
         except Exception:
             raise
+
+    # COMMON Streams
+    def subscribe_fair_market_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time Fair Market Value for given symbols.
+        This method can be used to subscribe to any asset classes between stocks, options, crypto and forex.
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without their class prefix (O:, I:)
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "FMV."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_fair_market_value(self, symbols: list = None):
+        """
+        Stream real-time Fair Market Value for given symbols
+        This method can be used to unsubscribe from any asset classes between stocks, options, crypto and forex.
+
+        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
+                        You can pass in the symbols with or without their class prefix (O:, I:)
+        :return: None
+        """
+
+        _prefix = "FMV."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
 
     # STOCKS Streams
     def subscribe_stock_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
@@ -534,6 +564,32 @@ class StreamClient:
 
         self._modify_sub(symbols, "unsubscribe", _prefix)
 
+    def subscribe_forex_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time forex Second Aggregates for given forex pair(s).
+
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example, ``USD/CNH``.
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "CAS."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_forex_second_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe from the stream service for the symbols specified. Defaults to all symbols.
+
+        :param symbols: A list of forex tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from/to``. For example, ``USD/CNH``.
+        """
+
+        _prefix = "CAS."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
     # CRYPTO Streams
     def subscribe_crypto_trades(self, symbols: list = None, force_uppercase_symbols: bool = True):
         """
@@ -619,6 +675,35 @@ class StreamClient:
         """
 
         _prefix = "XA."
+
+        self._modify_sub(symbols, "unsubscribe", _prefix)
+
+    def subscribe_crypto_second_aggregates(self, symbols: list = None, force_uppercase_symbols: bool = True):
+        """
+        Stream real-time Second Aggregates for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
+        :return: None
+        """
+
+        _prefix = "XAS."
+
+        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
+
+    def unsubscribe_crypto_second_aggregates(self, symbols: list = None):
+        """
+        Unsubscribe real-time Second aggregates for given cryptocurrency pair(s).
+
+        :param symbols: A list of Crypto tickers. Default is * which subscribes to ALL tickers in the market.
+                        each Ticker must be in format: ``from-to``. For example: ``BTC-USD``. you can pass symbols
+                        with or without the prefix ``X:``
+        :return: None
+        """
+
+        _prefix = "XAS."
 
         self._modify_sub(symbols, "unsubscribe", _prefix)
 
@@ -722,33 +807,6 @@ class StreamClient:
             raise ValueError(f"This method is only available on Indices stream.")
 
         _prefix = "V."
-
-        self._modify_sub(symbols, "unsubscribe", _prefix)
-
-    def subscribe_fair_market_value(self, symbols: list = None, force_uppercase_symbols: bool = True):
-        """
-        Stream real-time Fair Market Value for given symbols
-
-        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
-                        You can pass in the symbols with or without their class prefix (O:, C:, X:, I:)
-        :param force_uppercase_symbols: Set to ``False`` if you don't want the library to make all symbols upper case
-        :return: None
-        """
-
-        _prefix = "FMV."
-
-        self._modify_sub(symbols, "subscribe", _prefix, force_uppercase_symbols=force_uppercase_symbols)
-
-    def unsubscribe_fair_market_value(self, symbols: list = None):
-        """
-        Stream real-time Fair Market Value for given symbols
-
-        :param symbols: A list of symbols. Defaults to ALL symbols using `*` notation.
-                        You can pass in the symbols with or without their class prefix (O:, C:, X:, I:)
-        :return: None
-        """
-
-        _prefix = "FMV."
 
         self._modify_sub(symbols, "unsubscribe", _prefix)
 

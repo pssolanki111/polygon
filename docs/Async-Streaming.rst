@@ -276,6 +276,15 @@ Forex Minute Aggregates (OCHLV)
 .. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_forex_minute_aggregates
    :noindex:
 
+
+Forex Minute Aggregates (OCHLV)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_forex_second_aggregates
+   :noindex:
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_forex_second_aggregates
+   :noindex:
+
 Crypto Streams
 --------------
 
@@ -301,6 +310,14 @@ Crypto Minute Aggregates (OCHLV)
 .. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_minute_aggregates
    :noindex:
 .. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_minute_aggregates
+   :noindex:
+
+Crypto Second Aggregates (OCHLV)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.subscribe_crypto_second_aggregates
+   :noindex:
+.. automethod:: polygon.streaming.async_streaming.AsyncStreamClient.unsubscribe_crypto_second_aggregates
    :noindex:
 
 Crypto Level 2 Book

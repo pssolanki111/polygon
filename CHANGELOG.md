@@ -6,6 +6,11 @@ Version history is sorted from the most recent release to the least recent
 
 ---
 
+## `v1.2.8` - (2025-08-29)
+
+-  Add new streams - crypto second aggregates and forex second aggregates
+-  Fix issue with stream client for mishandling prefix for crypto and forex - Thanks to @yarimiz for contributing.
+
 ## `v1.2.7` - (2025-08-09)
 
 -  Fix missing import for IndexClient and bad AsyncIndexClient __init__ signature.

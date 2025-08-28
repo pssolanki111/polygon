@@ -424,7 +424,7 @@ class AsyncStreamClient:
             if force_uppercase_symbols:
                 symbols = [x.upper() for x in symbols]
 
-            if self._cluster in ["stocks"]:
+            if self._cluster in ["stocks", "forex"]:
                 symbols = ",".join([_prefix + symbol for symbol in symbols])
             else:
                 cluster_prefix = STREAM_CLUSTER_PREFIX_MAP[self._cluster]
